@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Hugo 0.92.2" />
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="cavefxa" />
+  <meta property="og:url" content="https://cavefxa.com/posts/router-hacking0/" />
+  <link rel="canonical" href="https://cavefxa.com/posts/router-hacking0/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+
+  <script type="application/ld+json">
+  {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+           "@type": "WebPage",
+           "@id": "https:\/\/cavefxa.com"
+      },
+      "articleSection" : "posts",
+      "name" : "TP-Link WR720N - CVE-2023-24362(1): Loading...",
+      "headline" : "TP-Link WR720N - CVE-2023-24362(1): Loading...",
+      "description" : "Preface This blog post, and the ones following it, will be discussing how I did vulnerability research on a router - specifically the model TL-WR720N. I have never done embedded vulnerability research before this, and that might be reflected in the post. The posts will be chronological from beginning to end. Enjoy! (Also no, ChatGPT did not write this)\nGetting started Picking a target To begin doing embedded vulnerability research, it\u0026rsquo;s quite nice to have a lot of tools.",
+      "inLanguage" : "en-US",
+      "author" : "cavefxa",
+      "creator" : "cavefxa",
+      "publisher": "cavefxa",
+      "accountablePerson" : "cavefxa",
+      "copyrightHolder" : "cavefxa",
+      "copyrightYear" : "2023",
+      "datePublished": "2023-02-17 11:37:00 \u002b0100 CET",
+      "dateModified" : "2023-02-17 11:37:00 \u002b0100 CET",
+      "url" : "https:\/\/cavefxa.com\/posts\/router-hacking0\/",
+      "keywords" : [  ]
+  }
+</script>
+<title>TP-Link WR720N - CVE-2023-24362(1): Loading...</title>
+  <meta property="og:title" content="TP-Link WR720N - CVE-2023-24362(1): Loading..." />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="Preface This blog post, and the ones following it, will be discussing how I did vulnerability research on a router - specifically the model TL-WR720N. I have never done embedded vulnerability research before this, and that might be reflected in the post. The posts will be chronological from beginning to end. Enjoy! (Also no, ChatGPT did not write this)
+Getting started Picking a target To begin doing embedded vulnerability research, it&amp;rsquo;s quite nice to have a lot of tools." />
+  <meta name="description" content="Preface This blog post, and the ones following it, will be discussing how I did vulnerability research on a router - specifically the model TL-WR720N. I have never done embedded vulnerability research before this, and that might be reflected in the post. The posts will be chronological from beginning to end. Enjoy! (Also no, ChatGPT did not write this)
+Getting started Picking a target To begin doing embedded vulnerability research, it&amp;rsquo;s quite nice to have a lot of tools." />
+  <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
+  
+
+  
+    <style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:900px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}pre{.l { color: #000000 !important; }}.markdown-body code{padding:.2em .4em;font-size:85%;color:#43494d;border-radius:6px}.highlight pre{background-color:#fff!important}.markdown-body pre>code{padding:0;font-size:100%;color:#171b1f;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+  
+  
+    <style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+  
+
+  
+
+  <link href="/index.xml" rel="alternate" type="application/rss+xml"
+    title="cavefxa">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel="stylesheet">
+  
+  
+
+  
+  
+</head>
+
+
+<body>
+  <article class="post " id="article">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="site-header">
+          
+<header>
+  <div class="header-title">
+    <a href="/"
+      >cavefxa</a
+    >
+  </div>
+  <div class="header-subtitle"></div>
+</header>
+<div class="row end-md center-xs header-items">
+  
+  <div class="header-item">
+    <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+  
+</div>
+<div class="row end-xs">
+   
+</div>
+<div class="header-line"></div>
+
+        </div>
+        <header class="post-header">
+          <h1 class="post-title">TP-Link WR720N - CVE-2023-24362(1): Loading...</h1>
+          
+          <div class="row post-desc">
+            <div class="col-xs-6">
+              
+              <time class="post-date" datetime="2023-02-17 11:37:00 CET">
+                17 Feb 2023
+              </time>
+              
+            </div>
+            <div class="col-xs-6">
+              
+              <div class="post-author">
+                <a target="_blank" href="https://cavefxa.com/">@cavefxa</a>
+              </div>
+              
+            </div>
+          </div>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="preface">Preface</h1>
+<p>This blog post, and the ones following it, will be discussing how I did vulnerability research on a router - specifically the model TL-WR720N. I have never done embedded vulnerability research before this, and that might be reflected in the post. The posts will be chronological from beginning to end. Enjoy! (Also no, ChatGPT did not write this)</p>
+<h1 id="getting-started">Getting started</h1>
+<h3 id="picking-a-target">Picking a target</h3>
+<p>To begin doing embedded vulnerability research, it&rsquo;s quite nice to have a lot of tools. Specifically a soldering iron, multimeter, UART cable, JTAG, reflow station, etc. I however had nothing when I begun this project, and I still only have, not even, the bare essentials. Regardless I made it work, by borrowing, and biking around town to find tools I could use for free. Thanks to everyone helping me with tooling:)</p>
+<p>The <em>project</em> began mid December, when I was home at my parents during Christmas vacation. During this time, I went to a thrift store near me, and picked up a router, an ethernet cable, and a power supply. The purchase set me back $4 total.</p>
+<p>Luckily the firmware was already on the TP-Link <a href="https://www.tp-link.com/us/support/download/tl-wr720n/v1/#Firmware">website</a>. This is both amazing, and a bit disappointing. This means that we won&rsquo;t get to dump the firmware off the physical hardware, which could&rsquo;ve been fun.</p>
+<h3 id="taking-it-apart">Taking it apart</h3>
+<p>I still wanted to take the device apart. I wouldn&rsquo;t be dumping the firmware, but I still might need to get <a href="https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter">UART</a> on the device. UART stands for Universal Asynchronous Receiver/Transmitter, and is a communication protocol described by RS-232 (Recommended Standard 232). For a lot of routers this will at some point give a serial terminal. We can often run commands on those, that will help us analyze what&rsquo;s happening on the system. We will look at UART in-depth in a later post regarding this project. For now however, let&rsquo;s take it apart.</p>
+<p><img src="/pictures/tplink-components.png" alt="components"></p>
+<p>Let&rsquo;s start by noting, that we do see the classical UART through-holes in the top right. In the middle we see the System-on-a-Chip or SOC, specifically it&rsquo;s the <a href="https://deviwiki.com/wiki/Atheros_AR9331">Atheros AR9331</a>. It&rsquo;s responsible for all the same things as a CPU, but also has built-in RAM, and support for 802.11 WLAN. The CPU is a MIPS 32Kc which is a 32-bit RISC core, that is, a reduced instruction set. It has additional ram in the form of a Winbond W9412G6JH-S. Furhtermore, it houses a small mounted antenna, and lots of other interesting components.</p>
+<h3 id="firmware-analysis">Firmware Analysis</h3>
+<p>We start by trying to understand the firmware. In embedded systems, the firmware is stored on the flash memory chip. In our case the cFeon FLASH SPI EEPROM chip, seen on the picture above. It&rsquo;s specialized software made for running on the embedded system. Let us start by running <code>binwalk</code> on the firmware:</p>
+<pre tabindex="0"><code>$ binwalk wr720nv1-en-up.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+---------------------------------------------------------------------------
+20            0x14            IMG0 (VxWorks) header, size: 1556064
+26740         0x6874          VxWorks operating system version &quot;5.5.1&quot; , compiled: &quot;Jun 18 2013, 12:19:11&quot;
+26836         0x68D4          LZMA compressed data, properties: 0x6E, dictionary size: 8388608 bytes, uncompressed size: 636256 bytes
+262292        0x40094         IMG0 (VxWorks) header, size: 1293792
+262420        0x40114         LZMA compressed data, properties: 0x6E, dictionary size: 8388608 bytes, uncompressed size: 3645552 bytes
+1253300       0x131FB4        Wind River management filesystem, compressed, 194 files
+(...) Omitted for brevity
+</code></pre><p>There&rsquo;s a few things to address here. Let&rsquo;s start from the top. We see that the description of the first element is <code>IMG0 (VxWorks) header, size: 1556064</code>. Then at the second element we&rsquo;re given a hint that <code>VxWorks</code> is a type of operating system, and that it&rsquo;s running version 5.5.1. We can also see that there&rsquo;s apparently a file system <code>Wind River management filesystem</code>. Using <code>dd if=tplinkfirmware-wr720nv1.bin of=test bs=1 skip=1253300 count=9356</code> we can extract some files from the file system. The <code>dd</code> command did not extract all the files from the file system; instead, it created a text file that contains a list of the files that exist on the system.</p>
+<pre tabindex="0"><code>owowowowowowowowowowowowowowowowecommon.js
+$css_help.cssT/css_main.cssb1Pcustom.js4menu.js5Dtop.htm=
+AccessCtrlAccessRuleModifyHelpRpm.htmJ@AccessCtrlAccessRulesAdvHelpRpm.htm
+CAccessCtrlAccessRulesHelpRpm.htm/EAccessCtrlAccessTargetsAdvHelpRpm.htm
+NKDAccessCtrlAccessTargetsHelpRpm.htmNAccessCtrlHostsListsAdvHelpRpm.htm
+4RpAccessCtrlHostsListsHelpRpm.htmTAccessCtrlTimeSchedAdvHelpRpm.htm$X|
+AccessCtrlTimeSchedHelpRpm.htmZAssignedIpAddrListHelpRpm.htm^AutoEmailHelpRpm.htm`TBackNRestoreHelpRpm.htm
+bChangeLoginPwdHelpRpm.htmd DateTimeCfgHelpRpm.htmeDdnsAddComexeHelpRpm.htm&lt;hDdnsAddHelpRpm.htm
+      l DMZHelpRpm.htmo,DomainFilterHelpRpm.htm&lt;q,DynDdnsHelpRpm.htmbuhFireWallHelpRpm.htm
+xFixMapCfgHelpRpm.htm.zL2tpCfgHelpRpm.htma}LanArpBindingHelpRpm.htmLanArpBindingListHelpRpm.htm
+nLLanDhcpServerHelpRpm.htmLanMacFilterHelpRpm.htm@LocalManageControlHelpRpm.htm`MacCloneCfgHelpRpm.htm
+ManageControlHelpRpm.htmMiscAdvHelpRpm.htm.HMiscHelpRpm.htmfxNetworkCfgHelpRpm.htmNetworkLanCfgHelpRpm.htm
+yNoipDdnsHelpRpm.htmhParentCtrlAdvHelpRpm.htmxParentCtrlHelpRpm.htm
+</code></pre><p>This gives some interesting information that we can note for later. As most of these are <code>.htm</code> files, it&rsquo;s likely that they will be endpoints in the routers web panel. Using <code>binwalk --dd=&quot;.*&quot;</code> we can extract more files from the firmware. We can look at the output more in-depth.</p>
+<p>Let&rsquo;s start by addressing the first element, we were told that it was an operating system called <a href="https://en.wikipedia.org/wiki/VxWorks">VxWorks</a>. VxWorks is a so-called &ldquo;RTOS&rdquo; or <a href="https://en.wikipedia.org/wiki/Real-time_operating_system">Real-Time Operating System</a>. An RTOS is made specifically for real-time applications, that has critical time constraints, or handles events that does. They do this by assigning a hierarchy of priorities. Tasks are then run dependent on which is prioritised the most. To run the low priority tasks aswell, the RTOS can block the higher priority tasks, by delaying it, such that adequate time can be given to other tasks.</p>
+<p>The most interesting files I wanted to look at were 68D4, and 40114. This is due to the fact, that these were large LZMA compressed data regions, as we can see from our previous binwalk result. Running <code>file</code> to get information about the type of data residing therein, just yields some sort of &ldquo;data&rdquo; for both of these. Trying to open these in Binary Ninja, it auto-registers as <code>mips32</code>. However these standalone &ldquo;binaries&rdquo;, don&rsquo;t really provide much insight, as they&rsquo;re consequently referring to memory, that is not mapped. This means that we&rsquo;ll have to find out how to load them together. For this we will write a Binary Ninja loader using their scripting API.</p>
+<h1 id="loading-the-firmware">Loading the firmware</h1>
+<h3 id="whats-a-loader">What&rsquo;s a loader?</h3>
+<p>When opening a PE or ELF in a tool like Binary Ninja, the tool needs to figure out what it&rsquo;s looking at. These file formats are thoroughly documented, and that makes it a lot easier to load them. Regardless, someone still wrote a loader. That&rsquo;s what we&rsquo;ll have to do now aswell. The loader will be responsible for mapping specific data offsets into memory as read-write, executable, and so on. We can try visualizing it.</p>
+<p><img src="/pictures/loader.png" alt="loader"></p>
+<p>On a high level, that&rsquo;s what a loader does. We will be decompressing the LZMA archives, and then mapping them appropriately into memory. We need to map the ASCII strings found at the end of a code file to a data section. Then we can try guessing the ram base, but this is not too important.</p>
+<h3 id="requiring-information">Requiring information</h3>
+<p>When requiring information of any kind, we&rsquo;re used to going to a search engine, to take the first steps. This is no different. I found a fantastic blog post on the Quarkslab <a href="https://blog.quarkslab.com/reverse-engineering-a-vxworks-os-based-router.html">blog</a> which I recommend checking out. I was at first a bit discouraged, because the author writes &ldquo;I conducted a session to search for vulnerabilities but it wasn&rsquo;t succesful&rdquo;. Hopefully (wink wink) we&rsquo;ll find some. From the post, we can see that when the LZMA data is decompressed and loaded into memory, it will be loaded at address <code>0x80001000</code>. This is also documented in the VxWorks <a href="https://www.uio.no/studier/emner/matnat/fys/FYS4220/h11/undervisningsmateriale/laboppgaver-rt/vxworks_bsp_developers_guide_6.0.pdf">developer manual</a>. Now it&rsquo;s not the same model, but it is VxWorks also running an Atheros MIPS SOC. We&rsquo;ll also need to figure out where the other decompressed LZMA archive loads at. To do this I tried to use a tool called <a href="https://github.com/quarkslab/binbloom">binbloom</a>. Binbloom is a super neat tool that can parse a raw binary firmware and determine its loading address, among other features. Running it on the files I was initially surprised to see that the first LZMA archive <code>68D4</code>, was found to have its base address at <code>0x80400000</code>. Under that assumption I thought that the second LZMA archive <code>40114</code> must be loaded first, at <code>0x80001000</code>. The fact that the first LZMA loads secondly, is also drawn above. Now I noticed that there was strings in <code>40114</code>, at offset <code>0x2c5a30</code>. Now we have our data segment. To clarify, this data section begins at the base address added with said offset from before. Binary Ninja needs to know how large these segments are. We can simply use <code>binwalk</code> for a crude way of checking this. It&rsquo;ll be done like so:</p>
+<pre tabindex="0"><code>Binwalk results - determining size
+---------------------------------------
+26836         0x68D4         &lt;--|
+262292        0x40094        &lt;--|---- Subtract size = code0_size
+
+262420        0x40114        &lt;--|
+1253300       0x131FB4       &lt;--|---- Subtract size = code1_size
+</code></pre><h3 id="writing-the-loader">Writing the loader</h3>
+<p>Using the Binary Ninja API we can write a rudimentary loader. The loader can be seen on my <a href="https://github.com/cavetownie">Github</a>, in the TP-Link WR720N repository. We&rsquo;ll need a LZMADecompressor to decompress the LZMA, and then we need to create our loader class.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Inherits from the BinaryView class</span>
+<span style="color:#00f">class</span> <span style="color:#2b91af">TPLinkRTOS</span>(BinaryView):
+    name = <span style="color:#a31515">&#34;TPLinkRTOS&#34;</span>
+    long_name = <span style="color:#a31515">&#34;TP Link Router RTOS&#34;</span>
+
+    <span style="color:#00f">def</span> __init__(self, data):
+        BinaryView.__init__(self, file_metadata=data.file, 
+                            parent_view=data) <span style="color:#008000"># Initializes a BinaryView</span>
+        self.raw = data <span style="color:#008000"># Get the data, i.e. what&#39;s loaded</span>
+        self.br = BinaryReader(data) <span style="color:#008000"># Create BinaryReader</span>
+</code></pre></div><p>This is the start of the class, and is important for creating our loader. We&rsquo;ll also make a function to clarify the endianness:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00f">def</span> perform_get_default_endianness(self):
+    <span style="color:#00f">return</span> Endianness.BigEndian
+</code></pre></div><p>So far we&rsquo;ve practically just made a glorified file open. We&rsquo;ll need something utilizing all the neat features of the API. We can begin by using some of the Architectures that they&rsquo;ve made. That way it will begin trying to look at the data as mips.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Primary function</span>
+<span style="color:#00f">def</span> init(self):
+    self.platform = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>].standalone_platform
+    self.arch = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>]
+</code></pre></div><p>Now we&rsquo;re going to handle the data. We start by first decompressing the LZMA archives. We&rsquo;ll also need to put the decompressed data somewhere, and we&rsquo;ll put it at the end of the current file.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">code0_addr = self.raw.end <span style="color:#008000"># Append to end of file</span>
+code0_lzma = self.raw.read(code0_begin, size_code0)
+code0_data = LZMADecompressor().decompress(code0_lzma)
+self.raw.write(code0_addr, code0_data)
+</code></pre></div><p>There&rsquo;s not too much more to creating a loader, of course, a lot of syntax has been left out here, but the general principles are simple. To finish we&rsquo;ll use the <code>add_auto_segment</code> and <code>add_auto_section</code> functions. This step is crucial as we are now allocating memory segments and assigning properties to them such as readability and writability etc.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Add memory segments to binary view for code0</span>
+<span style="color:#008000"># add_auto_segment(start: int, length: int, data_offset: int, data_length: int, flags: SegmentFlag)→ None</span>
+
+self.add_auto_segment(code0_base, len(code0_data), code0_addr, len(code0_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
+self.add_auto_section(<span style="color:#a31515">&#34;.code0&#34;</span>, code0_base, len(code0_data), SectionSemantics.ReadOnlyCodeSectionSemantics)
+
+<span style="color:#008000"># Add memory segments to binary view for code1</span>
+self.add_auto_segment(code1_base, code0_base - code1_base, code1_addr, len(code1_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
+code2s_size = 0x2c5a30
+self.add_auto_section(<span style="color:#a31515">&#34;.code1&#34;</span>, code1_base, code2s_size, SectionSemantics.ReadOnlyCodeSectionSemantics)
+
+
+<span style="color:#008000"># Add data segment to binary view</span>
+self.add_auto_section(<span style="color:#a31515">&#34;.data1&#34;</span>, data1, code0_base - data1, SectionSemantics.ReadWriteDataSectionSemantics)
+self.add_auto_section(<span style="color:#a31515">&#34;.data2&#34;</span>, data2, code0_base - data2, SectionSemantics.ReadWriteDataSectionSemantics)
+
+self.add_auto_segment(ram_base, 0x100000, 0, 0, SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsData|SegmentFlag.SegmentWritable)
+self.add_auto_section(<span style="color:#a31515">&#34;.ram&#34;</span>, ram_base, 0x100000, SectionSemantics.ReadWriteDataSectionSemantics)
+</code></pre></div><p>That&rsquo;s it! We&rsquo;ve now practically created a loader. The last thing we have to do is register it. Name it <code>__init__.py</code> and place it in <code>/plugins</code> folder. Suddenly we can see code, that properly references itself, and the strings!</p>
+<h1 id="before-and-after-the-loader">Before and after the loader</h1>
+<p>Before the loader, the binary firmware file, doesn&rsquo;t give any decompilation or disassembly. It&rsquo;s simply not able to parse the proprietary file format.
+<img src="/pictures/loader_pre_black.png" alt="loader"></p>
+<p>After we&rsquo;ve made the loader, opening the exact same file, we get proper decompilation, with arguments and string references. We do notice, that we have no symbols, which is a bit tedious - regardless:</p>
+<p><img src="/pictures/loader_after_black.png" alt="loader"></p>
+<h1 id="wrapping-up">Wrapping up</h1>
+<p>The project is too large to be contained in one post. For that reason I decided to split it into multiple. This part was the initial process, that allowed for getting something to reverse engineer. There&rsquo;s still lots to go through.</p>
+<h1 id="references">References:</h1>
+<p>[0]: <a href="https://www.tp-link.com/us/support/download/tl-wr720n/v1/#Firmware">https://www.tp-link.com/us/support/download/tl-wr720n/v1/#Firmware</a> <br>
+[1]: <a href="https://deviwiki.com/wiki/Atheros_AR9331">https://deviwiki.com/wiki/Atheros_AR9331</a> <br>
+[2]: <a href="https://en.wikipedia.org/wiki/VxWorks">https://en.wikipedia.org/wiki/VxWorks</a> <br>
+[3]: <a href="https://en.wikipedia.org/wiki/Real-time_operating_system">https://en.wikipedia.org/wiki/Real-time_operating_system</a> <br>
+[4]: <a href="https://blog.quarkslab.com/reverse-engineering-a-vxworks-os-based-router.html">https://blog.quarkslab.com/reverse-engineering-a-vxworks-os-based-router.html</a> <br>
+[5]: <a href="https://github.com/quarkslab/binbloom">https://github.com/quarkslab/binbloom</a> <br>
+[6]: <a href="https://github.com/cavetownie">https://github.com/cavetownie</a> <br>
+[7]: <a href="https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter">https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter</a> <br>
+[8]: <a href="https://www.uio.no/studier/emner/matnat/fys/FYS4220/h11/undervisningsmateriale/laboppgaver-rt/vxworks_bsp_developers_guide_6.0.pdf">https://www.uio.no/studier/emner/matnat/fys/FYS4220/h11/undervisningsmateriale/laboppgaver-rt/vxworks_bsp_developers_guide_6.0.pdf</a> [Page: 105]</p>
+
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
+          <div class="row">
+            <div class="col-xs-12">
+              
+            </div>
+          </div>
+
+          
+
+
+
+          
+          
+          <div style="height: 50px;"></div>
+          
+        
+
+        <div class="site-footer">
+  
+  
+</div>
+
+      </div>
+    </div>
+  </article>
+
+  
+
+<script>
+  
+  
+    
+    
+  
+</script>
+
+  
+
+</body>
+
+</html>
