@@ -5,8 +5,6 @@ date: 2021-05-23T18:03:05+02:00
 
 # Stack
 
-Test of Github Actions, building site!!
-
 Memory is divided into three regions:
 **Data**, **Text**, and **Stack**
 
