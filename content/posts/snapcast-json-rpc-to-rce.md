@@ -1,6 +1,6 @@
 ---
 title: 'Snapcast (v0.27.0): JSON RPC to RCE!'
-date: 2023-10-05T10:44:00.000Z
+date: 2023-11-27T19:29:00.000Z
 ---
 # Table of Contents
 
