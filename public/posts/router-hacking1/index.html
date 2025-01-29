@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -127,51 +127,51 @@ Bug hunting Getting the lay of the land I started by playing around with the web
 Often the diagnostics tools, are especially interesting. In older routers, and lots of poorly programmed devices, they just insert the command into the commandline, and it is then being executed on the underlying system. We could try command injection - but, we have one big issue. We&rsquo;re not running Linux, we can&rsquo;t just run <code>/bin/bash</code> or any cool commands - So what do we do? However I still didn&rsquo;t want to give up testing the ping functionality, so I went and manually fuzzed that first.
 <img src="/pictures/ping_dos_ui.png" alt="pingdos">
 We have a ping count, a packet size, and a timeout. We can also use the traceroute tool. Manually messing with it, putting <code>%s</code>, <code>%1000$s</code>, trying to get a crash, didn&rsquo;t work. User input was limited, and I could not put in packet sizes over 1472 or below 4. However these checks are only made in the frontend. This means that we can intercept the request, just after the frontend has approved the request, and then change it there. We can use a tool like Burp Suite for this. After testing a few different things, I noticed something weird. I wasn&rsquo;t getting any responses in Burp anymore. I tried pinging the device from my own host, and it said host unreachable. After a bit of debugging I found out I had found the first bug, a DOS (Denial-of-Service). This was done so, changing the packet size to a really large number. Below the very simple PoC can be seen. We&rsquo;ll see exactly where in the code, this is triggered later, to see if we can exploit it.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000">###</span>
-<span style="color:#008000"># PoC - Ping DOS (TP-LINK WR720N)</span>
-<span style="color:#008000">### </span>
-
-<span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
-
-io = remote(<span style="color:#a31515">&#34;192.168.0.1&#34;</span>, 80) 
-
-req = <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;GET /userRpm/PingIframeRpm.htm?ping_addr=127.0.0.1&amp;doType=ping&amp;isNew=new&amp;sendNum=4&amp;pSize=132323232&amp;overTime=800&amp;trHops=20 HTTP/1.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Host: 192.168.0.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Authorization: Basic YWRtaW46YWRtaW4=</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Connection: close</span><span style="color:#a31515">\r\n\r\n</span><span style="color:#a31515">&#34;&#34;&#34;</span>
-
-io.send(req)
-io.interactive()
-</code></pre></div><h2 id="reversing-the-firmware-and-discovering-the-cause">Reversing the firmware, and discovering the cause</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000">###</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># PoC - Ping DOS (TP-LINK WR720N)</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">### </span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = remote(<span style="color:#a31515">&#34;192.168.0.1&#34;</span>, 80) 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>req = <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;GET /userRpm/PingIframeRpm.htm?ping_addr=127.0.0.1&amp;doType=ping&amp;isNew=new&amp;sendNum=4&amp;pSize=132323232&amp;overTime=800&amp;trHops=20 HTTP/1.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Host: 192.168.0.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Authorization: Basic YWRtaW46YWRtaW4=</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Connection: close</span><span style="color:#a31515">\r\n\r\n</span><span style="color:#a31515">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io.send(req)
+</span></span><span style="display:flex;"><span>io.interactive()
+</span></span></code></pre></div><h2 id="reversing-the-firmware-and-discovering-the-cause">Reversing the firmware, and discovering the cause</h2>
 <p>We&rsquo;re making a GET request to the endpoint <code>/userRPM/PingIframeRpm.htm</code>. This is going to be present in the code somewhere. We&rsquo;ll try looking for strings that contain this in Binary Ninja.
 <img src="/pictures/wotter.png" alt="pingiframe"></p>
 <p>We&rsquo;ve now found an interesting part. We want to figure out how this relates to the ping functionality. The screenshot is at the end of the function, and above the code in the screenshot, there&rsquo;s a lot more to analyze. We&rsquo;re now looking for strings that correspond to the parameters, i.e. pSize. I found a function that matches this. I&rsquo;ll call it <code>get_val_from_request</code>. A small note here is, that if we ever wanted to write a fuzzer for the router. We could use this function and the references to it, to find possible HTTP parameters.</p>
 <p><img src="/pictures/get_val_req.png.png" alt="getvalreq">
 Cool! Let&rsquo;s look at some different parts of the code, to see if we can get a better general understanding of the code. I found a bunch of strings that all had <code>/userRpm/SITE.htm</code>, where site is a specific endpoint. These were consequently refered to by a specific function. This is probably the handler of these htm sites. This function at <code>0x800cdc60</code>, has a pointer as the third argument, that relates directly to the second argument. The third argument doesn&rsquo;t have a function name, we&rsquo;re going to script us out of this, so that we don&rsquo;t have to manually rename all the functions. Prior to renaming: <img src="/pictures/webpage_handler.png.png" alt="webpagehandler">
 We&rsquo;re going to get the references to the function <code>0x800cdc60</code>, we can do this using <code>bv.get_code_refs</code>, which will give us an iterator of references to that function. We can then get the second and third argument to the function, and rename the function of the called function. It&rsquo;s really simple, and will make the reversing a lot easier!</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000">###</span>
-<span style="color:#008000">#  Find webpage handlers, and rename them appropriately</span>
-<span style="color:#008000">#  TL-WR720N</span>
-<span style="color:#008000">###</span>
-
-<span style="color:#00f">from</span> binaryninja <span style="color:#00f">import</span> *
-
-page_handler_refs = bv.get_code_refs(0x800cdc60)
-
-<span style="color:#00f">for</span> func <span style="color:#00f">in</span> page_handler_refs:
-	<span style="color:#008000"># Example: sub_800cdc60(2, &#34;/userRpm/WanStaticIpCfgRpm.htm&#34;, 0x80293dd8)</span>
-    addr_of_str = func.function.get_parameter_at(func.address, <span style="color:#00f">None</span>, 1).value
-    addr_of_called = func.function.get_parameter_at(func.address, <span style="color:#00f">None</span>, 2).value
-        
-    str_val = bv.get_string_at(addr_of_str).value
-    val = str_val.replace(<span style="color:#a31515">&#34;/userRpm/&#34;</span>, <span style="color:#a31515">&#34;&#34;</span>) 
-    val = val.replace(<span style="color:#a31515">&#34;.htm&#34;</span>, <span style="color:#a31515">&#34;&#34;</span>) 
-
-    called = bv.get_function_at(addr_of_called)
-    
-    <span style="color:#008000"># Change name</span>
-    called.name = val + <span style="color:#a31515">&#34;_handler&#34;</span>
-</code></pre></div><p>And after running it, we&rsquo;ll now see some code that is way easier to read. We&rsquo;ve actually just avoided renaming 96 functions manually, that&rsquo;s a win in my book.
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000">###</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">#  Find webpage handlers, and rename them appropriately</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">#  TL-WR720N</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">###</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">from</span> binaryninja <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>page_handler_refs = bv.get_code_refs(0x800cdc60)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">for</span> func <span style="color:#00f">in</span> page_handler_refs:
+</span></span><span style="display:flex;"><span>	<span style="color:#008000"># Example: sub_800cdc60(2, &#34;/userRpm/WanStaticIpCfgRpm.htm&#34;, 0x80293dd8)</span>
+</span></span><span style="display:flex;"><span>    addr_of_str = func.function.get_parameter_at(func.address, <span style="color:#00f">None</span>, 1).value
+</span></span><span style="display:flex;"><span>    addr_of_called = func.function.get_parameter_at(func.address, <span style="color:#00f">None</span>, 2).value
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    str_val = bv.get_string_at(addr_of_str).value
+</span></span><span style="display:flex;"><span>    val = str_val.replace(<span style="color:#a31515">&#34;/userRpm/&#34;</span>, <span style="color:#a31515">&#34;&#34;</span>) 
+</span></span><span style="display:flex;"><span>    val = val.replace(<span style="color:#a31515">&#34;.htm&#34;</span>, <span style="color:#a31515">&#34;&#34;</span>) 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    called = bv.get_function_at(addr_of_called)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#008000"># Change name</span>
+</span></span><span style="display:flex;"><span>    called.name = val + <span style="color:#a31515">&#34;_handler&#34;</span>
+</span></span></code></pre></div><p>And after running it, we&rsquo;ll now see some code that is way easier to read. We&rsquo;ve actually just avoided renaming 96 functions manually, that&rsquo;s a win in my book.
 <img src="/pictures/webhandlerafter.png" alt="webpage"></p>
 <h2 id="the-ping-bug">The ping bug</h2>
 <p>Now this would be a great time to hook up to UART, but this was right during christmas, and I had no UART. We&rsquo;ll need to find the ping functionality ourselves. It took some time, but I managed to find the relevant function. The function used a struct for the data relevant to the ping functionality, and after I had figured out how that looked like, the code looked like this:
@@ -183,23 +183,23 @@ We see that it just sets up <code>received params to begin a..</code>, and then 
 We see that it&rsquo;s taking our size, turning it into an unsigned integer, and using it for memset - into <code>arg1 + 0xc</code>, which is a stack buffer with a static size. However the bad news for us is, that it&rsquo;s using the fixed data of <code>0x50</code>. This means, we can&rsquo;t leverage this for an exploit. Actually this DOS, was assigned CVE-2023-24361, however that&rsquo;s not the title of the post, is it?:)</p>
 <h2 id="looking-for-other-bugs">Looking for other bugs</h2>
 <p>When looking for bugs, it&rsquo;s exciting to look at functions, that manages user input, in some way. Some of these include <code>strcpy</code>, <code>strncpy</code>, <code>gets</code>, <code>free</code>, <code>malloc</code>, <code>gets</code>, <code>fgets</code>, <code>memcpy</code>, <code>memmove</code>, <code>memset</code>. These are often sinners, so we&rsquo;ll look for these. The binary doesn&rsquo;t have symbols, so I spent some time looking for the <code>strlen</code> function, which I ended up finding:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">80062900      <span style="color:#2b91af">char</span>* <span style="">$</span>a1 = &amp;arg1[1]
-80062908      <span style="color:#2b91af">char</span>* <span style="">$</span>v1 = <span style="">$</span>a1
-80062910      <span style="color:#00f">while</span> (true)
-80062910      {
-80062910          <span style="color:#2b91af">uint32_t</span> <span style="">$</span>v0_1 = zx.d(*arg1)
-80062918          arg1 = <span style="">$</span>v1
-80062914          <span style="color:#00f">if</span> (<span style="">$</span>v0_1 == 0)
-80062914          {
-80062914              <span style="color:#00f">break</span>
-80062914          }
-8006290c          <span style="">$</span>v1 = &amp;<span style="">$</span>v1[1]
-8006290c      }
-8006291c      <span style="color:#00f">return</span> <span style="">$</span>v1 - <span style="">$</span>a1
-</code></pre></div><p>The function above is the strlen functionality in our firmware. It gets the first argument, and begins iterating through it starting from the second character (1-indexing), and then keeps going till it hits a null byte. When it does, it returns the difference between that ptr, and the ptr of the first character. This is to avoid including the null byte in the strlen. From the man page:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>80062900      <span style="color:#2b91af">char</span>* <span style="">$</span>a1 = &amp;arg1[1]
+</span></span><span style="display:flex;"><span>80062908      <span style="color:#2b91af">char</span>* <span style="">$</span>v1 = <span style="">$</span>a1
+</span></span><span style="display:flex;"><span>80062910      <span style="color:#00f">while</span> (true)
+</span></span><span style="display:flex;"><span>80062910      {
+</span></span><span style="display:flex;"><span>80062910          <span style="color:#2b91af">uint32_t</span> <span style="">$</span>v0_1 = zx.d(*arg1)
+</span></span><span style="display:flex;"><span>80062918          arg1 = <span style="">$</span>v1
+</span></span><span style="display:flex;"><span>80062914          <span style="color:#00f">if</span> (<span style="">$</span>v0_1 == 0)
+</span></span><span style="display:flex;"><span>80062914          {
+</span></span><span style="display:flex;"><span>80062914              <span style="color:#00f">break</span>
+</span></span><span style="display:flex;"><span>80062914          }
+</span></span><span style="display:flex;"><span>8006290c          <span style="">$</span>v1 = &amp;<span style="">$</span>v1[1]
+</span></span><span style="display:flex;"><span>8006290c      }
+</span></span><span style="display:flex;"><span>8006291c      <span style="color:#00f">return</span> <span style="">$</span>v1 - <span style="">$</span>a1
+</span></span></code></pre></div><p>The function above is the strlen functionality in our firmware. It gets the first argument, and begins iterating through it starting from the second character (1-indexing), and then keeps going till it hits a null byte. When it does, it returns the difference between that ptr, and the ptr of the first character. This is to avoid including the null byte in the strlen. From the man page:</p>
 <pre tabindex="0"><code>DESCRIPTION
        The  strlen()  function  calculates  the  length of the string pointed to by s, excluding the terminating null byte
-       ('\0').
+       (&#39;\0&#39;).
 </code></pre><p>This in itself is not too interesting, as this only maintains sizes, and doesn&rsquo;t move user input. I spent some more time reversing and found the strncpy at <code>0x80062990</code>. Looking for strncpy&rsquo;s that use strlen, we see a few. Specifically one stuck out:
 <img src="/pictures/newbridgessid.png.png" alt="newbridgessid">
 We see that it takes a value from a request, and then copies that into a buffer <code>var_30c</code>. So we effectively seem to have a stack based buffer overflow here. Now turning the buffer into a char buffer we can easily see how many bytes we need to be able to do Return-Oriented-Programming or ROP. We see that if we send <code>0x2e4-0x4</code>, we&rsquo;ll have overwritten the <code>$ra</code> register which is jumped to. That means we have to send a padding of <code>0x2e4-0x4-0x4</code> and then a four-byte address, to ROP. Debugging this will be hard without UART - so we need UART.

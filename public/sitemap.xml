@@ -3,10 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://cavefxa.com/</loc>
-    <lastmod>2023-05-29T15:33:45+02:00</lastmod>
+    <lastmod>2025-01-28T15:06:00+02:00</lastmod>
   </url><url>
     <loc>https://cavefxa.com/posts/</loc>
-    <lastmod>2023-05-29T15:33:45+02:00</lastmod>
+    <lastmod>2025-01-28T15:06:00+02:00</lastmod>
+  </url><url>
+    <loc>https://cavefxa.com/posts/babys-first-keygen/</loc>
+    <lastmod>2025-01-28T15:06:00+02:00</lastmod>
+  </url><url>
+    <loc>https://cavefxa.com/posts/snapcast-json-rpc-to-rce/</loc>
+    <lastmod>2023-11-27T19:20:00+02:00</lastmod>
   </url><url>
     <loc>https://cavefxa.com/posts/gt-s7580-zero-to-root/</loc>
     <lastmod>2023-05-29T15:33:45+02:00</lastmod>
@@ -32,13 +38,16 @@
     <loc>https://cavefxa.com/posts/fe-ctf/</loc>
     <lastmod>2022-11-28T21:49:35+01:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/angr1/</loc>
+    <loc>https://cavefxa.com/archived/</loc>
     <lastmod>2021-09-29T13:04:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/angr0/</loc>
+    <loc>https://cavefxa.com/archived/angr1/</loc>
+    <lastmod>2021-09-29T13:04:00+02:00</lastmod>
+  </url><url>
+    <loc>https://cavefxa.com/archived/angr0/</loc>
     <lastmod>2021-09-29T12:09:45+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/format0/</loc>
+    <loc>https://cavefxa.com/archived/format0/</loc>
     <lastmod>2021-09-08T15:33:45+02:00</lastmod>
   </url><url>
     <loc>https://cavefxa.com/posts/oldschool-adventures/</loc>
@@ -47,29 +56,27 @@
     <loc>https://cavefxa.com/posts/heap-adventures0/</loc>
     <lastmod>2021-05-25T18:20:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/badchars32/</loc>
+    <loc>https://cavefxa.com/archived/badchars32/</loc>
     <lastmod>2021-05-24T19:58:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/write432/</loc>
+    <loc>https://cavefxa.com/archived/write432/</loc>
     <lastmod>2021-05-24T19:41:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/callme32/</loc>
+    <loc>https://cavefxa.com/archived/callme32/</loc>
     <lastmod>2021-05-24T14:57:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/split32/</loc>
+    <loc>https://cavefxa.com/archived/split32/</loc>
     <lastmod>2021-05-24T14:38:00+02:00</lastmod>
   </url><url>
-    <loc>https://cavefxa.com/posts/ret2win32/</loc>
+    <loc>https://cavefxa.com/archived/ret2win32/</loc>
     <lastmod>2021-05-24T14:20:00+02:00</lastmod>
   </url><url>
     <loc>https://cavefxa.com/posts/stack-overflow/</loc>
     <lastmod>2021-05-23T18:03:05+02:00</lastmod>
   </url><url>
     <loc>https://cavefxa.com/about/</loc>
-    <priority>0</priority>
   </url><url>
     <loc>https://cavefxa.com/phishing/</loc>
-    <priority>0</priority>
   </url><url>
     <loc>https://cavefxa.com/categories/</loc>
   </url><url>

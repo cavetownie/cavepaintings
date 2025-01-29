@@ -7,8 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="cavefxa" />
-  <meta property="og:url" content="https://cavefxa.com/categories/" />
-  <link rel="canonical" href="https://cavefxa.com/categories/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+  <meta property="og:url" content="https://cavefxa.com/archived/angr1/" />
+  <link rel="canonical" href="https://cavefxa.com/archived/angr1/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
 
   <script type="application/ld+json">
   {
@@ -18,28 +18,32 @@
            "@type": "WebPage",
            "@id": "https:\/\/cavefxa.com"
       },
-      "articleSection" : "categories",
-      "name" : "Categories",
-      "headline" : "Categories",
-      "description" : "",
+      "articleSection" : "archived",
+      "name" : "Symbolic Execution with Angr: pt. 2 Usage Introduction",
+      "headline" : "Symbolic Execution with Angr: pt. 2 Usage Introduction",
+      "description" : "Simple usage import angr import claripy When you\u0026rsquo;re playing with angr, inevitably at the beginning you\u0026rsquo;ll have to load a binary of some form, you can do this the following way:\nproject_name = angr.Project(\u0026#34;.\/\u0026lt;binary_name\u0026gt;\u0026#34;) Now angr works by using a lot of states which it steps through and investigates. To load our initial state we use the following command:\nstate = proj.factory.entry_state() There are a few ways to load binaries, as one would imagine.",
       "inLanguage" : "en-US",
       "author" : "cavefxa",
       "creator" : "cavefxa",
       "publisher": "cavefxa",
       "accountablePerson" : "cavefxa",
       "copyrightHolder" : "cavefxa",
-      "copyrightYear" : "0001",
-      "datePublished": "0001-01-01 00:00:00 \u002b0000 UTC",
-      "dateModified" : "0001-01-01 00:00:00 \u002b0000 UTC",
-      "url" : "https:\/\/cavefxa.com\/categories\/",
+      "copyrightYear" : "2021",
+      "datePublished": "2021-09-29 13:04:00 \u002b0200 CEST",
+      "dateModified" : "2021-09-29 13:04:00 \u002b0200 CEST",
+      "url" : "https:\/\/cavefxa.com\/archived\/angr1\/",
       "keywords" : [  ]
   }
 </script>
-<title>Categories</title>
-  <meta property="og:title" content="Categories" />
+<title>Symbolic Execution with Angr: pt. 2 Usage Introduction</title>
+  <meta property="og:title" content="Symbolic Execution with Angr: pt. 2 Usage Introduction" />
   <meta property="og:type" content="article" />
-  <meta property="og:description" content="" />
-  <meta name="description" content="" />
+  <meta property="og:description" content="Simple usage import angr import claripy When you&amp;rsquo;re playing with angr, inevitably at the beginning you&amp;rsquo;ll have to load a binary of some form, you can do this the following way:
+project_name = angr.Project(&amp;#34;./&amp;lt;binary_name&amp;gt;&amp;#34;) Now angr works by using a lot of states which it steps through and investigates. To load our initial state we use the following command:
+state = proj.factory.entry_state() There are a few ways to load binaries, as one would imagine." />
+  <meta name="description" content="Simple usage import angr import claripy When you&amp;rsquo;re playing with angr, inevitably at the beginning you&amp;rsquo;ll have to load a binary of some form, you can do this the following way:
+project_name = angr.Project(&amp;#34;./&amp;lt;binary_name&amp;gt;&amp;#34;) Now angr works by using a lot of states which it steps through and investigates. To load our initial state we use the following command:
+state = proj.factory.entry_state() There are a few ways to load binaries, as one would imagine." />
   <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
   
 
@@ -66,10 +70,11 @@
 
 
 <body>
-  <article class="posts">
+  <article class="post " id="article">
     <div class="row">
       <div class="col-xs-12">
-        
+        <div class="site-header">
+          
 <header>
   <div class="header-title">
     <a href="/"
@@ -90,11 +95,104 @@
 </div>
 <div class="header-line"></div>
 
-
-        <h1 class="taxonomy-term"></h1>
-        <div id="posts-list">
-          
         </div>
+        <header class="post-header">
+          <h1 class="post-title">Symbolic Execution with Angr: pt. 2 Usage Introduction</h1>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="simple-usage">Simple usage</h1>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">import</span> angr
+</span></span><span style="display:flex;"><span><span style="color:#00f">import</span> claripy
+</span></span></code></pre></div><p>When you&rsquo;re playing with angr, inevitably at the beginning you&rsquo;ll have to load a binary of some form, you can do this the following way:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>project_name = angr.Project(<span style="color:#a31515">&#34;./&lt;binary_name&gt;&#34;</span>)
+</span></span></code></pre></div><p>Now angr works by using a lot of states which it steps through and investigates. To load our initial state we use the following command:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>state = proj.factory.entry_state()
+</span></span></code></pre></div><p>There are a few ways to load binaries, as one would imagine. We can add these as arguments to the state.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># To start execution from specific address (reduce runtime)</span>
+</span></span><span style="display:flex;"><span>state = proj.factory.entry_state(addr=0xdeadbeef)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Specify which architecture to use</span>
+</span></span><span style="display:flex;"><span>state = proj.factory.entry_state(arch=<span style="color:#a31515">&#34;amd64&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Specify what to send with stdin</span>
+</span></span><span style="display:flex;"><span>state = proj.factory.entry_state(stdin=<span style="color:#a31515">&#34;test_stdin_string</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># How to send data with argv</span>
+</span></span><span style="display:flex;"><span>state = proj.factory.entry_state(args=[<span style="color:#a31515">&#34;./&lt;binary_name&gt;&#34;</span>, argv1])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Use unicorn engine! This is often a good way to go abouts</span>
+</span></span><span style="display:flex;"><span>state = proj.factory.entry_state(add_options=angr.options.unicorn)
+</span></span></code></pre></div><p>To actually change the state, or use it in anyway, a simulation manager is needed:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>simgr = project_name.factory.simulation_manager(state)
+</span></span></code></pre></div><p>Now to ACTUALLY change the state ( :D ), you need to use the simgr. You can do a few things:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Step one instruction at a time</span>
+</span></span><span style="display:flex;"><span>simgr.step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Find specific address, avoid another</span>
+</span></span><span style="display:flex;"><span>simgr.explore(find=0xdeadbabe, avoid=0xcafebeef)
+</span></span></code></pre></div><h1 id="solving-and-bitvectors">Solving and bitvectors</h1>
+<p>Python integers don&rsquo;t have the same semantics as words on a CPU, e.g. wrapping on overflow, so we work with bitvectors.</p>
+<p>.BVV = concrete BIT VECTOR VALUE</p>
+<p>.BVS = BIT VALUE SYMBOLIC</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>db = state.solver.BVV(0xdeadbeef, 64) <span style="color:#008000"># Bitvector which angr uses </span>
+</span></span><span style="display:flex;"><span>state.solver.eval(db) <span style="color:#008000"># Python int representative of said bit vector</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Solving equation for an integer</span>
+</span></span><span style="display:flex;"><span>x = state.solver.BVS(<span style="color:#a31515">&#34;x&#34;</span>, 64)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>state.solver.add(x &gt; 4)
+</span></span><span style="display:flex;"><span>state.solver.add(x &lt;= 5)
+</span></span><span style="display:flex;"><span>print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;</span><span style="color:#a31515">\n</span><span style="color:#a31515">[+] Trying to solve for x, satisfiable? </span><span style="color:#a31515">{</span>state.satisfiable()<span style="color:#a31515">}</span><span style="color:#a31515">\n</span><span style="color:#a31515">Answer is </span><span style="color:#a31515">{</span>state.solver.eval(x)<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Solving for a character (one byte)</span>
+</span></span><span style="display:flex;"><span>n = state.solver.BVS(<span style="color:#a31515">&#34;n&#34;</span>, 8)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>state.solver.add(n &gt;= 0x41)
+</span></span><span style="display:flex;"><span>state.solver.add(n &lt; 0x7f)
+</span></span><span style="display:flex;"><span>state.solver.add(n ^ 0x10 == 0x76)
+</span></span><span style="display:flex;"><span>solution = state.solver.eval(n)
+</span></span><span style="display:flex;"><span>print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;</span><span style="color:#a31515">\n</span><span style="color:#a31515">[+] Trying to find the character that xored with 10 is 0x76.</span><span style="color:#a31515">\n</span><span style="color:#a31515">Found: </span><span style="color:#a31515">{</span>hex(solution)<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
+</span></span></code></pre></div><h1 id="flag">Flag?</h1>
+<p>Using angr for CTF style challenges, a bit of reverse engineering knowledge is a must. For example you can try to find out the length of the flag, and use this, to setup a symbolic bit vector array of flag characters. Imagine the following pseudocode:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#2b91af">int</span> flag(){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">if</span> (strlen(flag) != 25)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">return</span> -1;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>        win();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>We know that the flag is 25 bytes. So we can set this as a constraint:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>flag_chars = [claripy.BVS(<span style="color:#a31515">&#34;flag_</span><span style="color:#a31515">%d</span><span style="color:#a31515">&#34;</span> % i, 8) <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(25)]
+</span></span><span style="display:flex;"><span>flag = claripy.Concat(*flag_chars)
+</span></span></code></pre></div><p>Firstly we make the array of flag_chars, we set each flag_%d to have a size of 8 bits, which is a byte, which is a character. We can use this as an input to stdin in state:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>_state(stdin=flag)
+</span></span></code></pre></div><p>Now running we can explore for a success string:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>simgr.explore(find=<span style="color:#00f">lambda</span> s: <span style="color:#a31515">b</span><span style="color:#a31515">&#34;Success string&#34;</span> <span style="color:#00f">in</span> s.posix.dumps(1))
+</span></span><span style="display:flex;"><span><span style="color:#00f">if</span> <span style="color:#a31515">&#34;found&#34;</span> <span style="color:#00f">in</span> str(simgr):
+</span></span><span style="display:flex;"><span>    s = simgr.found[0]
+</span></span><span style="display:flex;"><span>    print(s.posix.dumps(0)) <span style="color:#008000">#Flag</span>
+</span></span><span style="display:flex;"><span>    print(s.posix.dumps(1)) <span style="color:#008000">#Input</span>
+</span></span></code></pre></div><p>Assuming we know that the flag&rsquo;s last character is &ldquo;q&rdquo; we can also set this as a constraint:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>state.solver.add(flag_chars[24] == ord(<span style="color:#a31515">&#34;q&#34;</span>))
+</span></span></code></pre></div><h1 id="appendix---further-reading">Appendix - Further reading</h1>
+<p>[¹] - Cheatsheet: <a href="https://github.com/bordig-f/angr-strategies/blob/master/angr_strategies.md">https://github.com/bordig-f/angr-strategies/blob/master/angr_strategies.md</a><!-- raw HTML omitted --></p>
+<p>[²] - Constraint Solving and Symbolic Execution: <a href="https://flagbot.ch/lesson5.pdf">https://flagbot.ch/lesson5.pdf</a><!-- raw HTML omitted --></p>
+<p>[³] - Documentation: <a href="https://angr.io/">https://angr.io/</a><!-- raw HTML omitted --></p>
+<p>[⁴] - Video by John Hammond: <a href="https://www.youtube.com/watch?v=RCgEIBfnTEI">https://www.youtube.com/watch?v=RCgEIBfnTEI</a><!-- raw HTML omitted --></p>
+
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
 
         <div class="site-footer">
   
@@ -114,6 +212,8 @@
     
   
 </script>
+
+  
 
 </body>
 

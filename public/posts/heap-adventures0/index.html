@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -122,15 +122,15 @@ Malloc Malloc is a function in C, which can handle the allocation of memory. Whi
 <h1 id="malloc">Malloc</h1>
 <p>Malloc is a function in C, which can handle the allocation of memory. Which is why it&rsquo;s called m alloc [memory alloc]. It&rsquo;s quite interesting how malloc works, but let&rsquo;s not delve too deep into that.</p>
 <p>When the malloc function is called a &ldquo;chunk&rdquo; of data is allocated on the heap, which is essentially a datastructure that holds dynamically allocated data. Consider the following C demo program:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f"></span>
-<span style="color:#2b91af">int</span> main(){
-    <span style="color:#2b91af">void</span> *a = malloc(1);
-    <span style="color:#2b91af">void</span> *b = malloc(1);
-    <span style="color:#2b91af">void</span> *c = malloc(1);
-
-}
-</code></pre></div><p>When this program is called, one would think: &ldquo;Well that should allocate memory of 1 byte in a, b, and c.&rdquo; This however is incorrect, as malloc always allocates atleast 24 bytes. Run the script in pwngdb, and take one command at a time with the &ldquo;n&rdquo; pwngdb command, then use &ldquo;vis&rdquo; to look at the heap.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> main(){
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">void</span> *a = malloc(1);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">void</span> *b = malloc(1);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">void</span> *c = malloc(1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>When this program is called, one would think: &ldquo;Well that should allocate memory of 1 byte in a, b, and c.&rdquo; This however is incorrect, as malloc always allocates atleast 24 bytes. Run the script in pwngdb, and take one command at a time with the &ldquo;n&rdquo; pwngdb command, then use &ldquo;vis&rdquo; to look at the heap.</p>
 <p>Graphically depicted below:</p>
 <pre tabindex="0"><code>          Heap
 ┌──────────────────────────┐   malloc(1);
@@ -155,7 +155,7 @@ free(a)
 </code></pre><p>Now the fastbin will point to the addr_a. There are a variety of fastbins, the exact amount is not important right now, however it&rsquo;s important to note that they differ in sizes, so that there&rsquo;s a fastbin for 0x20 sized chunks, one for 0x30 sized chunks, and so on.</p>
 <p>Consider the following fictional scenario:</p>
 <p>We allocate 24 A&rsquo;s with malloc, and then free said A&rsquo;s:</p>
-<pre tabindex="0"><code>                ┌──────────────────────────┐   a = malloc(0x18, &quot;A&quot;*0x18)
+<pre tabindex="0"><code>                ┌──────────────────────────┐   a = malloc(0x18, &#34;A&#34;*0x18)
                 │  previnuse = 0x21        │
                 │                          │
                 │  0x0000 0000 0000 0021   │
@@ -219,18 +219,18 @@ pwndbg&gt; vis
 0x602040        0x0000000000000000      
 </code></pre><p>Where the numbers indicates the most recent freed chunk, starting at 0. One can imagine it as a LIFO just like the stack. Let&rsquo;s assume the libc doesn&rsquo;t have tcache for now, as this added further security for double free vulnerabilities.</p>
 <p>Now let&rsquo;s consider the folowing program:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f"></span>
-<span style="color:#2b91af">int</span> main(){
-    <span style="color:#2b91af">void</span> *a = malloc(1);
-    <span style="color:#2b91af">void</span> *b = malloc(1);
-    
-    free(a);
-    free(b);
-    free(a);
-
-}
-</code></pre></div><p>This wouldn&rsquo;t cause an error then, because the old libc security measure just checked if the last freed chunk is being freed again, which isn&rsquo;t the case here.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> main(){
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">void</span> *a = malloc(1);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">void</span> *b = malloc(1);
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    free(a);
+</span></span><span style="display:flex;"><span>    free(b);
+</span></span><span style="display:flex;"><span>    free(a);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This wouldn&rsquo;t cause an error then, because the old libc security measure just checked if the last freed chunk is being freed again, which isn&rsquo;t the case here.</p>
 <p>This creates the following linked list:</p>
 <pre tabindex="0"><code>0x20: 0x602020 —▸ 0x602000 ◂— 0x602020
 </code></pre><p>Since the fastbins should be considered a LIFO, when malloc is called again, the last freed chunk will be allocated. If we look above we have a circular list, as it keeps going around, and around, not stopping anytime soon. If we look at the chunks:</p>
@@ -246,13 +246,13 @@ free(a)
 
 a -&gt; b -&gt; a 
 at this point the link is essentially two long,
-since there's two different entities
+since there&#39;s two different entities
 
 
 malloc(24, c)
 
 b -&gt; a -&gt; c
-suddenly we allocate one of the a's with c, and now
+suddenly we allocate one of the a&#39;s with c, and now
 we have a list that is three long
 
 now we just put garbage at the next two

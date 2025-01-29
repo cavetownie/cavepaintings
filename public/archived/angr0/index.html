@@ -7,8 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="cavefxa" />
-  <meta property="og:url" content="https://cavefxa.com/categories/" />
-  <link rel="canonical" href="https://cavefxa.com/categories/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+  <meta property="og:url" content="https://cavefxa.com/archived/angr0/" />
+  <link rel="canonical" href="https://cavefxa.com/archived/angr0/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
 
   <script type="application/ld+json">
   {
@@ -18,28 +18,30 @@
            "@type": "WebPage",
            "@id": "https:\/\/cavefxa.com"
       },
-      "articleSection" : "categories",
-      "name" : "Categories",
-      "headline" : "Categories",
-      "description" : "",
+      "articleSection" : "archived",
+      "name" : "Symbolic Execution with Angr: pt. 1 Theoretical Introduction",
+      "headline" : "Symbolic Execution with Angr: pt. 1 Theoretical Introduction",
+      "description" : "What is symbolic execution? One might relate it to symbolic equations from mathematics in school. A few exambles of symbolic equations might be:\na²\u002bb²=c² E=hf F=ma These are examples of symbolic equations. Values are defined based on symbols we call different things. For the symbols we could define constraints, eg. \u0026ldquo;f\u0026rdquo; must be larger than 0. or \u0026ldquo;a\u0026rdquo; is equal to 9.82 N\/kg. Thus minimizing the amount of results or outcomes.",
       "inLanguage" : "en-US",
       "author" : "cavefxa",
       "creator" : "cavefxa",
       "publisher": "cavefxa",
       "accountablePerson" : "cavefxa",
       "copyrightHolder" : "cavefxa",
-      "copyrightYear" : "0001",
-      "datePublished": "0001-01-01 00:00:00 \u002b0000 UTC",
-      "dateModified" : "0001-01-01 00:00:00 \u002b0000 UTC",
-      "url" : "https:\/\/cavefxa.com\/categories\/",
+      "copyrightYear" : "2021",
+      "datePublished": "2021-09-29 12:09:45 \u002b0200 CEST",
+      "dateModified" : "2021-09-29 12:09:45 \u002b0200 CEST",
+      "url" : "https:\/\/cavefxa.com\/archived\/angr0\/",
       "keywords" : [  ]
   }
 </script>
-<title>Categories</title>
-  <meta property="og:title" content="Categories" />
+<title>Symbolic Execution with Angr: pt. 1 Theoretical Introduction</title>
+  <meta property="og:title" content="Symbolic Execution with Angr: pt. 1 Theoretical Introduction" />
   <meta property="og:type" content="article" />
-  <meta property="og:description" content="" />
-  <meta name="description" content="" />
+  <meta property="og:description" content="What is symbolic execution? One might relate it to symbolic equations from mathematics in school. A few exambles of symbolic equations might be:
+a²&#43;b²=c² E=hf F=ma These are examples of symbolic equations. Values are defined based on symbols we call different things. For the symbols we could define constraints, eg. &amp;ldquo;f&amp;rdquo; must be larger than 0. or &amp;ldquo;a&amp;rdquo; is equal to 9.82 N/kg. Thus minimizing the amount of results or outcomes." />
+  <meta name="description" content="What is symbolic execution? One might relate it to symbolic equations from mathematics in school. A few exambles of symbolic equations might be:
+a²&#43;b²=c² E=hf F=ma These are examples of symbolic equations. Values are defined based on symbols we call different things. For the symbols we could define constraints, eg. &amp;ldquo;f&amp;rdquo; must be larger than 0. or &amp;ldquo;a&amp;rdquo; is equal to 9.82 N/kg. Thus minimizing the amount of results or outcomes." />
   <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
   
 
@@ -66,10 +68,11 @@
 
 
 <body>
-  <article class="posts">
+  <article class="post " id="article">
     <div class="row">
       <div class="col-xs-12">
-        
+        <div class="site-header">
+          
 <header>
   <div class="header-title">
     <a href="/"
@@ -90,11 +93,56 @@
 </div>
 <div class="header-line"></div>
 
-
-        <h1 class="taxonomy-term"></h1>
-        <div id="posts-list">
-          
         </div>
+        <header class="post-header">
+          <h1 class="post-title">Symbolic Execution with Angr: pt. 1 Theoretical Introduction</h1>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="what-is-symbolic-execution">What is symbolic execution?</h1>
+<p>One might relate it to symbolic equations from mathematics in school. A few exambles of symbolic equations might be:</p>
+<pre tabindex="0"><code>a²+b²=c²
+E=hf
+F=ma
+</code></pre><p>These are examples of symbolic equations. Values are defined based on symbols we call different things. For the symbols we could define constraints, eg. &ldquo;f&rdquo; must be larger than 0. or &ldquo;a&rdquo; is equal to 9.82 N/kg. Thus minimizing the amount of results or outcomes.
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+In computer science symbolic execution instead is a way of analyzing a program to see which inputs causes which execution branches to be run. Instead of using actual inputs, however, we use an interpreter which assumes symbolic values.</p>
+<h1 id="example-stolen-from-wikipedia">Example (stolen from wikipedia)</h1>
+<p>Example code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#2b91af">int</span> f() {
+</span></span><span style="display:flex;"><span>  ...
+</span></span><span style="display:flex;"><span>  y = read();
+</span></span><span style="display:flex;"><span>  z = y * 2;
+</span></span><span style="display:flex;"><span>  <span style="color:#00f">if</span> (z == 12) {
+</span></span><span style="display:flex;"><span>    fail();
+</span></span><span style="display:flex;"><span>  } <span style="color:#00f">else</span> {
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#a31515">&#34;OK&#34;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Concrete:<!-- raw HTML omitted -->
+Upon executing the example code with a concrete input. The read() call on line 3, would read a concrete value, eg. <code>5</code>. It would then run the program throughout with that value. Z would be set to 10, and &ldquo;OK&rdquo; would be printed. We would now not know how fail would be called. Which we for explanation sake want.</p>
+<p>Symbolic:<!-- raw HTML omitted -->
+Executing with symbolic input. The read() would read a symbolic value eg. <code>µ</code> the program would then continue execution with this value, z would now be able to be any value, as we did not define a value for µ. When it reaches the <code>if (z==12)</code>, it can just say &ldquo;sure! z is 12 lol&rdquo;, and forks this as a new process with the other else statement. If a program is large enough, this becomes infeasible, because there&rsquo;ll be too many paths - this is called a path explosion.</p>
+<h1 id="what-is-angr-stolen-from-documentation">What is angr (stolen from documentation)</h1>
+<p>Angr is a python framework for analyzing binaries. It can do automatic ROP-chaining, binary hardening, automatic exploit generation, and finally but probably most known for, it&rsquo;s symbolic execution.</p>
+<p>Angr recommends installing in a virtual environment as follows:</p>
+<pre tabindex="0"><code>mkvirtualenv angr
+pip install angr
+</code></pre><p>or using the provided docker container.</p>
+<p>I for one, however just installed it &ldquo;normally&rdquo;, using pip.</p>
+<pre tabindex="0"><code>pip3 install angr
+</code></pre>
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
 
         <div class="site-footer">
   
@@ -114,6 +162,8 @@
     
   
 </script>
+
+  
 
 </body>
 

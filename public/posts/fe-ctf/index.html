@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -142,13 +142,13 @@ We knew what to do, during the CTF - but we were playing from an airport, so we 
 <p>We&rsquo;re given some source code, and a remote. Now upon sending a password to the remote, we&rsquo;re told
 whether or not the value we sent, hashed, is less than the hash of the password stored on the server.</p>
 <p>The charset of the password is as follows:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> ALPHABET[] =
-            <span style="color:#a31515">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-            <span style="color:#a31515">&#34;abcdefghijklmnopqrstuvwxyz&#34;</span>
-            <span style="color:#a31515">&#34;0123456789&#34;</span>;
-</code></pre></div><p>This is 62 different characters. We know that there&rsquo;s atleast 5 characters in the password:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">assert(strlen(PASSWORD) &lt;= 5);
-</code></pre></div><p>Assuming that the password is 5 characters then there&rsquo;s <code>63**5</code> or <code>916136543</code> possible combinations. This is approximately
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> ALPHABET[] =
+</span></span><span style="display:flex;"><span>            <span style="color:#a31515">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a31515">&#34;abcdefghijklmnopqrstuvwxyz&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a31515">&#34;0123456789&#34;</span>;
+</span></span></code></pre></div><p>This is 62 different characters. We know that there&rsquo;s atleast 5 characters in the password:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>assert(strlen(PASSWORD) &lt;= 5);
+</span></span></code></pre></div><p>Assuming that the password is 5 characters then there&rsquo;s <code>63**5</code> or <code>916136543</code> possible combinations. This is approximately
 3.7 bytes, <code>log256(916136543)=3.7</code>.</p>
 <p>Now we need to figure out how we bruteforce this. The server sleeps one second each try, so bruteforcing 3.7 bytes would take
 about the same time as an orbital period of Saturn, 5.5 times the half life of Cobalt-60 or 10603 days. Not very feasible.</p>
@@ -157,101 +157,101 @@ math that doesn&rsquo;t take a lot of things into consideration, but this should
 things locally, but we should only need to send around 30 requests to the server. But how can we cut our guesses in half with
 every guess? Well, we&rsquo;re told everytime we send a password, if the hash is larger or smaller. This should make one think of
 binary search. So we implement this in the C script:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdint.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;string.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;assert.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;unistd.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&#34;sha1.h&#34;</span><span style="color:#00f">
-</span><span style="color:#00f"></span>
-<span style="color:#008000">// main(salt);
-</span><span style="color:#008000"></span><span style="color:#2b91af">int</span> main(<span style="color:#2b91af">int</span> argc, <span style="color:#2b91af">char</span>* argv[]){
-    <span style="color:#00f">if</span> (argc &lt; 2){
-        printf(<span style="color:#a31515">&#34;Usage: Salt!</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>);
-        exit(-1);
-    } 
-
-    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> ALPHABET[] =
-                <span style="color:#a31515">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-                <span style="color:#a31515">&#34;abcdefghijklmnopqrstuvwxyz&#34;</span>
-                <span style="color:#a31515">&#34;0123456789&#34;</span>;
-
-    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> salt[16];
-    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> userhash[SHA1_DIGEST_SIZE];
-    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> lowerhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#34;</span><span style="color:#a31515">\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0</span><span style="color:#a31515">&#34;</span>;
-    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> upperhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#34;</span><span style="color:#a31515">\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff</span><span style="color:#a31515">&#34;</span>;
-   
-    memcpy(salt, argv[1], 16);
-
-    <span style="color:#2b91af">int</span> N = <span style="color:#00f">sizeof</span>(ALPHABET);
-    <span style="color:#2b91af">char</span> guess[6] = {0};
-    
-    <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> x=0; x&lt;N; x++){
-        <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> y=0; y&lt;N; y++){
-            <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> z=0; z&lt;N; z++){
-                <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> i=0; i&lt;N; i++){
-                    <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> j=0; j&lt;N; j++){
-                        guess[0] = ALPHABET[x];
-                        guess[1] = ALPHABET[y];
-                        guess[2] = ALPHABET[z];
-                        guess[3] = ALPHABET[i];
-                        guess[4] = ALPHABET[j];
-                         
-                        SHA1_CTX ctx;
-                        SHA1_Init(&amp;ctx);
-                        SHA1_Update(&amp;ctx, salt, strlen(salt));
-                        SHA1_Update(&amp;ctx, guess, strlen(guess));
-                        SHA1_Final(&amp;ctx, userhash);
-                        
-                        <span style="color:#2b91af">int</span> lower_bound = memcmp(lowerhash, userhash, <span style="color:#00f">sizeof</span>(userhash));
-                        <span style="color:#2b91af">int</span> upper_bound = memcmp(upperhash, userhash, <span style="color:#00f">sizeof</span>(userhash));
-
-                        <span style="color:#008000">// input is larger than lower bound
-</span><span style="color:#008000"></span>                        <span style="color:#008000">// and smaller than upper bound 
-</span><span style="color:#008000"></span>                        <span style="color:#00f">if</span> (lower_bound &lt; 0 &amp;&amp; upper_bound &gt; 0){
-                            printf(<span style="color:#a31515">&#34;Try sending %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, guess);
-                        
-                            <span style="color:#2b91af">int</span> server_result = getc(stdin);
-                            getc(stdin);
-
-                            <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;&lt;&#39;</span>){
-                                memcpy(lowerhash, userhash, SHA1_DIGEST_SIZE);
-                                lowerhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#39;\0&#39;</span>;
-                            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;&gt;&#39;</span>){
-                                memcpy(upperhash, userhash, SHA1_DIGEST_SIZE);
-                                upperhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#39;\0&#39;</span>;
-                            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;=&#39;</span>){
-                                printf(<span style="color:#a31515">&#34;GOT THE PASS! %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, guess);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-<span style="color:#008000">// Compilation
-</span><span style="color:#008000">// gcc gen_hash.c sha1.c -O3 
-</span></code></pre></div><p>And the remote interaction script:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
-
-r = remote(<span style="color:#a31515">&#34;uppers-downers.hack.fe-ctf.dk&#34;</span>, 1337)
-r.recvline()
-salt = r.recvline().split()[-1]
-
-p = process([<span style="color:#a31515">&#34;./a.out&#34;</span>, salt])
-
-<span style="color:#00f">while</span> <span style="color:#00f">True</span>:
-    to_send = p.recvline().split()[-1]
-    print(to_send)
-
-    r.sendline(to_send)
-    server_result = r.recvline().split()[-1]
-    
-    p.sendline(server_result)
-</code></pre></div><p><code>flag{My h34rt fe3ls l1ke an alligator!}</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdint.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;string.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;assert.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;unistd.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&#34;sha1.h&#34;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">// main(salt);
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span><span style="color:#2b91af">int</span> main(<span style="color:#2b91af">int</span> argc, <span style="color:#2b91af">char</span>* argv[]){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">if</span> (argc &lt; 2){
+</span></span><span style="display:flex;"><span>        printf(<span style="color:#a31515">&#34;Usage: Salt!</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>);
+</span></span><span style="display:flex;"><span>        exit(-1);
+</span></span><span style="display:flex;"><span>    } 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> ALPHABET[] =
+</span></span><span style="display:flex;"><span>                <span style="color:#a31515">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#a31515">&#34;abcdefghijklmnopqrstuvwxyz&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#a31515">&#34;0123456789&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> salt[16];
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> userhash[SHA1_DIGEST_SIZE];
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> lowerhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#34;</span><span style="color:#a31515">\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0</span><span style="color:#a31515">&#34;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">unsigned</span> <span style="color:#2b91af">char</span> upperhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#34;</span><span style="color:#a31515">\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff</span><span style="color:#a31515">&#34;</span>;
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    memcpy(salt, argv[1], 16);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> N = <span style="color:#00f">sizeof</span>(ALPHABET);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">char</span> guess[6] = {0};
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> x=0; x&lt;N; x++){
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> y=0; y&lt;N; y++){
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> z=0; z&lt;N; z++){
+</span></span><span style="display:flex;"><span>                <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> i=0; i&lt;N; i++){
+</span></span><span style="display:flex;"><span>                    <span style="color:#00f">for</span>(<span style="color:#2b91af">int</span> j=0; j&lt;N; j++){
+</span></span><span style="display:flex;"><span>                        guess[0] = ALPHABET[x];
+</span></span><span style="display:flex;"><span>                        guess[1] = ALPHABET[y];
+</span></span><span style="display:flex;"><span>                        guess[2] = ALPHABET[z];
+</span></span><span style="display:flex;"><span>                        guess[3] = ALPHABET[i];
+</span></span><span style="display:flex;"><span>                        guess[4] = ALPHABET[j];
+</span></span><span style="display:flex;"><span>                         
+</span></span><span style="display:flex;"><span>                        SHA1_CTX ctx;
+</span></span><span style="display:flex;"><span>                        SHA1_Init(&amp;ctx);
+</span></span><span style="display:flex;"><span>                        SHA1_Update(&amp;ctx, salt, strlen(salt));
+</span></span><span style="display:flex;"><span>                        SHA1_Update(&amp;ctx, guess, strlen(guess));
+</span></span><span style="display:flex;"><span>                        SHA1_Final(&amp;ctx, userhash);
+</span></span><span style="display:flex;"><span>                        
+</span></span><span style="display:flex;"><span>                        <span style="color:#2b91af">int</span> lower_bound = memcmp(lowerhash, userhash, <span style="color:#00f">sizeof</span>(userhash));
+</span></span><span style="display:flex;"><span>                        <span style="color:#2b91af">int</span> upper_bound = memcmp(upperhash, userhash, <span style="color:#00f">sizeof</span>(userhash));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#008000">// input is larger than lower bound
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span>                        <span style="color:#008000">// and smaller than upper bound 
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span>                        <span style="color:#00f">if</span> (lower_bound &lt; 0 &amp;&amp; upper_bound &gt; 0){
+</span></span><span style="display:flex;"><span>                            printf(<span style="color:#a31515">&#34;Try sending %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, guess);
+</span></span><span style="display:flex;"><span>                        
+</span></span><span style="display:flex;"><span>                            <span style="color:#2b91af">int</span> server_result = getc(stdin);
+</span></span><span style="display:flex;"><span>                            getc(stdin);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;&lt;&#39;</span>){
+</span></span><span style="display:flex;"><span>                                memcpy(lowerhash, userhash, SHA1_DIGEST_SIZE);
+</span></span><span style="display:flex;"><span>                                lowerhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>                            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;&gt;&#39;</span>){
+</span></span><span style="display:flex;"><span>                                memcpy(upperhash, userhash, SHA1_DIGEST_SIZE);
+</span></span><span style="display:flex;"><span>                                upperhash[SHA1_DIGEST_SIZE] = <span style="color:#a31515">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>                            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (server_result == <span style="color:#a31515">&#39;=&#39;</span>){
+</span></span><span style="display:flex;"><span>                                printf(<span style="color:#a31515">&#34;GOT THE PASS! %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, guess);
+</span></span><span style="display:flex;"><span>                            }
+</span></span><span style="display:flex;"><span>                        }
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">// Compilation
+</span></span></span><span style="display:flex;"><span><span style="color:#008000">// gcc gen_hash.c sha1.c -O3 
+</span></span></span></code></pre></div><p>And the remote interaction script:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>r = remote(<span style="color:#a31515">&#34;uppers-downers.hack.fe-ctf.dk&#34;</span>, 1337)
+</span></span><span style="display:flex;"><span>r.recvline()
+</span></span><span style="display:flex;"><span>salt = r.recvline().split()[-1]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p = process([<span style="color:#a31515">&#34;./a.out&#34;</span>, salt])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">while</span> <span style="color:#00f">True</span>:
+</span></span><span style="display:flex;"><span>    to_send = p.recvline().split()[-1]
+</span></span><span style="display:flex;"><span>    print(to_send)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    r.sendline(to_send)
+</span></span><span style="display:flex;"><span>    server_result = r.recvline().split()[-1]
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    p.sendline(server_result)
+</span></span></code></pre></div><p><code>flag{My h34rt fe3ls l1ke an alligator!}</code></p>
 <p>A fun fact about this challenge was we originally solved it without optimization
 flags for gcc, and using time, we calculated that it took:</p>
 <pre tabindex="0"><code>real    11m7.001s
@@ -264,26 +264,26 @@ sys     0m0.156s
 </code></pre><h1 id="qualifiers---libnotfound">Qualifiers - libnotfound</h1>
 <p>Upon reversing the binary we see that it wants a shared object
 which implements the functions as follows:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#008000">// foo.c
-</span><span style="color:#008000"></span><span style="color:#2b91af">int</span> foo_add(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
-    <span style="color:#00f">return</span> a+b;
-}
-<span style="color:#2b91af">int</span> foo_sub(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
-    <span style="color:#00f">return</span> a-b; 
-}
-<span style="color:#2b91af">int</span> foo_mul(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
-    <span style="color:#00f">return</span> a*b;
-}
-<span style="color:#2b91af">int</span> foo_div(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
-    <span style="color:#00f">return</span> a/b;
-}
-<span style="color:#2b91af">int</span> foo_mod(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
-    <span style="color:#00f">return</span> a%b;
-}
-
-<span style="color:#008000">// 1. gcc -c -Wall -Werror -fpic foo.c
-</span><span style="color:#008000">// 2. gcc -shared -o libfoo.so foo.o
-</span></code></pre></div><p>Now compiling that to a shared object and setting our library path we have:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#008000">// foo.c
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span><span style="color:#2b91af">int</span> foo_add(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> a+b;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> foo_sub(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> a-b; 
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> foo_mul(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> a*b;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> foo_div(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> a/b;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> foo_mod(<span style="color:#2b91af">int</span> a, <span style="color:#2b91af">int</span> b){
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> a%b;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">// 1. gcc -c -Wall -Werror -fpic foo.c
+</span></span></span><span style="display:flex;"><span><span style="color:#008000">// 2. gcc -shared -o libfoo.so foo.o
+</span></span></span></code></pre></div><p>Now compiling that to a shared object and setting our library path we have:</p>
 <pre tabindex="0"><code>cave@townie:~/CTF/fe-ctf/libnotfound$ export LD_LIBRARY_PATH=.
 cave@townie:~/CTF/fe-ctf/libnotfound$ ./challenge
 flag{hello? yes, this is flag}
@@ -291,126 +291,126 @@ flag{hello? yes, this is flag}
 <p>I just changed the magic file, after reading the source code, and convincing
 myself it was a VM which at some point would refer to some memory to load
 the flag, so i YOLO&rsquo;d and got the flag:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#008000">#!/usr/bin/env python3</span>
-<span style="color:#00f">import</span> magic;_+___+---+---+-__+++-+_-_+_++_++++-+-_+_++_-__-_-+++-++---\
-_+_+-+++-+--++__-++___++++_-+_-+__+-+++_-+-_-_-_+_+++-_+--++-_+_-+_---_\
-+_-+--_-++_+_--_--+_++_+__-++-+_++--+__+__++-___++_+_--__-_-__--+--_-_-\
---++__-+-____-_+++-_++---+-__+++++_+-+++-___+_++-__-_--_-_-_--+-+++--_-\
-_++______++-+-++_++-_-_+-+-_+++_--__--___-+_+++-++_+-++_-+-+-_+--_++-_-\
--++---+__+_____+__--+_--+++__+--+_+--+___-+++++++_+-+_++_-_+-+__-_++++-\
-+-__+_++____+_-+-+-+__+-+_-+--_+++__----++-++-+__+-+----__-+_++__+++_-+\
-+_+--+--__--+_++__+--++_+-_-_++-_-+-_+_+__++-++_+++++-__+_---+_+_+-+-__\
-++-----++-+--_-_++__+--__++-___-_+-+__+-+__+_---_+++_--+-+-+_++_-+++__+\
-+-_--+++++--_+_++_--_-+___-___+++-_++++-++-+_++-++_-+++++_+-__---_-_--_\
--+_-+-__+_--+++_-__+_+_-+-++---+_+-+-+__+++_----_-+_-+-+_-++___---++-__\
-+-+_+_+--_+---+++--++__+_-+----_--_+_-+_-+_+-+---++_+++-+_+_____----+-+\
-++-+__+--_++--_-___+_+_-+--_++--+++__--+_+_-+_-----+_+_+-___+++-+__-+__\
--+___++-++_+___-+-_+_-_----_--+_+_-___+_____-_+_+_-+--+__-_+++-_-++__-_\
-+++-__--++-+++_+_+__+--___-+-_--_-++-+-+-_+ +_++++___--+__-+_--__+_-__+\
-____---___++++-+_-+__---__++-++-+-__-+-_-++_----_+-+_+_-__+_+____-_+---\
-_+--+-_+----_+--++___--__-+-_-+++-+--_+_+__-+_--++-----+++_-_-+_+_-+-+-\
----+_+-+++__+++_-_--_-+_-+++_-++____--++-__+++_+_+--_----+++--_+__+_-+-\
-_--_--_+_++_-+_+-+_--++_+++++_+______---+-+++++__+--_+---_-___+-+_-+--_\
-+---+++__-++_+_-++_+---+_+_+-+__+++-+_--_-+___-+_-++__+_+_++-_-___++---\
-+_-__-++_+_+----_+_-++___--__+--_-++++++_-++-+-_--++-___-+_+_+--++---++\
-+---+__+_-+-+--_--_+__+_-+_+-++--++_+++_+_+_____+---+-+++_+__+--_+_--_-\
-___+++_-+--_+_--+++__-_+_+_-++_----+_+-__+__+++-___-_-+_+_-_+-_-+_-+__+\
-+-++--_-__+__--_+-+-_+_-__+---_-+_-_+_--___+--+-___+_+_+-+___--+++-++-+\
-_+_-+_+++_-+-__+--+_-++-++_++_-+-+---++--+-+__+_+--_--_--_++_+_-+_+-_+-\
--++_+++-+_+_____----+-+++-+__+--_++--_-___+_+_-+--_++--+++__--+_+_-++__\
----+_+_+_+__++++_+--_-+__+_-_-++__-_+-__+_-_---_++_+_-+_--__-+---++-_+-\
-++_+_+-+-+---+++_- -+__+_-_+-_-_-- _++-++-_+--_----_-++_-___-++____-++-\
-___-_++_+_-_+__--+-+-+_--___+++_+___--_-___++_-_+_-+__+-+-_++-+_+_-__-+\
----+__--------_+_-_--+_____---_+_-+--_+___+++----___-_+_-+-_--++++_-_+_\
-+_-+_-+__-++_-+_-_-_-+_-_+-___-_-__+++_-___-__--__+_+-++_--___+-_+++-_-\
-_+-+++_++-------_--_+++++_+__-_+_+-__+-+-_-+--_-+_----+------+_+-+-__+-\
---+--+--+__+-++++--_-___-++_-+--___--+++__--+_+_-++__---+_+_+_+__+++-+-\
---_-+____+_-++_-_+--++-_+__+_+_+-+++---+++_-_+__+_-_++--_--_++_-_-+_+-_\
-++-__----_--_+_++_-+_--+++-_--+++_--++_+_-++-+_--+_+++__+_+++_+_-__-_-_\
-+_+------++--+-+-_-++_+--+++----++-_-++__+_++----_--_---+_-+_++-+--++_+\
---_+_+___-__---+-+-+-+__+-------_-__+_++_-+---__--+++_++_+_+_-+_-_---+_\
-+++++__+++++---_-+_+_++_-++_-+-+_++-__++-++---+__++--_++-+---__+_---__-\
-__++-+----+_-_+-+-+-+__---+++-+-+__+_-+__--_--_+_++_-+_+-+_--++_+++++_+\
-______---+-+++++__+--_+---_-___+-+_-+--_+_+_+++__-++-+-_-_+++--_-++__+-\
-+-_-_+_+--_-++_++-+-_-_+-+--_-++_-+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++\
--+-_-_+-+--_-++_-+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++-+-_-_+-+--_-++_-\
-+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++-+-_-_+-+--_-+_--+++-_-+_+--_-+__+\
-_+_-++_-----++-_+_-+_+_+-++----+++_--+__+_-_+---_--_-+-+_-+_++__--++_++\
--+-_+____-++-++++__-+_-+_-_++-+____+___-__-___-_-+-+__+---++_---++_+-+-\
-++_+_-+--_-_-+__++__+_-__++--+_-+---++_--++-+--++_+--__-_+_-++-----+__-\
-_____-___++_+_-+-_+++_--+++-++++_+-_++-++_-+___+--+____+-__-__-__+-_-+-\
-+__----++_--_-+_+-+-____--+--_++-+_+-__-_++_--+-+_--+_+_+-++_+++--++---\
-+_-_-_+__++__- _--_-+_+__+_-++_--+--++-_-_- +_+_+---__--++++_-_+_+_-+_+\
-___-++_--_-++-_---_++_+_-_-__--+-_-__--___+-__+___-++____+ +_---_-+__++\
-___++-+_+-___-+--+_+_------+-_+_-_-+_-____---_-_-+--___-_+++---++__-_+_\
-+___--++++___+_+_-+_____-++_-__-++-_--+_++_+_-____--+-_--_--___+-+_+___\
--+-_+__++_--++-_-+_+----_+_+-__+_--++___--+++_+__+_+_-+-_-_--+_+-+__+_+\
-++_++___-_-+_+_-++_-+-+_++__+-_+-+---+-+_-+_+---+--+_---+_+++_+-_--__-+\
-_+-_+__++- _-+__+_-+__+_---++_+-__-_+___++++-+++++++_--+_-++-_+_++-+__+\
-__-__-_+--_-+-_+--_-+++-+++-__+-_--_-_++_+-+_+--_+__++_+_--------+_+_-+\
--__++++-_+--__-+-__-+-++-+-_+++__+--+_-__++-+_-++++-___++_-_-+--_--_+_-\
--+-_-_-_+---_++_+--+_--__--_--++-_-___++_+--++_+_+---_--+_--+-+_++-++++\
-+_---_-_+_++__-+-__++__-_--+-_+-+_+-_-__+-+_-_-+-_++_---_-_+-_++-++---+\
-_-_---_++++--__--_++-----_++_+-___--_-_+--+_-++-_-+----_-++++-+____-_--\
-___-_+-_+-+-_+_++_++___--++--__++_+__+-_--+__-+_+-_++--+_+--+_+-_-+-_++\
-+__+-+-+_-+-+-_--++__-__+_+_++---__-+_+-++---++__+--+--+_-_+_+-+_-__---\
-+--+_++__+-++__--_-__+_-_+-+--+-+_+-+++-+--++-_---+++++-++_---_--_++-_+\
--+_++_-++-+_+-_+---__-+_++__-_-+----_-+-_+++_-+++_-_--++-_-+++_+_+-_+--\
---++++-_+__+_------_--___++_-+_+__+--++_+_-++_+___++_---+-+_+++__+--+__\
---_-__-+-+_-+--+-+--+++_--_+_+_-+------+_+++_-__+++__+_--__-_+__+___+_-\
--___++-____-+____-__++-+-+_+__-+-+_+__----+-_+_+_-_++_-____-++_--_+---_\
--_+---__+----+-_+_-+_++-_---+--___++-__+-+++_-+_+-+-_-_+__+----++_-_+_-\
-____+--+-_+-__+_+--+__-_--_+-+_+-_+-+++__++_+-___-___++-__+-+_+_-___+-+\
-_--__-_++__-__+--_+-++__+_--++-_-_-+_+--_+-_-+_-___++-+-_-_-__+_+---+-+\
--___++++--+--_--_--_-+_+_-+_++_---++_+-__+_+____++---+-+-+-+__+--_++--_\
--__++++_-+--_+_--+++_+-++_+_-++_----+_+++++__+++--_+__-+_-_--+-+-+__+_-\
-+--___+_-__----+_+-++_+____+-_+_-__-_+-+_++_+-------__+__+_+-_-_-___+-_\
-+-__++_+__++++++__-__-_-_-_+-++++_+__+-_-_+-_-_+---+__+---_---__ +__---\
-__-_-_+_-__+-__--+-__+++-____-__-+-_+_+-++--_+__+-___-__-_+-_-___+---+_\
--_-_+___+-++-++++-__---+_-+--+__++_--+--_-+_++_+_-++_-_++_++-___+-++---\
--_-++--_++_+---__+_--+__-__--++__-+-+_++--+-+_+--++--_---++--__+-+---__\
-++_++__-__+++--_-+--+_+_-++++__--++-_+_-+_+_+-++----+++_--+__+_-_+---_-\
--_-+-+_-+_++__--++_+--++_+___-_----+-+-+_+__+----+--_-__+_-+_-+---_---+\
-++_++-_++_-+_----_+++__++_-_-___+--++-_-__+_+_+--_----+++_+-+__+_--+-+-\
-_--__+---_+-++--+_----__+--++__-+-+_+__++++---+-+---+__+---+_--_-__+_++\
-_-+---__--+++_++_+_+_-+_-_---+_+++++__+++--_+__-+_-_--+-+-++__+++--_-+_\
---_--__+-+_-+_+++_--++_+_-_+_+___-__---+-+_+-+__+----+--_-__-_++_-+----\
-_--+++_-+++_+_-+_-----+_+-+_+__+++++_--_-+__-_+_-++_+-_--++-___++_+_+-+\
-__+--+++---+-+-+___-_--+++---_-_+_-+_+-_+___++-__-+_++_-_+-+++++----+-_\
-++++__++_+__+__-+_--_---+-+--_++_++-+-_+-_+_-+-_--_-+___++_--_--+-+_++-\
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-__++_+_++\
-+++--+--_-_-_+-_+--++_--_---___+--_-+---+++_++-++_-+-+------+--__-+_--+\
-+--++_-_---_-_-___-+-+_-+-+-+--_+-_+_-+--+_-___++--___-++_+___+-+_+++--\
---+_++-__+_+_-__+_-+--+-_+-___-_-+++__+___-+-+-+___+-+-+-++----+-_+_-++\
-+++_++-_++__-_-___---+_++--+__+_-+_+-__--_+-++-_--+---+__+-+___-+-+++-_\
-+_-+-_-+++-___++++++__+++-_-+--+-_+-_+-+--_--++--__-+_--++--+-+_-+--_-+\
-_++-++++__----_-_--+++_--++__--_+__-_++_-_____+-_+++++--_--_-_--__+--+-\
--+__-__+_++-+--+--------_-+---------_+-++----+---++-_+-+---++_--_++++++\
-_-++++-+--_+--+-+-+-+-_---_++_-_+--+_+_+_+-_--_++_+--_-+---_+--+-------\
-_+-+-+-__-+-++--__---+-_--++_-__+--_+---+--___+--------+-+_+++++_-_-+--_
-</code></pre></div><p>And we get the flag:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#008000">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">import</span> magic;_+___+---+---+-__+++-+_-_+_++_++++-+-_+_++_-__-_-+++-++---\
+</span></span><span style="display:flex;"><span>_+_+-+++-+--++__-++___++++_-+_-+__+-+++_-+-_-_-_+_+++-_+--++-_+_-+_---_\
+</span></span><span style="display:flex;"><span>+_-+--_-++_+_--_--+_++_+__-++-+_++--+__+__++-___++_+_--__-_-__--+--_-_-\
+</span></span><span style="display:flex;"><span>--++__-+-____-_+++-_++---+-__+++++_+-+++-___+_++-__-_--_-_-_--+-+++--_-\
+</span></span><span style="display:flex;"><span>_++______++-+-++_++-_-_+-+-_+++_--__--___-+_+++-++_+-++_-+-+-_+--_++-_-\
+</span></span><span style="display:flex;"><span>-++---+__+_____+__--+_--+++__+--+_+--+___-+++++++_+-+_++_-_+-+__-_++++-\
+</span></span><span style="display:flex;"><span>+-__+_++____+_-+-+-+__+-+_-+--_+++__----++-++-+__+-+----__-+_++__+++_-+\
+</span></span><span style="display:flex;"><span>+_+--+--__--+_++__+--++_+-_-_++-_-+-_+_+__++-++_+++++-__+_---+_+_+-+-__\
+</span></span><span style="display:flex;"><span>++-----++-+--_-_++__+--__++-___-_+-+__+-+__+_---_+++_--+-+-+_++_-+++__+\
+</span></span><span style="display:flex;"><span>+-_--+++++--_+_++_--_-+___-___+++-_++++-++-+_++-++_-+++++_+-__---_-_--_\
+</span></span><span style="display:flex;"><span>-+_-+-__+_--+++_-__+_+_-+-++---+_+-+-+__+++_----_-+_-+-+_-++___---++-__\
+</span></span><span style="display:flex;"><span>+-+_+_+--_+---+++--++__+_-+----_--_+_-+_-+_+-+---++_+++-+_+_____----+-+\
+</span></span><span style="display:flex;"><span>++-+__+--_++--_-___+_+_-+--_++--+++__--+_+_-+_-----+_+_+-___+++-+__-+__\
+</span></span><span style="display:flex;"><span>-+___++-++_+___-+-_+_-_----_--+_+_-___+_____-_+_+_-+--+__-_+++-_-++__-_\
+</span></span><span style="display:flex;"><span>+++-__--++-+++_+_+__+--___-+-_--_-++-+-+-_+ +_++++___--+__-+_--__+_-__+\
+</span></span><span style="display:flex;"><span>____---___++++-+_-+__---__++-++-+-__-+-_-++_----_+-+_+_-__+_+____-_+---\
+</span></span><span style="display:flex;"><span>_+--+-_+----_+--++___--__-+-_-+++-+--_+_+__-+_--++-----+++_-_-+_+_-+-+-\
+</span></span><span style="display:flex;"><span>---+_+-+++__+++_-_--_-+_-+++_-++____--++-__+++_+_+--_----+++--_+__+_-+-\
+</span></span><span style="display:flex;"><span>_--_--_+_++_-+_+-+_--++_+++++_+______---+-+++++__+--_+---_-___+-+_-+--_\
+</span></span><span style="display:flex;"><span>+---+++__-++_+_-++_+---+_+_+-+__+++-+_--_-+___-+_-++__+_+_++-_-___++---\
+</span></span><span style="display:flex;"><span>+_-__-++_+_+----_+_-++___--__+--_-++++++_-++-+-_--++-___-+_+_+--++---++\
+</span></span><span style="display:flex;"><span>+---+__+_-+-+--_--_+__+_-+_+-++--++_+++_+_+_____+---+-+++_+__+--_+_--_-\
+</span></span><span style="display:flex;"><span>___+++_-+--_+_--+++__-_+_+_-++_----+_+-__+__+++-___-_-+_+_-_+-_-+_-+__+\
+</span></span><span style="display:flex;"><span>+-++--_-__+__--_+-+-_+_-__+---_-+_-_+_--___+--+-___+_+_+-+___--+++-++-+\
+</span></span><span style="display:flex;"><span>_+_-+_+++_-+-__+--+_-++-++_++_-+-+---++--+-+__+_+--_--_--_++_+_-+_+-_+-\
+</span></span><span style="display:flex;"><span>-++_+++-+_+_____----+-+++-+__+--_++--_-___+_+_-+--_++--+++__--+_+_-++__\
+</span></span><span style="display:flex;"><span>---+_+_+_+__++++_+--_-+__+_-_-++__-_+-__+_-_---_++_+_-+_--__-+---++-_+-\
+</span></span><span style="display:flex;"><span>++_+_+-+-+---+++_- -+__+_-_+-_-_-- _++-++-_+--_----_-++_-___-++____-++-\
+</span></span><span style="display:flex;"><span>___-_++_+_-_+__--+-+-+_--___+++_+___--_-___++_-_+_-+__+-+-_++-+_+_-__-+\
+</span></span><span style="display:flex;"><span>---+__--------_+_-_--+_____---_+_-+--_+___+++----___-_+_-+-_--++++_-_+_\
+</span></span><span style="display:flex;"><span>+_-+_-+__-++_-+_-_-_-+_-_+-___-_-__+++_-___-__--__+_+-++_--___+-_+++-_-\
+</span></span><span style="display:flex;"><span>_+-+++_++-------_--_+++++_+__-_+_+-__+-+-_-+--_-+_----+------+_+-+-__+-\
+</span></span><span style="display:flex;"><span>--+--+--+__+-++++--_-___-++_-+--___--+++__--+_+_-++__---+_+_+_+__+++-+-\
+</span></span><span style="display:flex;"><span>--_-+____+_-++_-_+--++-_+__+_+_+-+++---+++_-_+__+_-_++--_--_++_-_-+_+-_\
+</span></span><span style="display:flex;"><span>++-__----_--_+_++_-+_--+++-_--+++_--++_+_-++-+_--+_+++__+_+++_+_-__-_-_\
+</span></span><span style="display:flex;"><span>+_+------++--+-+-_-++_+--+++----++-_-++__+_++----_--_---+_-+_++-+--++_+\
+</span></span><span style="display:flex;"><span>--_+_+___-__---+-+-+-+__+-------_-__+_++_-+---__--+++_++_+_+_-+_-_---+_\
+</span></span><span style="display:flex;"><span>+++++__+++++---_-+_+_++_-++_-+-+_++-__++-++---+__++--_++-+---__+_---__-\
+</span></span><span style="display:flex;"><span>__++-+----+_-_+-+-+-+__---+++-+-+__+_-+__--_--_+_++_-+_+-+_--++_+++++_+\
+</span></span><span style="display:flex;"><span>______---+-+++++__+--_+---_-___+-+_-+--_+_+_+++__-++-+-_-_+++--_-++__+-\
+</span></span><span style="display:flex;"><span>+-_-_+_+--_-++_++-+-_-_+-+--_-++_-+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++\
+</span></span><span style="display:flex;"><span>-+-_-_+-+--_-++_-+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++-+-_-_+-+--_-++_-\
+</span></span><span style="display:flex;"><span>+-+-_-_+++--_-++__+-+-_-_+_+--_-++_++-+-_-_+-+--_-+_--+++-_-+_+--_-+__+\
+</span></span><span style="display:flex;"><span>_+_-++_-----++-_+_-+_+_+-++----+++_--+__+_-_+---_--_-+-+_-+_++__--++_++\
+</span></span><span style="display:flex;"><span>-+-_+____-++-++++__-+_-+_-_++-+____+___-__-___-_-+-+__+---++_---++_+-+-\
+</span></span><span style="display:flex;"><span>++_+_-+--_-_-+__++__+_-__++--+_-+---++_--++-+--++_+--__-_+_-++-----+__-\
+</span></span><span style="display:flex;"><span>_____-___++_+_-+-_+++_--+++-++++_+-_++-++_-+___+--+____+-__-__-__+-_-+-\
+</span></span><span style="display:flex;"><span>+__----++_--_-+_+-+-____--+--_++-+_+-__-_++_--+-+_--+_+_+-++_+++--++---\
+</span></span><span style="display:flex;"><span>+_-_-_+__++__- _--_-+_+__+_-++_--+--++-_-_- +_+_+---__--++++_-_+_+_-+_+\
+</span></span><span style="display:flex;"><span>___-++_--_-++-_---_++_+_-_-__--+-_-__--___+-__+___-++____+ +_---_-+__++\
+</span></span><span style="display:flex;"><span>___++-+_+-___-+--+_+_------+-_+_-_-+_-____---_-_-+--___-_+++---++__-_+_\
+</span></span><span style="display:flex;"><span>+___--++++___+_+_-+_____-++_-__-++-_--+_++_+_-____--+-_--_--___+-+_+___\
+</span></span><span style="display:flex;"><span>-+-_+__++_--++-_-+_+----_+_+-__+_--++___--+++_+__+_+_-+-_-_--+_+-+__+_+\
+</span></span><span style="display:flex;"><span>++_++___-_-+_+_-++_-+-+_++__+-_+-+---+-+_-+_+---+--+_---+_+++_+-_--__-+\
+</span></span><span style="display:flex;"><span>_+-_+__++- _-+__+_-+__+_---++_+-__-_+___++++-+++++++_--+_-++-_+_++-+__+\
+</span></span><span style="display:flex;"><span>__-__-_+--_-+-_+--_-+++-+++-__+-_--_-_++_+-+_+--_+__++_+_--------+_+_-+\
+</span></span><span style="display:flex;"><span>-__++++-_+--__-+-__-+-++-+-_+++__+--+_-__++-+_-++++-___++_-_-+--_--_+_-\
+</span></span><span style="display:flex;"><span>-+-_-_-_+---_++_+--+_--__--_--++-_-___++_+--++_+_+---_--+_--+-+_++-++++\
+</span></span><span style="display:flex;"><span>+_---_-_+_++__-+-__++__-_--+-_+-+_+-_-__+-+_-_-+-_++_---_-_+-_++-++---+\
+</span></span><span style="display:flex;"><span>_-_---_++++--__--_++-----_++_+-___--_-_+--+_-++-_-+----_-++++-+____-_--\
+</span></span><span style="display:flex;"><span>___-_+-_+-+-_+_++_++___--++--__++_+__+-_--+__-+_+-_++--+_+--+_+-_-+-_++\
+</span></span><span style="display:flex;"><span>+__+-+-+_-+-+-_--++__-__+_+_++---__-+_+-++---++__+--+--+_-_+_+-+_-__---\
+</span></span><span style="display:flex;"><span>+--+_++__+-++__--_-__+_-_+-+--+-+_+-+++-+--++-_---+++++-++_---_--_++-_+\
+</span></span><span style="display:flex;"><span>-+_++_-++-+_+-_+---__-+_++__-_-+----_-+-_+++_-+++_-_--++-_-+++_+_+-_+--\
+</span></span><span style="display:flex;"><span>--++++-_+__+_------_--___++_-+_+__+--++_+_-++_+___++_---+-+_+++__+--+__\
+</span></span><span style="display:flex;"><span>--_-__-+-+_-+--+-+--+++_--_+_+_-+------+_+++_-__+++__+_--__-_+__+___+_-\
+</span></span><span style="display:flex;"><span>-___++-____-+____-__++-+-+_+__-+-+_+__----+-_+_+_-_++_-____-++_--_+---_\
+</span></span><span style="display:flex;"><span>-_+---__+----+-_+_-+_++-_---+--___++-__+-+++_-+_+-+-_-_+__+----++_-_+_-\
+</span></span><span style="display:flex;"><span>____+--+-_+-__+_+--+__-_--_+-+_+-_+-+++__++_+-___-___++-__+-+_+_-___+-+\
+</span></span><span style="display:flex;"><span>_--__-_++__-__+--_+-++__+_--++-_-_-+_+--_+-_-+_-___++-+-_-_-__+_+---+-+\
+</span></span><span style="display:flex;"><span>-___++++--+--_--_--_-+_+_-+_++_---++_+-__+_+____++---+-+-+-+__+--_++--_\
+</span></span><span style="display:flex;"><span>-__++++_-+--_+_--+++_+-++_+_-++_----+_+++++__+++--_+__-+_-_--+-+-+__+_-\
+</span></span><span style="display:flex;"><span>+--___+_-__----+_+-++_+____+-_+_-__-_+-+_++_+-------__+__+_+-_-_-___+-_\
+</span></span><span style="display:flex;"><span>+-__++_+__++++++__-__-_-_-_+-++++_+__+-_-_+-_-_+---+__+---_---__ +__---\
+</span></span><span style="display:flex;"><span>__-_-_+_-__+-__--+-__+++-____-__-+-_+_+-++--_+__+-___-__-_+-_-___+---+_\
+</span></span><span style="display:flex;"><span>-_-_+___+-++-++++-__---+_-+--+__++_--+--_-+_++_+_-++_-_++_++-___+-++---\
+</span></span><span style="display:flex;"><span>-_-++--_++_+---__+_--+__-__--++__-+-+_++--+-+_+--++--_---++--__+-+---__\
+</span></span><span style="display:flex;"><span>++_++__-__+++--_-+--+_+_-++++__--++-_+_-+_+_+-++----+++_--+__+_-_+---_-\
+</span></span><span style="display:flex;"><span>-_-+-+_-+_++__--++_+--++_+___-_----+-+-+_+__+----+--_-__+_-+_-+---_---+\
+</span></span><span style="display:flex;"><span>++_++-_++_-+_----_+++__++_-_-___+--++-_-__+_+_+--_----+++_+-+__+_--+-+-\
+</span></span><span style="display:flex;"><span>_--__+---_+-++--+_----__+--++__-+-+_+__++++---+-+---+__+---+_--_-__+_++\
+</span></span><span style="display:flex;"><span>_-+---__--+++_++_+_+_-+_-_---+_+++++__+++--_+__-+_-_--+-+-++__+++--_-+_\
+</span></span><span style="display:flex;"><span>--_--__+-+_-+_+++_--++_+_-_+_+___-__---+-+_+-+__+----+--_-__-_++_-+----\
+</span></span><span style="display:flex;"><span>_--+++_-+++_+_-+_-----+_+-+_+__+++++_--_-+__-_+_-++_+-_--++-___++_+_+-+\
+</span></span><span style="display:flex;"><span>__+--+++---+-+-+___-_--+++---_-_+_-+_+-_+___++-__-+_++_-_+-+++++----+-_\
+</span></span><span style="display:flex;"><span>++++__++_+__+__-+_--_---+-+--_++_++-+-_+-_+_-+-_--_-+___++_--_--+-+_++-\
+</span></span><span style="display:flex;"><span>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
+</span></span><span style="display:flex;"><span>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-__++_+_++\
+</span></span><span style="display:flex;"><span>+++--+--_-_-_+-_+--++_--_---___+--_-+---+++_++-++_-+-+------+--__-+_--+\
+</span></span><span style="display:flex;"><span>+--++_-_---_-_-___-+-+_-+-+-+--_+-_+_-+--+_-___++--___-++_+___+-+_+++--\
+</span></span><span style="display:flex;"><span>--+_++-__+_+_-__+_-+--+-_+-___-_-+++__+___-+-+-+___+-+-+-++----+-_+_-++\
+</span></span><span style="display:flex;"><span>+++_++-_++__-_-___---+_++--+__+_-+_+-__--_+-++-_--+---+__+-+___-+-+++-_\
+</span></span><span style="display:flex;"><span>+_-+-_-+++-___++++++__+++-_-+--+-_+-_+-+--_--++--__-+_--++--+-+_-+--_-+\
+</span></span><span style="display:flex;"><span>_++-++++__----_-_--+++_--++__--_+__-_++_-_____+-_+++++--_--_-_--__+--+-\
+</span></span><span style="display:flex;"><span>-+__-__+_++-+--+--------_-+---------_+-++----+---++-_+-+---++_--_++++++\
+</span></span><span style="display:flex;"><span>_-++++-+--_+--+-+-+-+-_---_++_-_+--+_+_+_+-_--_++_+--_-+---_+--+-------\
+</span></span><span style="display:flex;"><span>_+-+-+-__-+-++--__---+-_--++_-__+--_+---+--___+--------+-+_+++++_-_-+--_
+</span></span></code></pre></div><p>And we get the flag:</p>
 <pre tabindex="0"><code>
                       .
                         `:.
                           `:.
-                  .:'     ,::
-                 .:'      ;:'
-                 ::      ;:'
-                  :    .:'
+                  .:&#39;     ,::
+                 .:&#39;      ;:&#39;
+                 ::      ;:&#39;
+                  :    .:&#39;
                    `.  :.
           _________________________
          : _ _ _ _ _ _ _ _ _ _ _ _ :
-     ,---:&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;.&quot;:
-    : ,'&quot;`::.:.:.:.:.:.:.:.:.:.:.::'
-    `.`.  `:-===-===-===-===-===-:'
+     ,---:&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;.&#34;:
+    : ,&#39;&#34;`::.:.:.:.:.:.:.:.:.:.:.::&#39;
+    `.`.  `:-===-===-===-===-===-:&#39;
       `.`-._:                   :
-        `-.__`.               ,'
-    ,--------`&quot;`-------------'--------.
-     `&quot;--.__                   __.--&quot;'
-            `&quot;&quot;-------------&quot;&quot;'
+        `-.__`.               ,&#39;
+    ,--------`&#34;`-------------&#39;--------.
+     `&#34;--.__                   __.--&#34;&#39;
+            `&#34;&#34;-------------&#34;&#34;&#39;
 
-Please eflag{it's, it's a device Morty!} 㰼㎠㎠㍡V{R
+Please eflag{it&#39;s, it&#39;s a device Morty!} 㰼㎠㎠㍡V{R
 </code></pre><h1 id="finals---hexor-1">Finals - Hexor 1</h1>
 <p>Now initially when I figured out how to solve this, I just
 gave it some input, and noticed that I could change the input
@@ -418,11 +418,11 @@ and the output kept being the same. I figured out that only the
 first character made a difference in the output, meaning that we
 have <code>256**1</code> different possible keys, and that&rsquo;s just bruteforcing
 one character. But where is this evident in the code?</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *key = argv[1];
-<span style="color:#008000">/* Initialize encryption context */</span>
-<span style="color:#00f">struct</span> rc4_ctx ctx;
-rc4_init(&amp;ctx, *key);
-</code></pre></div><p>We initially get the key correctly, however we give <code>rc4_init</code>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *key = argv[1];
+</span></span><span style="display:flex;"><span><span style="color:#008000">/* Initialize encryption context */</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">struct</span> rc4_ctx ctx;
+</span></span><span style="display:flex;"><span>rc4_init(&amp;ctx, *key);
+</span></span></code></pre></div><p>We initially get the key correctly, however we give <code>rc4_init</code>
 a pointer to key, essentially this is <code>**argv[1]</code>. We can illustrate:</p>
 <pre tabindex="0"><code>argv[1] = secret_key
 *key -&gt; secret_key
@@ -432,21 +432,21 @@ a pointer to key, essentially this is <code>**argv[1]</code>. We can illustrate:
 key[0] = argv[1] = secret_key
 key[0][0] = secret_key[0] = s
 </code></pre><p>We can implement a quick and dirty bruteforce in python:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#00f">import</span> subprocess
-
-<span style="color:#00f">for</span> n <span style="color:#00f">in</span> range(1, 256):
-    p1 = subprocess.Popen([<span style="color:#a31515">&#34;cat&#34;</span>, <span style="color:#a31515">&#34;flag.bin&#34;</span>], stdout=subprocess.PIPE)
-    p2 = subprocess.check_output([<span style="color:#a31515">&#34;./hexor&#34;</span>, chr(n)], stdin=p1.stdout)
-
-    <span style="color:#00f">if</span> <span style="color:#a31515">b</span><span style="color:#a31515">&#34;flag{&#34;</span> <span style="color:#00f">in</span> p2:
-        print(p2)
-</code></pre></div><p><code>flag{8 bit security is not a lot of security}</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#00f">import</span> subprocess
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">for</span> n <span style="color:#00f">in</span> range(1, 256):
+</span></span><span style="display:flex;"><span>    p1 = subprocess.Popen([<span style="color:#a31515">&#34;cat&#34;</span>, <span style="color:#a31515">&#34;flag.bin&#34;</span>], stdout=subprocess.PIPE)
+</span></span><span style="display:flex;"><span>    p2 = subprocess.check_output([<span style="color:#a31515">&#34;./hexor&#34;</span>, chr(n)], stdin=p1.stdout)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">if</span> <span style="color:#a31515">b</span><span style="color:#a31515">&#34;flag{&#34;</span> <span style="color:#00f">in</span> p2:
+</span></span><span style="display:flex;"><span>        print(p2)
+</span></span></code></pre></div><p><code>flag{8 bit security is not a lot of security}</code></p>
 <h1 id="finals---hexor-2">Finals - Hexor 2</h1>
 <p>Immediately we should notice that we&rsquo;re given a new and specific
 32-bit gcc line: <code>gcc -Wall -Wextra -Wpedantic -m32 -O2 hexor.c -o hexor</code></p>
 <p>We see that it also defines this in the top of the file:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">#define array_length(x) ((size_t) sizeof(x) / sizeof(x[0]))
-</span></code></pre></div><p>This takes the overall size and divides it withe first element, now it uses the
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">#define array_length(x) ((size_t) sizeof(x) / sizeof(x[0]))
+</span></span></span></code></pre></div><p>This takes the overall size and divides it withe first element, now it uses the
 size_t which is of the unsigned integer type. However this is now 32-bit, meaning
 that this will return a different size.
 32-bit:</p>
@@ -459,121 +459,121 @@ Length of key 7
 This is the length: 8
 </code></pre><p>So in our 32-bit version we have to bruteforce 4 bytes, this is feasible. So
 that&rsquo;s what we did.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdint.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;string.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;unistd.h&gt;</span><span style="color:#00f">
-</span><span style="color:#00f"></span>
-<span style="color:#00f">#define u8 uint8_t
-</span><span style="color:#00f">#define u16 uint16_t
-</span><span style="color:#00f">#define u32 uint32_t
-</span><span style="color:#00f">#define u64 uint64_t
-</span><span style="color:#00f"></span>
-<span style="color:#00f">#define array_length(x) ((size_t)sizeof(x) / sizeof(x[0]))
-</span><span style="color:#00f"></span>
-<span style="color:#00f">struct</span> rc4_ctx
-{
-    u8 S[256];
-};
-
-<span style="color:#2b91af">void</span> swap(u8 *a, u8 *b)
-{
-    <span style="color:#2b91af">int</span> tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-<span style="color:#2b91af">int</span> rc4_init(<span style="color:#00f">struct</span> rc4_ctx *ctx, <span style="color:#00f">const</span> u8 *key)
-{
-
-    <span style="color:#2b91af">int</span> len = array_length(key);
-    <span style="color:#2b91af">int</span> j = 0;
-
-    <span style="color:#00f">for</span> (u32 i = 0; i &lt; array_length(ctx-&gt;S); i++)
-        ctx-&gt;S[i] = i;
-
-    <span style="color:#00f">for</span> (u32 i = 0; i &lt; array_length(ctx-&gt;S); i++)
-    {
-        j += ctx-&gt;S[i] + ((<span style="color:#2b91af">char</span> *)key)[i % len];
-        j %= <span style="color:#00f">sizeof</span>(ctx-&gt;S);
-
-        swap(&amp;ctx-&gt;S[i], &amp;ctx-&gt;S[j]);
-    }
-
-    <span style="color:#00f">return</span> 0;
-}
-
-<span style="color:#2b91af">int</span> rc4_crypt(<span style="color:#00f">struct</span> rc4_ctx *ctx, u8 *buffer, u32 len)
-{
-
-    <span style="color:#2b91af">int</span> i = 0, j = 0;
-
-    <span style="color:#00f">for</span> (size_t n = 0; n &lt; len; n++)
-    {
-        i = (i + 1) % array_length(ctx-&gt;S);
-        j = (j + ctx-&gt;S[i]) % array_length(ctx-&gt;S);
-
-        swap(&amp;ctx-&gt;S[i], &amp;ctx-&gt;S[j]);
-        <span style="color:#2b91af">int</span> rnd = ctx-&gt;S[(ctx-&gt;S[i] + ctx-&gt;S[j]) % array_length(ctx-&gt;S)];
-
-        buffer[n] = rnd ^ buffer[n];
-    }
-    <span style="color:#00f">return</span> 0;
-}
-
-<span style="color:#2b91af">int</span> brute_force(<span style="color:#2b91af">char</span> *ciphertext2, <span style="color:#2b91af">int</span> ciphertext_len)
-{
-    <span style="color:#2b91af">char</span> key[4];
-    <span style="color:#2b91af">char</span> *plaintext = malloc(ciphertext_len);
-
-    <span style="color:#008000">//char characters[] = &#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#34;;
-</span><span style="color:#008000"></span>
-    <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> i = 0x20; i &lt; 0x7e; i++)
-    {
-        printf(<span style="color:#a31515">&#34;Trying key: %d</span><span style="color:#a31515">\r</span><span style="color:#a31515">&#34;</span>, i);
-        fflush(stdout);
-        <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> j = 0x20; j &lt; 0x7e; j++)
-        {
-            <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> k = 0x20; k &lt; 0x7e; k++)
-            {
-                <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> l = 0x20; l &lt; 0x7e; l++)
-                {
-                    key[0] = i;
-                    key[1] = j;
-                    key[2] = k;
-                    key[3] = l;
-                    <span style="color:#00f">struct</span> rc4_ctx ctx;
-                    rc4_init(&amp;ctx, key);
-                    <span style="color:#2b91af">char</span> *ciphertext = malloc(128);
-                    memcpy(ciphertext,ciphertext2,128);
-                    rc4_crypt(&amp;ctx, ciphertext, ciphertext_len);
-
-                    <span style="color:#00f">if</span> (ciphertext[0] == <span style="color:#a31515">&#39;f&#39;</span> &amp;&amp; ciphertext[1] == <span style="color:#a31515">&#39;l&#39;</span> &amp;&amp; ciphertext[2] == <span style="color:#a31515">&#39;a&#39;</span> &amp;&amp; ciphertext[3] == <span style="color:#a31515">&#39;g&#39;</span>)
-                    {
-                        printf(<span style="color:#a31515">&#34;key: %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, key);
-                        printf(<span style="color:#a31515">&#34;plaintext: %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, ciphertext);
-                        fflush(stdout);
-                        <span style="color:#00f">return</span> 1;
-                    }
-                }
-            }
-        }
-    }
-    <span style="color:#00f">return</span> 0;
-}
-
-<span style="color:#2b91af">int</span> main(<span style="color:#2b91af">int</span> argc, <span style="color:#2b91af">char</span> *argv[]) {
-    <span style="color:#2b91af">char</span> *ciphertext = malloc(128);
-    <span style="color:#2b91af">int</span> ciphertext_len = read(STDIN_FILENO, ciphertext, 128);
-    <span style="color:#008000">// brute force stdin ciphertext
-</span><span style="color:#008000"></span>    <span style="color:#00f">if</span> (brute_force(ciphertext, ciphertext_len)==1)
-    puts(<span style="color:#a31515">&#34;yay&#34;</span>);
-    <span style="color:#00f">else</span>
-    puts(<span style="color:#a31515">&#34;Tough luck ):&#34;</span>);
-    <span style="color:#00f">return</span> 0;
-}
-</code></pre></div><p>And we get the flag:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdio.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdlib.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;stdint.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;string.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#include</span> <span style="color:#00f">&lt;unistd.h&gt;</span><span style="color:#00f">
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">#define u8 uint8_t
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#define u16 uint16_t
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#define u32 uint32_t
+</span></span></span><span style="display:flex;"><span><span style="color:#00f">#define u64 uint64_t
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">#define array_length(x) ((size_t)sizeof(x) / sizeof(x[0]))
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">struct</span> rc4_ctx
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    u8 S[256];
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">void</span> swap(u8 *a, u8 *b)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> tmp = *a;
+</span></span><span style="display:flex;"><span>    *a = *b;
+</span></span><span style="display:flex;"><span>    *b = tmp;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> rc4_init(<span style="color:#00f">struct</span> rc4_ctx *ctx, <span style="color:#00f">const</span> u8 *key)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> len = array_length(key);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> j = 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> (u32 i = 0; i &lt; array_length(ctx-&gt;S); i++)
+</span></span><span style="display:flex;"><span>        ctx-&gt;S[i] = i;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> (u32 i = 0; i &lt; array_length(ctx-&gt;S); i++)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        j += ctx-&gt;S[i] + ((<span style="color:#2b91af">char</span> *)key)[i % len];
+</span></span><span style="display:flex;"><span>        j %= <span style="color:#00f">sizeof</span>(ctx-&gt;S);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        swap(&amp;ctx-&gt;S[i], &amp;ctx-&gt;S[j]);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> rc4_crypt(<span style="color:#00f">struct</span> rc4_ctx *ctx, u8 *buffer, u32 len)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> i = 0, j = 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> (<span style="color:#2b91af">size_t</span> n = 0; n &lt; len; n++)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        i = (i + 1) % array_length(ctx-&gt;S);
+</span></span><span style="display:flex;"><span>        j = (j + ctx-&gt;S[i]) % array_length(ctx-&gt;S);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        swap(&amp;ctx-&gt;S[i], &amp;ctx-&gt;S[j]);
+</span></span><span style="display:flex;"><span>        <span style="color:#2b91af">int</span> rnd = ctx-&gt;S[(ctx-&gt;S[i] + ctx-&gt;S[j]) % array_length(ctx-&gt;S)];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        buffer[n] = rnd ^ buffer[n];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> brute_force(<span style="color:#2b91af">char</span> *ciphertext2, <span style="color:#2b91af">int</span> ciphertext_len)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">char</span> key[4];
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">char</span> *plaintext = malloc(ciphertext_len);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#008000">//char characters[] = &#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> i = 0x20; i &lt; 0x7e; i++)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        printf(<span style="color:#a31515">&#34;Trying key: %d</span><span style="color:#a31515">\r</span><span style="color:#a31515">&#34;</span>, i);
+</span></span><span style="display:flex;"><span>        fflush(stdout);
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> j = 0x20; j &lt; 0x7e; j++)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> k = 0x20; k &lt; 0x7e; k++)
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#00f">for</span> (<span style="color:#2b91af">int</span> l = 0x20; l &lt; 0x7e; l++)
+</span></span><span style="display:flex;"><span>                {
+</span></span><span style="display:flex;"><span>                    key[0] = i;
+</span></span><span style="display:flex;"><span>                    key[1] = j;
+</span></span><span style="display:flex;"><span>                    key[2] = k;
+</span></span><span style="display:flex;"><span>                    key[3] = l;
+</span></span><span style="display:flex;"><span>                    <span style="color:#00f">struct</span> rc4_ctx ctx;
+</span></span><span style="display:flex;"><span>                    rc4_init(&amp;ctx, key);
+</span></span><span style="display:flex;"><span>                    <span style="color:#2b91af">char</span> *ciphertext = malloc(128);
+</span></span><span style="display:flex;"><span>                    memcpy(ciphertext,ciphertext2,128);
+</span></span><span style="display:flex;"><span>                    rc4_crypt(&amp;ctx, ciphertext, ciphertext_len);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#00f">if</span> (ciphertext[0] == <span style="color:#a31515">&#39;f&#39;</span> &amp;&amp; ciphertext[1] == <span style="color:#a31515">&#39;l&#39;</span> &amp;&amp; ciphertext[2] == <span style="color:#a31515">&#39;a&#39;</span> &amp;&amp; ciphertext[3] == <span style="color:#a31515">&#39;g&#39;</span>)
+</span></span><span style="display:flex;"><span>                    {
+</span></span><span style="display:flex;"><span>                        printf(<span style="color:#a31515">&#34;key: %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, key);
+</span></span><span style="display:flex;"><span>                        printf(<span style="color:#a31515">&#34;plaintext: %s</span><span style="color:#a31515">\n</span><span style="color:#a31515">&#34;</span>, ciphertext);
+</span></span><span style="display:flex;"><span>                        fflush(stdout);
+</span></span><span style="display:flex;"><span>                        <span style="color:#00f">return</span> 1;
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">int</span> main(<span style="color:#2b91af">int</span> argc, <span style="color:#2b91af">char</span> *argv[]) {
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">char</span> *ciphertext = malloc(128);
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int</span> ciphertext_len = read(STDIN_FILENO, ciphertext, 128);
+</span></span><span style="display:flex;"><span>    <span style="color:#008000">// brute force stdin ciphertext
+</span></span></span><span style="display:flex;"><span><span style="color:#008000"></span>    <span style="color:#00f">if</span> (brute_force(ciphertext, ciphertext_len)==1)
+</span></span><span style="display:flex;"><span>    puts(<span style="color:#a31515">&#34;yay&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>    puts(<span style="color:#a31515">&#34;Tough luck ):&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And we get the flag:</p>
 <pre tabindex="0"><code>cave@townie:~/CTF/fe-ctf/finals/hexor-2$ time cat flag.bin | ./sol
 key: @AVey: 64
 plaintext: flag{yes, 32&gt;8, but still}
@@ -592,15 +592,15 @@ so it goes a bit faster.</p>
 <p>This was the last hexor challenge I would say I contributed in solving. As
 I spent most of the CTF doing the two browser pwns, which will be a separate post at
 some point. For now let&rsquo;s look at hexor 3:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#2b91af">char</span> *mutable_key = alloca(0x1000);
-strcpy(mutable_key, <span style="color:#a31515">&#34;Salted__&#34;</span>);
-strncat(mutable_key, argv[1], 0xfff);
-
-<span style="color:#008000">/* Initialize encryption context */</span>
-<span style="color:#00f">const</span> <span style="color:#2b91af">void</span> *key = &amp;mutable_key;
-<span style="color:#00f">struct</span> rc4_ctx ctx;
-rc4_init(&amp;ctx, key);
-</code></pre></div><p>Now we see that at rc4_init they give a pointer to the address of mutable_key,
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#2b91af">char</span> *mutable_key = alloca(0x1000);
+</span></span><span style="display:flex;"><span>strcpy(mutable_key, <span style="color:#a31515">&#34;Salted__&#34;</span>);
+</span></span><span style="display:flex;"><span>strncat(mutable_key, argv[1], 0xfff);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">/* Initialize encryption context */</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">const</span> <span style="color:#2b91af">void</span> *key = &amp;mutable_key;
+</span></span><span style="display:flex;"><span><span style="color:#00f">struct</span> rc4_ctx ctx;
+</span></span><span style="display:flex;"><span>rc4_init(&amp;ctx, key);
+</span></span></code></pre></div><p>Now we see that at rc4_init they give a pointer to the address of mutable_key,
 this is a stack address, so we need to bruteforce this address. We know that
 there&rsquo;s ASLR on the system. We know therefore that there is:
 <code>0x7fffffffffff-0x7ffce0000000=13421772799</code>, i.e. <code>log256(13421772799) = 4.2</code> bytes.</p>
@@ -610,7 +610,7 @@ It might be interesting to try first bruteforcing with, addresses 0x0, 0x8, etc.
 to the fact that this is how the addresses show up in gdb:</p>
 <pre tabindex="0"><code>► 0x5555555551c5 &lt;main+165&gt;    call   rc4_init                &lt;rc4_init&gt;
     rdi: 0x7fffffffdbf0 ◂— 0x0
-    rsi: 0x7fffffffdbe8 —▸ 0x7fffffffcbd0 ◂— 'Salted__L'
+    rsi: 0x7fffffffdbe8 —▸ 0x7fffffffcbd0 ◂— &#39;Salted__L&#39;
 </code></pre><p>We ended up getting 7th out of 10 qualifying teams for the finals. The two browser pwn
 writeups will come at a later time, as I would like it to be a high quality post.</p>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -136,7 +136,7 @@ Getting started Picking a target To begin doing embedded vulnerability research,
 DECIMAL       HEXADECIMAL     DESCRIPTION
 ---------------------------------------------------------------------------
 20            0x14            IMG0 (VxWorks) header, size: 1556064
-26740         0x6874          VxWorks operating system version &quot;5.5.1&quot; , compiled: &quot;Jun 18 2013, 12:19:11&quot;
+26740         0x6874          VxWorks operating system version &#34;5.5.1&#34; , compiled: &#34;Jun 18 2013, 12:19:11&#34;
 26836         0x68D4          LZMA compressed data, properties: 0x6E, dictionary size: 8388608 bytes, uncompressed size: 636256 bytes
 262292        0x40094         IMG0 (VxWorks) header, size: 1293792
 262420        0x40114         LZMA compressed data, properties: 0x6E, dictionary size: 8388608 bytes, uncompressed size: 3645552 bytes
@@ -175,49 +175,49 @@ yNoipDdnsHelpRpm.htmhParentCtrlAdvHelpRpm.htmxParentCtrlHelpRpm.htm
 1253300       0x131FB4       &lt;--|---- Subtract size = code1_size
 </code></pre><h3 id="writing-the-loader">Writing the loader</h3>
 <p>Using the Binary Ninja API we can write a rudimentary loader. The loader can be seen on my <a href="https://github.com/cavetownie">Github</a>, in the TP-Link WR720N repository. We&rsquo;ll need a LZMADecompressor to decompress the LZMA, and then we need to create our loader class.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Inherits from the BinaryView class</span>
-<span style="color:#00f">class</span> <span style="color:#2b91af">TPLinkRTOS</span>(BinaryView):
-    name = <span style="color:#a31515">&#34;TPLinkRTOS&#34;</span>
-    long_name = <span style="color:#a31515">&#34;TP Link Router RTOS&#34;</span>
-
-    <span style="color:#00f">def</span> __init__(self, data):
-        BinaryView.__init__(self, file_metadata=data.file, 
-                            parent_view=data) <span style="color:#008000"># Initializes a BinaryView</span>
-        self.raw = data <span style="color:#008000"># Get the data, i.e. what&#39;s loaded</span>
-        self.br = BinaryReader(data) <span style="color:#008000"># Create BinaryReader</span>
-</code></pre></div><p>This is the start of the class, and is important for creating our loader. We&rsquo;ll also make a function to clarify the endianness:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00f">def</span> perform_get_default_endianness(self):
-    <span style="color:#00f">return</span> Endianness.BigEndian
-</code></pre></div><p>So far we&rsquo;ve practically just made a glorified file open. We&rsquo;ll need something utilizing all the neat features of the API. We can begin by using some of the Architectures that they&rsquo;ve made. That way it will begin trying to look at the data as mips.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Primary function</span>
-<span style="color:#00f">def</span> init(self):
-    self.platform = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>].standalone_platform
-    self.arch = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>]
-</code></pre></div><p>Now we&rsquo;re going to handle the data. We start by first decompressing the LZMA archives. We&rsquo;ll also need to put the decompressed data somewhere, and we&rsquo;ll put it at the end of the current file.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">code0_addr = self.raw.end <span style="color:#008000"># Append to end of file</span>
-code0_lzma = self.raw.read(code0_begin, size_code0)
-code0_data = LZMADecompressor().decompress(code0_lzma)
-self.raw.write(code0_addr, code0_data)
-</code></pre></div><p>There&rsquo;s not too much more to creating a loader, of course, a lot of syntax has been left out here, but the general principles are simple. To finish we&rsquo;ll use the <code>add_auto_segment</code> and <code>add_auto_section</code> functions. This step is crucial as we are now allocating memory segments and assigning properties to them such as readability and writability etc.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000"># Add memory segments to binary view for code0</span>
-<span style="color:#008000"># add_auto_segment(start: int, length: int, data_offset: int, data_length: int, flags: SegmentFlag)→ None</span>
-
-self.add_auto_segment(code0_base, len(code0_data), code0_addr, len(code0_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
-self.add_auto_section(<span style="color:#a31515">&#34;.code0&#34;</span>, code0_base, len(code0_data), SectionSemantics.ReadOnlyCodeSectionSemantics)
-
-<span style="color:#008000"># Add memory segments to binary view for code1</span>
-self.add_auto_segment(code1_base, code0_base - code1_base, code1_addr, len(code1_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
-code2s_size = 0x2c5a30
-self.add_auto_section(<span style="color:#a31515">&#34;.code1&#34;</span>, code1_base, code2s_size, SectionSemantics.ReadOnlyCodeSectionSemantics)
-
-
-<span style="color:#008000"># Add data segment to binary view</span>
-self.add_auto_section(<span style="color:#a31515">&#34;.data1&#34;</span>, data1, code0_base - data1, SectionSemantics.ReadWriteDataSectionSemantics)
-self.add_auto_section(<span style="color:#a31515">&#34;.data2&#34;</span>, data2, code0_base - data2, SectionSemantics.ReadWriteDataSectionSemantics)
-
-self.add_auto_segment(ram_base, 0x100000, 0, 0, SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsData|SegmentFlag.SegmentWritable)
-self.add_auto_section(<span style="color:#a31515">&#34;.ram&#34;</span>, ram_base, 0x100000, SectionSemantics.ReadWriteDataSectionSemantics)
-</code></pre></div><p>That&rsquo;s it! We&rsquo;ve now practically created a loader. The last thing we have to do is register it. Name it <code>__init__.py</code> and place it in <code>/plugins</code> folder. Suddenly we can see code, that properly references itself, and the strings!</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Inherits from the BinaryView class</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">class</span> <span style="color:#2b91af">TPLinkRTOS</span>(BinaryView):
+</span></span><span style="display:flex;"><span>    name = <span style="color:#a31515">&#34;TPLinkRTOS&#34;</span>
+</span></span><span style="display:flex;"><span>    long_name = <span style="color:#a31515">&#34;TP Link Router RTOS&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">def</span> __init__(self, data):
+</span></span><span style="display:flex;"><span>        BinaryView.__init__(self, file_metadata=data.file, 
+</span></span><span style="display:flex;"><span>                            parent_view=data) <span style="color:#008000"># Initializes a BinaryView</span>
+</span></span><span style="display:flex;"><span>        self.raw = data <span style="color:#008000"># Get the data, i.e. what&#39;s loaded</span>
+</span></span><span style="display:flex;"><span>        self.br = BinaryReader(data) <span style="color:#008000"># Create BinaryReader</span>
+</span></span></code></pre></div><p>This is the start of the class, and is important for creating our loader. We&rsquo;ll also make a function to clarify the endianness:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">def</span> perform_get_default_endianness(self):
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> Endianness.BigEndian
+</span></span></code></pre></div><p>So far we&rsquo;ve practically just made a glorified file open. We&rsquo;ll need something utilizing all the neat features of the API. We can begin by using some of the Architectures that they&rsquo;ve made. That way it will begin trying to look at the data as mips.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Primary function</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> init(self):
+</span></span><span style="display:flex;"><span>    self.platform = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>].standalone_platform
+</span></span><span style="display:flex;"><span>    self.arch = Architecture[<span style="color:#a31515">&#34;mips32&#34;</span>]
+</span></span></code></pre></div><p>Now we&rsquo;re going to handle the data. We start by first decompressing the LZMA archives. We&rsquo;ll also need to put the decompressed data somewhere, and we&rsquo;ll put it at the end of the current file.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>code0_addr = self.raw.end <span style="color:#008000"># Append to end of file</span>
+</span></span><span style="display:flex;"><span>code0_lzma = self.raw.read(code0_begin, size_code0)
+</span></span><span style="display:flex;"><span>code0_data = LZMADecompressor().decompress(code0_lzma)
+</span></span><span style="display:flex;"><span>self.raw.write(code0_addr, code0_data)
+</span></span></code></pre></div><p>There&rsquo;s not too much more to creating a loader, of course, a lot of syntax has been left out here, but the general principles are simple. To finish we&rsquo;ll use the <code>add_auto_segment</code> and <code>add_auto_section</code> functions. This step is crucial as we are now allocating memory segments and assigning properties to them such as readability and writability etc.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Add memory segments to binary view for code0</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># add_auto_segment(start: int, length: int, data_offset: int, data_length: int, flags: SegmentFlag)→ None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>self.add_auto_segment(code0_base, len(code0_data), code0_addr, len(code0_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
+</span></span><span style="display:flex;"><span>self.add_auto_section(<span style="color:#a31515">&#34;.code0&#34;</span>, code0_base, len(code0_data), SectionSemantics.ReadOnlyCodeSectionSemantics)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Add memory segments to binary view for code1</span>
+</span></span><span style="display:flex;"><span>self.add_auto_segment(code1_base, code0_base - code1_base, code1_addr, len(code1_data), SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsCode|SegmentFlag.SegmentExecutable)
+</span></span><span style="display:flex;"><span>code2s_size = 0x2c5a30
+</span></span><span style="display:flex;"><span>self.add_auto_section(<span style="color:#a31515">&#34;.code1&#34;</span>, code1_base, code2s_size, SectionSemantics.ReadOnlyCodeSectionSemantics)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Add data segment to binary view</span>
+</span></span><span style="display:flex;"><span>self.add_auto_section(<span style="color:#a31515">&#34;.data1&#34;</span>, data1, code0_base - data1, SectionSemantics.ReadWriteDataSectionSemantics)
+</span></span><span style="display:flex;"><span>self.add_auto_section(<span style="color:#a31515">&#34;.data2&#34;</span>, data2, code0_base - data2, SectionSemantics.ReadWriteDataSectionSemantics)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>self.add_auto_segment(ram_base, 0x100000, 0, 0, SegmentFlag.SegmentReadable|SegmentFlag.SegmentContainsData|SegmentFlag.SegmentWritable)
+</span></span><span style="display:flex;"><span>self.add_auto_section(<span style="color:#a31515">&#34;.ram&#34;</span>, ram_base, 0x100000, SectionSemantics.ReadWriteDataSectionSemantics)
+</span></span></code></pre></div><p>That&rsquo;s it! We&rsquo;ve now practically created a loader. The last thing we have to do is register it. Name it <code>__init__.py</code> and place it in <code>/plugins</code> folder. Suddenly we can see code, that properly references itself, and the strings!</p>
 <h1 id="before-and-after-the-loader">Before and after the loader</h1>
 <p>Before the loader, the binary firmware file, doesn&rsquo;t give any decompilation or disassembly. It&rsquo;s simply not able to parse the proprietary file format.
 <img src="/pictures/loader_pre_black.png" alt="loader"></p>

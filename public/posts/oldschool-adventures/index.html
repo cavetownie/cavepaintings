@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -136,7 +136,7 @@ We found this Rhiza&amp;rsquo;s Government Server, and we need to access it! It 
 <pre tabindex="0"><code>$ sudo docker-compose up
 $ nc localhost 1337
 </code></pre><p>When netcatting into the localhost, one&rsquo;ll see a line like the following:</p>
-<pre tabindex="0"><code>Send the solution for &quot;hashcash -mb 25 gupwkotuhi&quot;:
+<pre tabindex="0"><code>Send the solution for &#34;hashcash -mb 25 gupwkotuhi&#34;:
 </code></pre><p>The correct solution for that would be:</p>
 <pre tabindex="0"><code>hashcash token: 1:25:210601:gupwkotuhi::yX58UMHvX6PCwSdU:0000001VRsL
 </code></pre><p>Where only the data after &ldquo;hashcash token: &quot; should be sent.</p>
@@ -149,9 +149,9 @@ $ nc localhost 1337
 <p>A teammate found the following twitter post:
 <a href="https://twitter.com/AppleIIBot/status/1319004260139294721">https://twitter.com/AppleIIBot/status/1319004260139294721</a></p>
 <p>Where a QR-code for a rickroll is being generated with Applesoft BASIC, now the length is:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3">&gt;&gt; len(<span style="color:#a31515">&#34;&#34;&#34;1REM________!L%P__??M]]__7T&gt;1___%U6T__?17%]__W74?___!4%P____7____&#39;$JJ___5?=W___&#34;)(^__7_Q1___7(1^____E#]__&#39;0PF___]]XU__?11R\__74WY___%UP___??=+___&#39;0!M_______________2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&#34; &#34;;4NEXT I,Y:GETA&#34;&#34;&#34;</span>)
-275
-</code></pre></div><p>Which is just short of the desired length. Running this in the calormen jsbasic website renders following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python3" data-lang="python3"><span style="display:flex;"><span>&gt;&gt; len(<span style="color:#a31515">&#34;&#34;&#34;1REM________!L%P__??M]]__7T&gt;1___%U6T__?17%]__W74?___!4%P____7____&#39;$JJ___5?=W___&#34;)(^__7_Q1___7(1^____E#]__&#39;0PF___]]XU__?11R\__74WY___%UP___??=+___&#39;0!M_______________2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&#34; &#34;;4NEXT I,Y:GETA&#34;&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>275
+</span></span></code></pre></div><p>Which is just short of the desired length. Running this in the calormen jsbasic website renders following:</p>
 <pre tabindex="0"><code>Unsupported PEEK location: 2054 in line 2
 </code></pre><p>However, we know this is supported Applesoft BASIC, as it renders correctly on the post. Problem is, that the calormen site, doesn&rsquo;t have access to memory, which is what peek does.</p>
 <p>We then found the following site, which uses uploaded local files:
@@ -175,8 +175,8 @@ $ nc localhost 1337
 <p>Now we can use the source code from before, and we&rsquo;ll see a qr-code that when scanned rickrolls us.</p>
 <p>Great, so far so good. Now we can begin reversing how the string works.</p>
 <p>So let&rsquo;s look at it:</p>
-<pre tabindex="0"><code>1REM________!L%P__??M]]__7T&gt;1___%U6T__?17%]__W74?___!4%P____7____'$JJ___5?=W___&quot;)(^__7_Q1___7(1^____E#]__'0PF___]]XU__?11R\__74WY___%UP___??=+___'0!M_______________
-2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&quot; &quot;;
+<pre tabindex="0"><code>1REM________!L%P__??M]]__7T&gt;1___%U6T__?17%]__W74?___!4%P____7____&#39;$JJ___5?=W___&#34;)(^__7_Q1___7(1^____E#]__&#39;0PF___]]XU__?11R\__74WY___%UP___??=+___&#39;0!M_______________
+2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&#34; &#34;;
 4NEXT I,Y:GETA
 </code></pre><p>We know from the documentation that &ldquo;REM&rdquo; is comment, but why do we have a comment? A teammate noticed the &ldquo;peek&rdquo; command, seemed to refer to some memory, probably the comment. So it&rsquo;s using the comment as a form of data, but how does this data work? Now through trial and error we figured a few things out, it&rsquo;s using some form of data based on these ascii characters. So let&rsquo;s look at underscore, which is probably pure white, as there&rsquo;s a lot of these, and the picture is mostly white.</p>
 <p>The hex value of &ldquo;_&rdquo; is 0x5f. The byte can be turnt into a lower and upper nibble, which binary data looks like this:</p>
@@ -206,8 +206,8 @@ which has the hex value 0x21, this becomes 0010 0001</p>
 <p>Which should just be one dot.</p>
 <p>An illustration of this could be the following program, which doesn&rsquo;t create a QR-code but just tried to show what &ldquo;!&rdquo; and &ldquo;_&rdquo; really does:</p>
 <p>This is the code compiled and uploaded</p>
-<pre tabindex="0"><code>1REM_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!!L!P_!?!C!]_!74&gt;1___%M4T__?1W%]__WW;?___!4%P____9____'!(W___W6$R__?!0&amp;\__W[@&lt;___/Y_V____)P\__'0T%___]U9V__?1A[^__7T0H___%59U__??-B^__'0]/______?
-2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&quot; &quot;;
+<pre tabindex="0"><code>1REM_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!!L!P_!?!C!]_!74&gt;1___%M4T__?1W%]__WW;?___!4%P____9____&#39;!(W___W6$R__?!0&amp;\__W[@&lt;___/Y_V____)P\__&#39;0T%___]U9V__?1A[^__7T0H___%59U__??-B^__&#39;0]/______?
+2FORY=0TO159:Z=PEEK(2054+Y)-32:FORI=0TO5:Q%=Z/2:POKE50,(Q%*2-Z)*192+255:Z=Q%:IFY+I-164THEN?&#34; &#34;;
 4NEXT I,Y:GETA
 </code></pre><p>This yields the following:</p>
 <p><img src="/pictures/qrcode.png" alt="QRCodePNG"></p>
@@ -216,34 +216,34 @@ which has the hex value 0x21, this becomes 0010 0001</p>
 <pre tabindex="0"><code>1337/1338/1339/1337/1338
 </code></pre><p>So the command we want to encode is &ldquo;cat */*/*/*/*/*/&rdquo;, now we had a solution script for this, but one can also do this manually by counting and hardcoding.</p>
 <h1 id="final-script">Final script</h1>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00f">from</span> PIL <span style="color:#00f">import</span> Image
-
-<span style="color:#00f">def</span> imagetomatrix(image):
-    img = Image.open(image)
-    matrix_out = []
-    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(39):
-        matrix_out.append(1)
-    <span style="color:#00f">for</span> y <span style="color:#00f">in</span> range(img.size[1]):
-        <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(10):
-            matrix_out.append(1)
-        <span style="color:#00f">for</span> x <span style="color:#00f">in</span> range(img.size[0]):
-            matrix_out.append(1 <span style="color:#00f">if</span> img.getpixel((x,y)) <span style="color:#00f">in</span> [1,255] <span style="color:#00f">else</span> 0)
-        <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(9):
-            matrix_out.append(1)
-    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(32):
-        matrix_out.append(1)
-
-    <span style="color:#00f">return</span> matrix_out
-
-
-<span style="color:#00f">if</span> __name__ == <span style="color:#a31515">&#39;__main__&#39;</span>:
-    <span style="color:#008000">#cat */*/*/*/*/*</span>
-    m = imagetomatrix(<span style="color:#a31515">&#34;miniqr.png&#34;</span>)
-    ascii = <span style="color:#a31515">&#39;&#39;</span>
-    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(0, len(m), 6):
-        ascii += chr(int(<span style="color:#a31515">&#34;&#34;</span>.join([str(x) <span style="color:#00f">for</span> x <span style="color:#00f">in</span> m[i: i+6]])[::-1], 2) + 32)
-    print(ascii)
-</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">from</span> PIL <span style="color:#00f">import</span> Image
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> imagetomatrix(image):
+</span></span><span style="display:flex;"><span>    img = Image.open(image)
+</span></span><span style="display:flex;"><span>    matrix_out = []
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(39):
+</span></span><span style="display:flex;"><span>        matrix_out.append(1)
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> y <span style="color:#00f">in</span> range(img.size[1]):
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(10):
+</span></span><span style="display:flex;"><span>            matrix_out.append(1)
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span> x <span style="color:#00f">in</span> range(img.size[0]):
+</span></span><span style="display:flex;"><span>            matrix_out.append(1 <span style="color:#00f">if</span> img.getpixel((x,y)) <span style="color:#00f">in</span> [1,255] <span style="color:#00f">else</span> 0)
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(9):
+</span></span><span style="display:flex;"><span>            matrix_out.append(1)
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(32):
+</span></span><span style="display:flex;"><span>        matrix_out.append(1)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">return</span> matrix_out
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">if</span> __name__ == <span style="color:#a31515">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#008000">#cat */*/*/*/*/*</span>
+</span></span><span style="display:flex;"><span>    m = imagetomatrix(<span style="color:#a31515">&#34;miniqr.png&#34;</span>)
+</span></span><span style="display:flex;"><span>    ascii = <span style="color:#a31515">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(0, len(m), 6):
+</span></span><span style="display:flex;"><span>        ascii += chr(int(<span style="color:#a31515">&#34;&#34;</span>.join([str(x) <span style="color:#00f">for</span> x <span style="color:#00f">in</span> m[i: i+6]])[::-1], 2) + 32)
+</span></span><span style="display:flex;"><span>    print(ascii)
+</span></span></code></pre></div>
         </div>
 
         <div class="row middle-xs">

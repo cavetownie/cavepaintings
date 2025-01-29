@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Hugo 0.115.4">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="cavefxa" />
+  <meta property="og:url" content="https://cavefxa.com/posts/babys-first-keygen/" />
+  <link rel="canonical" href="https://cavefxa.com/posts/babys-first-keygen/" /><link rel="alternate" type="application/atom+xml" href="https://cavefxa.comindex.xml" title="cavefxa">
+
+  <script type="application/ld+json">
+  {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+           "@type": "WebPage",
+           "@id": "https:\/\/cavefxa.com"
+      },
+      "articleSection" : "posts",
+      "name" : "Reverse engineering the license generation of an old RPG game",
+      "headline" : "Reverse engineering the license generation of an old RPG game",
+      "description" : "Table of Contents Preface The problem Initial reversing Reversing the license checker Level 1 Level 2 Level 3 Level 4 Item achieved: Hook of joy Conclusion Preface During my exam period this semester, I did everything I could to avoid preparing. Included trying to find 0-days in a router, sleeping late, and watching YouTube. I recently discovered a channel, that has content, I really enjoy, super concise, straight to the point, and educational.",
+      "inLanguage" : "en-US",
+      "author" : "cavefxa",
+      "creator" : "cavefxa",
+      "publisher": "cavefxa",
+      "accountablePerson" : "cavefxa",
+      "copyrightHolder" : "cavefxa",
+      "copyrightYear" : "2025",
+      "datePublished": "2025-01-28 15:06:00 \u002b0200 \u002b0200",
+      "dateModified" : "2025-01-28 15:06:00 \u002b0200 \u002b0200",
+      "url" : "https:\/\/cavefxa.com\/posts\/babys-first-keygen\/",
+      "keywords" : [  ]
+  }
+</script>
+<title>Reverse engineering the license generation of an old RPG game</title>
+  <meta property="og:title" content="Reverse engineering the license generation of an old RPG game" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="Table of Contents Preface The problem Initial reversing Reversing the license checker Level 1 Level 2 Level 3 Level 4 Item achieved: Hook of joy Conclusion Preface During my exam period this semester, I did everything I could to avoid preparing. Included trying to find 0-days in a router, sleeping late, and watching YouTube. I recently discovered a channel, that has content, I really enjoy, super concise, straight to the point, and educational." />
+  <meta name="description" content="Table of Contents Preface The problem Initial reversing Reversing the license checker Level 1 Level 2 Level 3 Level 4 Item achieved: Hook of joy Conclusion Preface During my exam period this semester, I did everything I could to avoid preparing. Included trying to find 0-days in a router, sleeping late, and watching YouTube. I recently discovered a channel, that has content, I really enjoy, super concise, straight to the point, and educational." />
+  <meta property="og:locale" content="en-us" /><meta property="og:image" content="" />
+  
+
+  
+    <style>body{font-family:bree serif,sans-serif;-webkit-font-smoothing:antialiased;margin:0 20px}article{max-width:900px;margin-left:auto;margin-right:auto}a{color:#000;text-decoration:none}a:hover{font-weight:600;text-decoration:underline}.post-ads{margin:50px 0}.markdown-body{font-size:18px;max-width:100%}.markdown-body a{text-decoration:underline;text-decoration-color:#000}.markdown-body blockquote{margin:0;padding:0 1em;color:#57606a;border-left:.25em solid #d0d7de}.markdown-body pre{padding:16px;overflow:auto;border-radius:10px}pre{.l { color: #000000 !important; }}.markdown-body code{padding:.2em .4em;font-size:85%;color:#43494d;border-radius:6px}.highlight pre{background-color:#fff!important}.markdown-body pre>code{padding:0;font-size:100%;color:#171b1f;background-color:inherit;border:0}.Chinese .markdown-body{line-height:200%}.site-date-catalog{font-size:2rem}.header-title{font-size:2rem;font-weight:700;margin-top:32px;font-family:bungee shade,sans-serif}.header-title a{text-decoration:none}.header-subtitle{color:#666}.header-items{margin:10px 0}.header-item{margin:0 5px}.header-line{width:100%;border-width:2px;border-color:#482936;border-style:solid none none none}.lang-switch{font-weight:600}#posts-list{min-height:600px}.posts-line{font-size:1.2rem;margin:12px 0}.posts-categories{font-size:.8rem;margin:auto;text-align:center}.posts-category{padding:3px 0;border:#000 2px solid;border-radius:5px}.site-footer{margin-top:50px}.site-footer-item{margin-right:12px}.post-content img{max-width:100%;display:block;margin-right:auto;margin-top:12px}.post-header{margin-bottom:50px}.post-title{font-size:2rem;font-weight:600}.post-tags{display:inline;font-weight:600;padding:2px 5px;margin-right:6px;border:#000 2px solid;border-radius:5px}.post-date{font-weight:800;font-style:italic}.post-author{float:right;font-weight:600}.page-content{min-height:60%}.post-content{margin-bottom:50px}.post-content p{hyphens:auto;line-height:1.8;text-justify:ideographic;margin-bottom:1em}.related-content{border-width:3px;border-style:solid;border-color:#000;padding:0 10px;margin-bottom:50px;margin-top:100px}.related-content li{margin:5px 0}.taxonomy-term{font-size:3rem}.gallery-img{text-align:center}.gallery-img span{text-align:center}.gallery-img-desc{font-size:.8em;font-weight:800}#disqus_thread{position:relative}#disqus_thread:after{content:"";display:block;height:55px;width:100%;position:absolute;bottom:0;background:#fff}@media screen and (max-width:600px){.header-title,.header-subtitle,.header-items{text-align:center}.posts-line{font-size:16px}.markdown-body{font-size:16px}.post-title{font-size:2rem}.post-content p{letter-spacing:.05em}}@media screen and (max-width:48em){.posts-category{display:none}}</style>
+  
+  
+    <style>.container,.container-fluid{margin-right:auto;margin-left:auto}.container-fluid{padding-right:2rem;padding-left:2rem}.row{box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-flex:0;-ms-flex:0 1 auto;flex:initial;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;margin-right:-.5rem;margin-left:-.5rem}.row.reverse{-webkit-box-orient:horizontal;-webkit-box-direction:reverse;-ms-flex-direction:row-reverse;flex-direction:row-reverse}.col.reverse{-webkit-box-orient:vertical;-webkit-box-direction:reverse;-ms-flex-direction:column-reverse;flex-direction:column-reverse}.col-xs,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-offset-0,.col-xs-offset-1,.col-xs-offset-10,.col-xs-offset-11,.col-xs-offset-12,.col-xs-offset-2,.col-xs-offset-3,.col-xs-offset-4,.col-xs-offset-5,.col-xs-offset-6,.col-xs-offset-7,.col-xs-offset-8,.col-xs-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-xs{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-xs-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-xs-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-xs-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-xs-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-xs-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-xs-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-xs-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-xs-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-xs-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-xs-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-xs-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-xs-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-xs-offset-0{margin-left:0}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-11{margin-left:91.66666667%}.start-xs{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-xs{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-xs{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-xs{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-xs{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-xs{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-xs{-ms-flex-pack:distribute;justify-content:space-around}.between-xs{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-xs{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-xs{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}@media only screen and (min-width:48em){.container{width:49rem}.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-offset-0,.col-sm-offset-1,.col-sm-offset-10,.col-sm-offset-11,.col-sm-offset-12,.col-sm-offset-2,.col-sm-offset-3,.col-sm-offset-4,.col-sm-offset-5,.col-sm-offset-6,.col-sm-offset-7,.col-sm-offset-8,.col-sm-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-sm{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-sm-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-sm-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-sm-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-sm-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-sm-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-sm-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-sm-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-sm-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-sm-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-sm-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-sm-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-sm-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-sm-offset-0{margin-left:0}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-11{margin-left:91.66666667%}.start-sm{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-sm{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-sm{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-sm{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-sm{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-sm{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-sm{-ms-flex-pack:distribute;justify-content:space-around}.between-sm{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-sm{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-sm{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:64em){.container{width:65rem}.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-offset-0,.col-md-offset-1,.col-md-offset-10,.col-md-offset-11,.col-md-offset-12,.col-md-offset-2,.col-md-offset-3,.col-md-offset-4,.col-md-offset-5,.col-md-offset-6,.col-md-offset-7,.col-md-offset-8,.col-md-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-md{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-md-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-md-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-md-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-md-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-md-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-md-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-md-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-md-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-md-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-md-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-md-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-md-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-md-offset-0{margin-left:0}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-3{margin-left:25%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-6{margin-left:50%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-9{margin-left:75%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-11{margin-left:91.66666667%}.start-md{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-md{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-md{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-md{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-md{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-md{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-md{-ms-flex-pack:distribute;justify-content:space-around}.between-md{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-md{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-md{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}@media only screen and (min-width:75em){.container{width:76rem}.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-offset-0,.col-lg-offset-1,.col-lg-offset-10,.col-lg-offset-11,.col-lg-offset-12,.col-lg-offset-2,.col-lg-offset-3,.col-lg-offset-4,.col-lg-offset-5,.col-lg-offset-6,.col-lg-offset-7,.col-lg-offset-8,.col-lg-offset-9{box-sizing:border-box;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:none;padding-right:.5rem;padding-left:.5rem}.col-lg{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;-ms-flex-preferred-size:0;flex-basis:0;max-width:100%}.col-lg-1{-ms-flex-preferred-size:8.33333333%;flex-basis:8.33333333%;max-width:8.33333333%}.col-lg-2{-ms-flex-preferred-size:16.66666667%;flex-basis:16.66666667%;max-width:16.66666667%}.col-lg-3{-ms-flex-preferred-size:25%;flex-basis:25%;max-width:25%}.col-lg-4{-ms-flex-preferred-size:33.33333333%;flex-basis:33.33333333%;max-width:33.33333333%}.col-lg-5{-ms-flex-preferred-size:41.66666667%;flex-basis:41.66666667%;max-width:41.66666667%}.col-lg-6{-ms-flex-preferred-size:50%;flex-basis:50%;max-width:50%}.col-lg-7{-ms-flex-preferred-size:58.33333333%;flex-basis:58.33333333%;max-width:58.33333333%}.col-lg-8{-ms-flex-preferred-size:66.66666667%;flex-basis:66.66666667%;max-width:66.66666667%}.col-lg-9{-ms-flex-preferred-size:75%;flex-basis:75%;max-width:75%}.col-lg-10{-ms-flex-preferred-size:83.33333333%;flex-basis:83.33333333%;max-width:83.33333333%}.col-lg-11{-ms-flex-preferred-size:91.66666667%;flex-basis:91.66666667%;max-width:91.66666667%}.col-lg-12{-ms-flex-preferred-size:100%;flex-basis:100%;max-width:100%}.col-lg-offset-0{margin-left:0}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-11{margin-left:91.66666667%}.start-lg{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;text-align:start}.center-lg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;text-align:center}.end-lg{-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;text-align:end}.top-lg{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}.middle-lg{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.bottom-lg{-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end}.around-lg{-ms-flex-pack:distribute;justify-content:space-around}.between-lg{-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.first-lg{-webkit-box-ordinal-group:0;-ms-flex-order:-1;order:-1}.last-lg{-webkit-box-ordinal-group:2;-ms-flex-order:1;order:1}}</style>
+  
+
+  
+
+  <link href="/index.xml" rel="alternate" type="application/rss+xml"
+    title="cavefxa">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Bungee+Shade" rel="stylesheet">
+  
+  
+
+  
+  
+</head>
+
+
+<body>
+  <article class="post " id="article">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="site-header">
+          
+<header>
+  <div class="header-title">
+    <a href="/"
+      >cavefxa</a
+    >
+  </div>
+  <div class="header-subtitle"></div>
+</header>
+<div class="row end-md center-xs header-items">
+  
+  <div class="header-item">
+    <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+  
+</div>
+<div class="row end-xs">
+   
+</div>
+<div class="header-line"></div>
+
+        </div>
+        <header class="post-header">
+          <h1 class="post-title">Reverse engineering the license generation of an old RPG game</h1>
+          
+          <div class="row post-desc">
+            <div class="col-xs-6">
+              
+              <time class="post-date" datetime="2025-01-28 15:06:00 &#43;0200">
+                28 Jan 2025
+              </time>
+              
+            </div>
+            <div class="col-xs-6">
+              
+              <div class="post-author">
+                <a target="_blank" href="https://cavefxa.com/">@cavefxa</a>
+              </div>
+              
+            </div>
+          </div>
+          
+        </header>
+
+        <div class="post-content markdown-body">
+          
+          <h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#The-problem">The problem</a></li>
+<li><a href="#Reversing">Initial reversing</a></li>
+<li><a href="#Reversing-the-license-checker">Reversing the license checker</a>
+<ul>
+<li><a href="#Level-1">Level 1</a></li>
+<li><a href="#Level-2">Level 2</a></li>
+<li><a href="#Level-3">Level 3</a></li>
+<li><a href="#Level-4">Level 4</a>
+<ul>
+<li><a href="#Item-achieved-Hook-of-joy">Item achieved: Hook of joy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Conclusion">Conclusion</a></li>
+</ul>
+<h1 id="preface">Preface</h1>
+<p>During my exam period this semester, I did everything I could to avoid preparing. Included trying to find 0-days in a router, sleeping late, and watching YouTube. I recently discovered a channel, that has content, I really enjoy, super concise, straight to the point, and educational. The channel is <a href="https://www.youtube.com/@nathanbaggs">Nathan Baggs</a>. The channel has videos on reverse engineering mainly older games. One sentence stuck with me &ldquo;I spent a lot of time as a kid playing Age of Empires, and now I want to go back and see how it works&rdquo;, I wondered &hellip; what games did I play a lot as a kid? Or perhaps some game I couldn&rsquo;t play? I had bought a game at a garage sale once, that I never got working, because the license key had already been used, that shouldn&rsquo;t stop me I thought!</p>
+<p>I remembered playing the sequel to the game, but one of my favorite content creators at the time said that the game he enjoyed most in his life was this exact game. I was excited to try playing it, but alas license keys weren&rsquo;t sold anymore. I went to all the local stores around me, and couldn&rsquo;t find it. So, many years later, trying to avoid my exam - I wondered, could I get to play this game for the first time?</p>
+<h1 id="the-problem">The problem</h1>
+<p>The game had less than three percent of the original code of it&rsquo;s prequel and is written in C++, and normally played on Windows - looking around I was even able to find a full decompilation on GitHub of the prequel game. Now let&rsquo;s go ahead and install the game!
+<img src="/pictures/cd-key-please.png" alt="Initial Screen">
+Ah, no - we&rsquo;re prompted for a name, and a CD-Key, in the format of <code>XXXXXX-YYYY-ZZZZZZ-XXXX-YYYYYY</code>, I.e. 6-4-6-4-6. As we recall, this game isn&rsquo;t sold anymore, so how would we acquire a license key? We could scour eBay, or we could figure out how the licensing check works, and generate our own license keys?</p>
+<h1 id="reversing">Reversing</h1>
+<p>I created a Windows 7 VM, installed x32dbg, and cracked open the <code>Installer.exe</code> in Ida on my main system.</p>
+<p>We know from running the game that there are a few things present upon start-up. A <code>EULA</code>, input fields asking for <code>Name:</code>, and <code>CD-Key:</code>, all present in windows. This was my first real Windows RE project, so I had to read a little bit of the Windows API documentation. I ended up with the function <code>GetDlgItemText</code>, which is a WIN32 function in <code>winuser.h</code>, that &ldquo;Retrieves the title or text associated with a control in a dialog box.&rdquo;.  Quite quickly I found something interesting:</p>
+<p><img src="/pictures/20250118130630.png" alt="Pasted image 20250118130630.png"></p>
+<p>Analysing the <code>validate</code>, it seemed to find our hyphens in the CD-key, and create a license-key string without hiphens. I spent quite some time here initially, running with the debugger I could see that it was reaching, and performing operations on our license key, however the calling convention looked weird, I found out, that C++ uses the <code>thiscall</code> calling convention for C++ class member functions, which was a setting I could use in x32dbg - nice, I learned something new!</p>
+<p>However, I couldn&rsquo;t find anything that I thought looked suspicious or similar to a license key check. C++ being a nuisance, and lacking symbols I spent quite some time trying to figure out standard string functions and what they were doing. I finally came to the conclusion, that I was probably wasting time looking in this function, and that it must be doing operations on the license key somewhere else. Failing to utilize the hardware breakpoints in x32dbg to check for reads on the license key, I went back to Ida. This function I called the <code>dialogue_procedure</code>. It was used only once, as a <code>proc</code> function to the WIN32 api function <code>DialogBoxParamW</code>:</p>
+<p><img src="/pictures/20250118132118.png" alt="Pasted image 20250118132118.png"></p>
+<p>One specific function after this <code>DialogBoxParamW</code> was interesting, the <code>proc_function</code> (renamed later). Breaking on it, while dynamically analyzing, we see that indeed our username, and license key is passed to it. We end in a function that seems to confirm that we&rsquo;ve found something interesting, just going of the strings:
+![[Pasted image 20250118132336.png]]</p>
+<p>Going even further:
+![[Pasted image 20250118132409.png]]</p>
+<p>Wow, that looks like it could be some sort of license checker. Looking in the outer function, there&rsquo;s a label that seems to return gracefully without any errors, that&rsquo;s probably when the license key is right. Using dynamic analysis, tracing the execution and breaking on the final <code>test al, al</code> instruction, we change <code>al</code> so that we&rsquo;ll go to this label, to confirm our suspicions&hellip;</p>
+<p>![[Pasted image 20250118132618.png]]</p>
+<p>Neat! We try installing the game, and everything seems to work. Now I can finally play the game. However, that type of procrastination would not be good, let&rsquo;s instead continue reversing! I wanted to create a license key generator, and properly understand the check implemented.</p>
+<h1 id="reversing-the-license-checker">Reversing the license checker</h1>
+<p>The goal with this part is trying to understand how it roughly works, but mainly to reimplement it in Python, to generate our own keys. It would definitely be possible to instrument it all through Frida, but I wanted to do it this way.</p>
+<h2 id="level-1">Level 1</h2>
+<p>We go to the license check function that created the return value in al that we patched before. Initially it checks if the key exists, and then it calls four different functions, I refer to these respectively, in order, as level 1 through 4 - this is the real game. The outer function calls level 1 with our key, and an empty <code>__int8</code> array with 52 elements. We recall that our original key has 26 characters and <code>52 == 26 * 2</code>.
+![[Pasted image 20250128123903.png]]
+Let&rsquo;s dive into the function.
+![[Pasted image 20250128124141.png]]
+This looks pretty straight forward after some initial cleanup. The loop iterates from 0 to 0x1a, I.e. 26 times. Each iteration it calculates an offset into a lookup table based on the current character in the license key, it then generates a result and remainder and updates the output integer array. Let&rsquo;s write level 1:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#008000"># Lookup table omitted</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    output = [0 <span style="color:#00f">for</span> _ <span style="color:#00f">in</span> range(52)]
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    remainder_offset = 33
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">for</span> i <span style="color:#00f">in</span> range(0, 0x1A):
+</span></span><span style="display:flex;"><span>        result_offset = (remainder_offset + 1973) % 0x34
+</span></span><span style="display:flex;"><span>        remainder_offset = (result_offset + 1973) % 0x34
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        key_i = ord(example_key_no_hiphens[i])
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        result = lookup[key_i] // 5
+</span></span><span style="display:flex;"><span>        remainder = lookup[key_i] % 5
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        output[result_offset] = result
+</span></span><span style="display:flex;"><span>        output[remainder_offset] = remainder
+</span></span></code></pre></div><p>Checking with our debugger we can convince ourselves that we do get an array out that matches our Python code, neat. It looks roughly like this (dependent on the key of course), here we&rsquo;ve used all A&rsquo;s:</p>
+<pre tabindex="0"><code>[51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0, 51, 0]
+</code></pre><h2 id="level-2">Level 2</h2>
+<p>Next we&rsquo;re dealing with the <code>modify_list</code>, it&rsquo;s called as seen in the image before, with arguments: <code>modify_list(4, 5u, &amp;some_int_ptr, &amp;some_int_ptr, output_ints[--idx])</code>, while <code>idx &gt; 0</code>. Effectively iterating backwards through our integer array of 52 entries from before, let&rsquo;s look at the code.
+![[Pasted image 20250128125201.png]]
+This function iterates and changes the value at <code>addr</code> exactly four times, however it also modifies addr. <code>addr</code> is an array of unsigned integers, and thus decrementing it moves the index position into <code>addr</code>, one down. Essentially this code creates an unsigned integer array with 4 elements. The value at each is dependent on <code>current + five * (*acc)</code>, seems fairly simple we&rsquo;ll create some python code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    idx = 52
+</span></span><span style="display:flex;"><span>    acc = [0 <span style="color:#00f">for</span> _ <span style="color:#00f">in</span> range(4)]
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">while</span> idx &gt; 0:
+</span></span><span style="display:flex;"><span>        k = 3 
+</span></span><span style="display:flex;"><span>        v = 4
+</span></span><span style="display:flex;"><span>        idx -= 1
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        curr = output[idx]
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">while</span> v:
+</span></span><span style="display:flex;"><span>            value = curr + 5 * acc[k]
+</span></span><span style="display:flex;"><span>            acc[k] = value &amp; 0xffffffff
+</span></span><span style="display:flex;"><span>            curr = value // (2**32) 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>            k -= 1
+</span></span><span style="display:flex;"><span>            v -= 1
+</span></span></code></pre></div><p>And output matches with debugger: <code>[0x38cbd70, 0xbbda971d, 0x3e89da05, 0x63fae0ac]</code>.</p>
+<h2 id="level-3">Level 3</h2>
+<p>Wow, almost done - we&rsquo;re 50% there.
+![[Pasted image 20250128130914.png]]
+This function is a bit bigger. It now utilizes a new lookup table, XOR, bitshifts, and a bunch more. Honestly I didn&rsquo;t spent too much time on it, it was fairly straightforward to just convert this to Python, and I was on to the next level. Overall this function takes the previous 4 uint array, and modifies it based on bit operations with the lookup table and some local variables that change each iteration. Neat, but looks scarier than it is.</p>
+<h2 id="level-4">Level 4</h2>
+<p>This was the final boss, the one that almost made me quit. I started of with cleaning it up in Ida, while looking a bit scary, most of this is the same done over and over for new variables, so we can probably re-implement it with a single loop.
+![[Pasted image 20250128131205.png]]
+The indexation based on <code>generated_list[3]</code> I.e. the last_element, was weird. Implementing the code in Python as Level 3, should be simple. However I don&rsquo;t get the same output. This was my initial understanding of the code:</p>
+<ol>
+<li>Get the first value (px_1) and 0x1F</li>
+<li>Get the second value (px_2) based on last_element, which is based on the address of generated_list&rsquo;s last element, so if that list changes so should htis last_element change over iterations</li>
+<li>Get the third value (px_3) based on the initial result bitshifted and then anded with 0x1F</li>
+<li>Get the fourth value (px_4) based on the initial result + 11</li>
+<li>Update generated list based on a long sequence on operations</li>
+<li>If we overflow, correct and subtract</li>
+<li>Repeat for next parts</li>
+</ol>
+<p>We can generate the following code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#00f">def</span> process_step(acc, first, some_value, offset):
+</span></span><span style="display:flex;"><span>        p1 = and32(first, 0x1f)
+</span></span><span style="display:flex;"><span>        p2 = acc[3 - rshift32(first, 5)]
+</span></span><span style="display:flex;"><span>        p3 = lshift32(1, p1)
+</span></span><span style="display:flex;"><span>        p4 = and32(first + 11, 0xffffffff)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        idx = 3 - rshift32(some_value + offset, 5)
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">assert</span> idx &gt;= 0 <span style="color:#00f">and</span> idx &lt; 4 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        bit_pos = and32(some_value + offset, 0x1f)
+</span></span><span style="display:flex;"><span>        extracted = rshift32(and32(p3, p2), p1)
+</span></span><span style="display:flex;"><span>        bit = and32(extracted, 1)
+</span></span><span style="display:flex;"><span>        set_mask = lshift32(bit, bit_pos)
+</span></span><span style="display:flex;"><span>        clear_mask = not32(lshift32(1, bit_pos))
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        acc[idx] = or32(and32(acc[idx], clear_mask), set_mask)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">if</span> p4 &gt;= 0x78:
+</span></span><span style="display:flex;"><span>            p4 = ctypes.c_int32(p4).value
+</span></span><span style="display:flex;"><span>            p4 = and32(p4 - 120 + (0xb <span style="color:#00f">if</span> p4 - 120 &lt; 0 <span style="color:#00f">else</span> 0), 0xffffffff)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">return</span> p4
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#00f">def</span> part2_loop(acc):
+</span></span><span style="display:flex;"><span>        result = 0
+</span></span><span style="display:flex;"><span>        some_value = 2
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">while</span> some_value - 2 &lt; 0x78:
+</span></span><span style="display:flex;"><span>            next = process_step(acc, result, some_value, -2)
+</span></span><span style="display:flex;"><span>            next = process_step(acc, next, some_value, -1)
+</span></span><span style="display:flex;"><span>            next = process_step(acc, next, some_value, 0)
+</span></span><span style="display:flex;"><span>            next = process_step(acc, next, some_value, 1)
+</span></span><span style="display:flex;"><span>            next = process_step(acc, next, some_value, 2)
+</span></span><span style="display:flex;"><span>            next = process_step(acc, next, some_value, 3)
+</span></span><span style="display:flex;"><span>            result = next
+</span></span><span style="display:flex;"><span>            some_value += 6
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">return</span> result
+</span></span></code></pre></div><p>All the functions that do bit operations were added because I spent such a long time thinking about potential mistakes, I.e. 32-bit numbers, signedness, etc. that it just made me more sure that something weird was going on. Claude agreed with my implementation and on multiple occasions generated code that returned the same output based on the decompilation. However stepping through with x32dbg revealed that it was not even close. I asked around, did some more masking with <code>0xffffffff</code>, and nothing helped. I began stepping through this function slowly one by one in x32dbg and comparing, however it iterates through this function a bunch of times, and figuring out exactly where it deviates while ensuring I didn&rsquo;t make any mistakes was hard.</p>
+<h3 id="item-achieved-hook-of-joy">Item achieved: Hook of joy</h3>
+<p>After some time I decided to hook the application with Frida, to debug context through different points during execution. The idea was not to bypass the license check with Frida, but instead create a script that would output the values of px_1, px_2, .. px_4. The Frida script looked approximately like this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#008000">/* Omitted for brevity, above contains p1 through p3 */</span>
+</span></span><span style="display:flex;"><span><span style="color:#00f">var</span> p4 = [<span style="color:#a31515">&#34;0x401234&#34;</span>, <span style="color:#a31515">&#34;0x40123c&#34;</span>, <span style="color:#a31515">&#34;0x401243&#34;</span>, <span style="color:#a31515">&#34;0x40124e&#34;</span>];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p4.forEach(element =&gt; {
+</span></span><span style="display:flex;"><span>    Interceptor.attach(ptr(element), {
+</span></span><span style="display:flex;"><span>        onEnter: <span style="color:#00f">function</span>(args) {
+</span></span><span style="display:flex;"><span>            <span style="color:#00f">if</span> (<span style="color:#00f">this</span>.context.eip == parseInt(p4[0])) {
+</span></span><span style="display:flex;"><span>                console.log(<span style="color:#a31515">&#34;p4_1 ecx&#34;</span>, <span style="color:#00f">this</span>.context.ecx);
+</span></span><span style="display:flex;"><span>            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (<span style="color:#00f">this</span>.context.eip == parseInt(p4[1])) {
+</span></span><span style="display:flex;"><span>                console.log(<span style="color:#a31515">&#34;p4_2 ebx&#34;</span>, <span style="color:#00f">this</span>.context.ebx);
+</span></span><span style="display:flex;"><span>            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (<span style="color:#00f">this</span>.context.eip == parseInt(p4[2])) {
+</span></span><span style="display:flex;"><span>                console.log(<span style="color:#a31515">&#34;p4_3 edi&#34;</span>, <span style="color:#00f">this</span>.context.edi);
+</span></span><span style="display:flex;"><span>            } <span style="color:#00f">else</span> <span style="color:#00f">if</span> (<span style="color:#00f">this</span>.context.eip == parseInt(p4[3])) {
+</span></span><span style="display:flex;"><span>                console.log(<span style="color:#a31515">&#34;p4_4 eax&#34;</span>, <span style="color:#00f">this</span>.context.eax);
+</span></span><span style="display:flex;"><span>                console.log(<span style="color:#a31515">&#34;-----------&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Process.enumerateModules({
+</span></span><span style="display:flex;"><span>    onMatch: <span style="color:#00f">function</span>(module) {
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">if</span> (module.name == <span style="color:#a31515">&#39;Installer.exe&#39;</span>) {
+</span></span><span style="display:flex;"><span>            console.log(<span style="color:#a31515">&#39;[+] Found Installer.exe at &#39;</span> + module.base);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    onComplete: <span style="color:#00f">function</span>() {}
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>These addresses were found in Ida, and based on when <code>p4_x</code> were set. I quickly threw this code together so it&rsquo;s not very elegant. I used this to figure out were it diverged initially, which was during the first iteration of the loop specifically: <code>mov ebx, [ebx] ; p2</code>. which was supposed to get the value from <code>p2 = acc[3 - rshift32(first, 5)]</code>. I was stumped, everything else was the same, the precedence seemed to be the same, everything. After a tiny break I noticed that the values read from <code>mov ebx, [ebx]</code>, only changed between four different values. What? The array <code>acc</code> is constantly modified, but there was only four different values in <code>[ebx]</code>. Turns out it only uses the original array, when retrieving in this part of the loop, thus the fix was copying the array and doing: <code>p2 = original[3 - rshift32(first, 5)]</code>.</p>
+<h2 id="exiting-the-dungeon">Exiting the dungeon</h2>
+<p>We finally got output matching the debugger output. However,
+![[Pasted image 20250128140135.png]]
+We still have the final part, this essentially takes the value of our array&rsquo;s first element, bit shifts it to the right by 10, and saves the value. This will later be compared with <code>0x18</code>, so our success criteria for a valid key is that this returns 0x18. We wrap all our code in a <code>while True</code> loop generating random keys, check if it matches for 0x18 and:</p>
+<pre tabindex="0"><code>[*] Valid key found: ABK0CX-331E-5ZFFRS-I2YV-IKAQEY
+[*] Valid key found: ABASCT-VBPO-3XCSB2-689I-7JLQGY
+...
+[*] Valid key found: ABY1O6-O62I-EBTC8F-CXNP-BCXQJG
+</code></pre><p>(These are modified in the blog post such they are not valid keys, as I do not want to share the keys, even though I did not disclose which game it is.)</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>I think I passed my exam, I&rsquo;m writing this blog post after the examination, and I definitely spent too much time doing other things. However, I learnt a lot about Windows reversing, and I&rsquo;m finally confident in using x32dbg on somewhat straightforward PEs, it was also my first time using Frida for a real-life task, and it was a pleasure.</p>
+
+        </div>
+
+        <div class="row middle-xs">
+          <div class="col-xs-12">
+            
+          </div>
+        </div>
+        
+          <div class="row">
+            <div class="col-xs-12">
+              
+            </div>
+          </div>
+
+          
+
+
+
+          
+          
+          <div style="height: 50px;"></div>
+          
+        
+
+        <div class="site-footer">
+  
+  
+</div>
+
+      </div>
+    </div>
+  </article>
+
+  
+
+<script>
+  
+  
+    
+    
+  
+</script>
+
+  
+
+</body>
+
+</html>
