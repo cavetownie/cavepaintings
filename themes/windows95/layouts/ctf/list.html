@@ -1,0 +1,46 @@
+{{ define "main" }}
+    <h1>{{ .Title }}</h1>
+    
+    {{ if .Content }}
+        {{ .Content }}
+    {{ end }}
+    
+    {{ if .Pages }}
+        <div class="article-list">
+            {{ range .Pages }}
+                <div class="article-item">
+                    <div class="article-icon"></div>
+                    <div class="article-info">
+                        <a href="{{ .Permalink }}" class="article-title">{{ .Title }}</a>
+                        <div class="article-date">{{ .Date.Format "January 2, 2006" }}</div>
+                        
+                        <!-- CTF-specific fields -->
+                        <div class="ctf-metadata">
+                            {{ if .Params.difficulty }}
+                                <span class="difficulty difficulty-{{ .Params.difficulty | lower }}">
+                                    Difficulty: {{ .Params.difficulty | title }}
+                                </span>
+                            {{ end }}
+                            {{ if .Params.author }}
+                                <span class="ctf-author">
+                                    Author: {{ .Params.author }}
+                                </span>
+                            {{ end }}
+                            {{ if .Params.category }}
+                                <span class="ctf-category">
+                                    Category: {{ .Params.category }}
+                                </span>
+                            {{ end }}
+                        </div>
+                        
+                        {{ if .Summary }}
+                            <div class="article-summary">{{ .Summary | truncate 150 }}</div>
+                        {{ end }}
+                    </div>
+                </div>
+            {{ end }}
+        </div>
+    {{ else }}
+        <p>No CTF challenges found.</p>
+    {{ end }}
+{{ end }}

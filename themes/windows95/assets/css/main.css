@@ -363,7 +363,55 @@ code {
     line-height: 1.5;
 }
 
-/* Status bar */
+/* CTF-specific styling */
+.ctf-metadata {
+    margin: 6px 0;
+    font-size: 12px;
+}
+
+.ctf-metadata span {
+    display: inline-block;
+    margin-right: 12px;
+    padding: 2px 6px;
+    border: 1px outset #c0c0c0;
+    background: #f0f0f0;
+    font-weight: bold;
+    color: #000;
+}
+
+.difficulty {
+    border: 1px solid #808080;
+}
+
+.difficulty-easy {
+    background: #28a745;
+    color: #fff;
+}
+
+.difficulty-medium {
+    background: #ffc107;
+    color: #000;
+}
+
+.difficulty-hard {
+    background: #dc3545;
+    color: #fff;
+}
+
+.difficulty-expert {
+    background: #6f42c1;
+    color: #fff;
+}
+
+.ctf-author {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.ctf-category {
+    background: #17a2b8;
+    color: #fff;
+}
 .status-bar {
     background: #c0c0c0;
     border-top: 1px solid #808080;
