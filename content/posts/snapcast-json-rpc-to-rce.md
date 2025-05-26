@@ -1,7 +1,7 @@
 ---
 title: 'Snapcast (v0.27.0) - CVE-2023-52261: JSON RPC to RCE!'
 date: 2023-11-27T19:20:00+02:00
-description: "Finding a 0-day in software with over 5k stars on GitHub, and explanation of why the software is cool"
+description: "Finding a 0-day in software with over 5k stars on GitHub, and an explanation of why the software is cool"
 ---
 # Table of Contents
 
