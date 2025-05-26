@@ -1,6 +1,7 @@
 ---
 title: "pwn2win 2021: \"Oldschool Adventures - Apple II\""
 date: 2021-06-01T17:17:45+02:00
+description: "QR code magic in an old Apple II emulator"
 ---
 
 # Oldschool Adventures - Description

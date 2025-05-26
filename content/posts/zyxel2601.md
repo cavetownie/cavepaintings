@@ -1,6 +1,7 @@
 ---
 title: "ZyXEL P-2601HN - Unauthenticated to root!"
 date: 2023-03-26T15:33:45+02:00
+description: "Easy router hacking with a fun auth-bypass"
 ---
 
 # Preface

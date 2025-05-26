@@ -1,6 +1,7 @@
 ---
-title: 'Reverse engineering the license key generation of an old RPG game'
+title: "Reverse engineering the license key generation of an old RPG game"
 date: 2025-01-28T15:06:00+02:00
+description: "This article focuses on reversing an RPG using Ida, and Frida - so that we can finally play it again"
 ---
 
 # Table of Contents

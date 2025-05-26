@@ -1,6 +1,7 @@
 ---
 title: "What's a stack, and how does it overflow?"
 date: 2021-05-23T18:03:05+02:00
+description: "Simple explanation of basic memory corruption vulnerabilities"
 ---
 
 # Stack

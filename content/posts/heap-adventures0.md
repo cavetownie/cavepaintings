@@ -1,6 +1,7 @@
 ---
 title: "Adventures in Heap: Malloc, Free, and Fastbin Dup"
 date: 2021-05-25T18:20:00+02:00
+description: "Explanations of some memory allocation internals in GLIBC"
 ---
 
 Heap is like the wild west of binary exploitation in my opinion, or perhaps more like an alien, no one knows what is happening (atleast I don't). A lot of CTF pwn challenges these days are heap exploitations, even the simpler ones, so let's learn some heap. Let's get started. 
@@ -208,5 +209,5 @@ In pwndbg there's a "pwndbg> find_fake_fast &segment" function which can find th
 
 # Main Arena
 
-Malloc manages a programs heaps with a struct known as malloc_state. These structs are often called arenas. These arenas consist of the fastbins from before, but also smallbins, largebins etc. [Out of scope for now]. The main arena stores a pointer to the head of the fastbin. Furthermore arenas also contain the top chunk and more. :)
+Malloc manages a programs heaps with a struct known as malloc_state. These structs are often called arenas. These arenas consist of the fastbins from before, but also smallbins, largebins etc. [Out of scope for now]. The main arena stores a pointer to the head of the fastbin.
 

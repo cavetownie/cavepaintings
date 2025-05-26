@@ -1,6 +1,7 @@
 ---
 title: "FE-CTF (HackingFromEstonia): Finals and Quals Writeups"
 date: 2022-11-28T21:49:35+01:00
+description: "Writeups for FE-CTF 2022"
 ---
 
 # Qualifiers - Dig1

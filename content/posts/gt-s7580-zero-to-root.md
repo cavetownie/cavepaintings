@@ -1,6 +1,7 @@
 ---
 title: "Samsung GT-S7580 - Zero to Root!"
 date: 2023-05-29T15:33:45+02:00
+description: "Creating a jailbreak from scratch, vulnerability analysis to working POC"
 ---
 
 # Preface

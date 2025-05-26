@@ -1,6 +1,7 @@
 ---
 title: "FE-CTF (HackingFromEstonia): My First Browserpwn"
 date: 2022-12-12T17:17:45+02:00
+description: "Write-up of pwning a modified JavaScriptCore (JSC)"
 ---
 
 ## Introduction
