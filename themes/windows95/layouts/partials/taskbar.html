@@ -1,0 +1,23 @@
+<div class="taskbar">
+    <button class="start-button" onclick="toggleStartMenu()">
+        <div class="start-icon"></div>
+        Start
+    </button>
+    
+    <div class="taskbar-clock" id="taskbar-clock">
+        <script>
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour12: false, 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                document.getElementById('taskbar-clock').textContent = timeString;
+            }
+            
+            setInterval(updateClock, 1000);
+            updateClock();
+        </script>
+    </div>
+</div>

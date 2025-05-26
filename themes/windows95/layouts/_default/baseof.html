@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang | default "en" }}">
+<head>
+    {{ partial "head.html" . }}
+</head>
+<body>
+    <div class="desktop">
+        <div class="main-window window">
+            <div class="window-header">
+                <span>{{ .Site.Title }} - {{ .Title }}</span>
+                <div class="window-controls">
+                    <div class="window-control">_</div>
+                    <div class="window-control">□</div>
+                    <div class="window-control">×</div>
+                </div>
+            </div>
+            
+            {{ partial "header.html" . }}
+            
+            <div class="window-content">
+                {{ block "main" . }}{{ end }}
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-text">Ready</div>
+                <div>{{ now.Format "15:04" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    {{ partial "taskbar.html" . }}
+    {{ partial "footer.html" . }}
+</body>
+</html>

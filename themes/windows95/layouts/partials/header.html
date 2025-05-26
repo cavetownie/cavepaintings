@@ -1,0 +1,8 @@
+<div class="menu-bar">
+    <a href="{{ .Site.BaseURL }}" class="menu-item">File</a>
+    <a href="/about/" class="menu-item">About</a>
+    {{ range .Site.Menus.main }}
+        <a href="{{ .URL }}" class="menu-item">{{ .Name }}</a>
+    {{ end }}
+    <a class="menu-item" style="float: right;" href="/index.xml">RSS</a>
+</div>

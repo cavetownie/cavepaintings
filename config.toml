@@ -1,7 +1,7 @@
 baseURL = "https://cavefxa.com"
 languageCode = "en-us"
 title = "cavefxa"
-theme = "yinyang"
+theme = "windows95"
 DefaultContentLanguage = "en"
 PygmentsCodeFences = true
 PygmentsStyle = "monokai"

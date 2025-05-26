@@ -1,0 +1,446 @@
+/* Windows 95 Hugo Theme CSS */
+
+/* Import Windows 95 font */
+@import url('https://fonts.googleapis.com/css2?family=MS+Sans+Serif:wght@400;700&display=swap');
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 16px;
+    background: #c0c0c0;
+    color: #000;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Windows 95 window chrome */
+.window {
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+    margin: 0;
+    box-shadow: 1px 1px 0px #808080;
+}
+
+.window-header {
+    background: linear-gradient(90deg, #000080 0%, #000040 100%);
+    color: white;
+    padding: 2px 4px;
+    font-weight: bold;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-controls {
+    display: flex;
+    gap: 2px;
+}
+
+.window-control {
+    width: 16px;
+    height: 14px;
+    background: #c0c0c0;
+    border: 1px outset #c0c0c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.window-control:active {
+    border: 1px inset #c0c0c0;
+}
+
+.window-content {
+    padding: 16px;
+    background: white;
+    margin: 2px;
+    overflow-x: auto;
+}
+
+/* Taskbar */
+.taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    background: #c0c0c0;
+    border-top: 1px solid #808080;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    z-index: 1000;
+}
+
+.start-button {
+    height: 24px;
+    background: #c0c0c0;
+    border: 1px outset #c0c0c0;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.start-button:active {
+    border: 1px inset #c0c0c0;
+}
+
+.start-icon {
+    width: 16px;
+    height: 16px;
+    background: url('/images/windows95-logo.png') no-repeat center;
+    background-size: contain;
+}
+
+.taskbar-clock {
+    margin-left: auto;
+    padding: 4px 8px;
+    border: 1px inset #c0c0c0;
+    font-size: 10px;
+    background: #c0c0c0;
+}
+
+/* Main layout */
+.desktop {
+    min-height: 100vh;
+    padding-bottom: 32px;
+    background: #008080;
+    background-image: 
+        radial-gradient(circle at 25% 25%, #40e0d0 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, #20b2aa 0%, transparent 50%);
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.main-window {
+    max-width: 800px;
+    margin: 0 auto;
+    min-height: calc(100vh - 32px);
+    margin-top: 0;
+}
+
+/* Navigation menu */
+.menu-bar {
+    background: #c0c0c0;
+    border-bottom: 1px solid #808080;
+    padding: 2px;
+}
+
+.menu-item {
+    display: inline-block;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.menu-item:hover {
+    background: #000080;
+    color: white;
+}
+
+/* Content styles */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    margin: 16px 0 12px 0;
+}
+
+h1 { font-size: 24px; }
+h2 { font-size: 21px; }
+h3 { font-size: 18px; }
+h4 { font-size: 16px; }
+
+p {
+    margin: 14px 0;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+a {
+    color: #000080;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #800080;
+}
+
+/* Form elements */
+input, textarea, select {
+    border: 1px inset #c0c0c0;
+    padding: 4px 6px;
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 14px;
+    background: white;
+}
+
+button {
+    background: #c0c0c0;
+    border: 1px outset #c0c0c0;
+    padding: 6px 16px;
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:active {
+    border: 1px inset #c0c0c0;
+}
+
+/* List styles */
+ul, ol {
+    margin: 14px 0 14px 28px;
+    font-size: 16px;
+}
+
+li {
+    margin: 6px 0;
+    line-height: 1.6;
+}
+
+/* Image handling */
+img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #808080;
+    margin: 8px 0;
+    display: block;
+}
+
+/* Image container for better presentation */
+.content img {
+    max-width: calc(100% - 16px);
+    margin: 12px auto;
+    border: 2px inset #c0c0c0;
+    padding: 4px;
+    background: white;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Clickable images with Windows 95 style */
+.content a img {
+    cursor: pointer;
+    transition: border 0.1s;
+}
+
+.content a img:hover {
+    border: 2px outset #c0c0c0;
+}
+
+.content a img:active {
+    border: 2px inset #c0c0c0;
+}
+
+/* Figure captions */
+figure {
+    margin: 12px 0;
+    text-align: center;
+}
+
+figcaption {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+}
+/* Code blocks */
+pre, code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    background: #f8f8f8;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+}
+
+pre {
+    padding: 16px;
+    margin: 16px 0;
+    overflow-x: auto;
+    line-height: 1.5;
+    background: #f8f8f8;
+    border: 1px solid #d0d0d0;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+    white-space: pre;
+    word-wrap: normal;
+}
+
+/* Fix for Hugo's syntax highlighting */
+pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: inherit;
+    border-radius: 0;
+    display: block;
+    overflow-x: visible;
+}
+
+/* Ensure proper spacing for code content */
+.highlight pre {
+    margin: 16px 0;
+    padding: 16px;
+}
+
+.highlight {
+    margin: 16px 0;
+    background: #f8f8f8;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+code {
+    padding: 3px 6px;
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+}
+
+/* Article list */
+.article-list {
+    background: white;
+    border: 1px inset #c0c0c0;
+    margin: 8px 0;
+}
+
+.article-item {
+    padding: 8px;
+    border-bottom: 1px solid #c0c0c0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.article-item:last-child {
+    border-bottom: none;
+}
+
+.article-icon {
+    width: 16px;
+    height: 16px;
+    background: url('/images/icons/document.png') no-repeat center;
+    background-size: contain;
+    flex-shrink: 0;
+}
+
+.article-info {
+    flex: 1;
+}
+
+.article-title {
+    font-weight: bold;
+    color: #000080;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.article-title:hover {
+    text-decoration: underline;
+}
+
+.article-date {
+    font-size: 14px;
+    color: #666;
+}
+
+.article-summary {
+    font-size: 15px;
+    margin-top: 6px;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* Status bar */
+.status-bar {
+    background: #c0c0c0;
+    border-top: 1px solid #808080;
+    padding: 2px 8px;
+    font-size: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-text {
+    border: 1px inset #c0c0c0;
+    padding: 1px 4px;
+    background: white;
+    flex: 1;
+    margin-right: 8px;
+}
+
+/* Dialog boxes */
+.dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    z-index: 2000;
+    min-width: 300px;
+}
+
+.dialog-content {
+    padding: 12px;
+    text-align: center;
+}
+
+.dialog-buttons {
+    padding: 8px 12px;
+    text-align: center;
+    border-top: 1px solid #808080;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .main-window {
+        margin: 10px;
+    }
+    
+    .window {
+        margin: 5px;
+    }
+    
+    .taskbar {
+        height: 32px;
+    }
+    
+    .start-button {
+        height: 28px;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: #c0c0c0;
+    border: 1px inset #c0c0c0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border: 1px outset #c0c0c0;
+}
+
+::-webkit-scrollbar-corner {
+    background: #c0c0c0;
+}

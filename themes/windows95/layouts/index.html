@@ -1,0 +1,21 @@
+{{ define "main" }}
+    {{ if .Site.Params.description }}
+        <p>{{ .Site.Params.description }}</p>
+    {{ end }}
+    
+    <h2>All Posts</h2>
+    <div class="article-list">
+        {{ range where .Site.RegularPages "Section" "posts" }}
+            <div class="article-item">
+                <div class="article-icon"></div>
+                <div class="article-info">
+                    <a href="{{ .Permalink }}" class="article-title">{{ .Title }}</a>
+                    <div class="article-date">{{ .Date.Format "January 2, 2006" }}</div>
+                    {{ if .Summary }}
+                        <div class="article-summary">{{ .Summary | truncate 100 }}</div>
+                    {{ end }}
+                </div>
+            </div>
+        {{ end }}
+    </div>
+{{ end }}

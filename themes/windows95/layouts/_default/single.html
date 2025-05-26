@@ -1,0 +1,39 @@
+{{ define "main" }}
+    <article>
+        <h1>{{ .Title }}</h1>
+        
+        <div style="margin: 8px 0; font-size: 10px; color: #666;">
+            {{ .Date.Format "January 2, 2006" }}
+            {{ if .Params.author }} • by {{ .Params.author }}{{ end }}
+            {{ if .ReadingTime }} • {{ .ReadingTime }} min read{{ end }}
+        </div>
+        
+        {{ if .Params.tags }}
+            <div style="margin: 8px 0;">
+                {{ range .Params.tags }}
+                    <span style="background: #c0c0c0; border: 1px outset #c0c0c0; padding: 1px 4px; font-size: 10px; margin-right: 4px;">{{ . }}</span>
+                {{ end }}
+            </div>
+        {{ end }}
+        
+        <div class="content">
+            {{ .Content }}
+        </div>
+        
+        {{ if or .PrevInSection .NextInSection }}
+            <div style="margin-top: 20px; padding-top: 8px; border-top: 1px solid #c0c0c0;">
+                {{ if .PrevInSection }}
+                    <div style="float: left;">
+                        <a href="{{ .PrevInSection.Permalink }}">← {{ .PrevInSection.Title }}</a>
+                    </div>
+                {{ end }}
+                {{ if .NextInSection }}
+                    <div style="float: right;">
+                        <a href="{{ .NextInSection.Permalink }}">{{ .NextInSection.Title }} →</a>
+                    </div>
+                {{ end }}
+                <div style="clear: both;"></div>
+            </div>
+        {{ end }}
+    </article>
+{{ end }}

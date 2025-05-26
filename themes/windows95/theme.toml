@@ -1,0 +1,12 @@
+name = "Windows 95"
+description = "A nostalgic Windows 95-themed Hugo blog theme"
+tags = ["blog", "retro", "windows95", "nostalgic", "minimal"]
+features = ["responsive", "syntax-highlighting", "retro-design"]
+min_version = "0.74.0"
+
+[author]
+  name = "cave"
+  homepage = "https://cavefxa.com"
+
+[original]
+  name = "Windows 95 Theme"
