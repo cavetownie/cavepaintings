@@ -120,8 +120,13 @@ body {
     padding-bottom: 32px;
     background: #008080;
     background-image: 
+        url('/images/cave.png'),
         radial-gradient(circle at 25% 25%, #40e0d0 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, #20b2aa 0%, transparent 50%);
+    background-size: 80px 80px, 100% 100%, 100% 100%;
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-position: 0 0, 0 0, 0 0;
+    background-blend-mode: overlay, normal, normal;
     padding-top: 0;
     margin-top: 0;
 }
