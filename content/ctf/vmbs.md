@@ -65,7 +65,8 @@ print(v)
 
 Running this in the VM gives:
 `TDCNET{1m_d01nG_my_p4rT_M1LInt}`
-\
+
+
 The flag is a reference to the great movie "Starship Troopers", which is hinted at in the description.
 
 ### Source 
